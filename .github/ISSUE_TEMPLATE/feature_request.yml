@@ -1,0 +1,31 @@
+﻿name: " Yêu cầu tính năng"
+description: "Đề xuất tính năng mới"
+title: " [Feature]: "
+labels: ["enhancement","needs-spec"]
+body:
+  - type: textarea
+    id: problem
+    attributes: { label: Vấn đề cần giải, placeholder: "Người dùng gặp gì, vì sao cần?" }
+    validations: { required: true }
+  - type: textarea
+    id: solution
+    attributes: { label: Giải pháp đề xuất, placeholder: "Flow UI/API, acceptance criteria" }
+    validations: { required: true }
+  - type: textarea
+    id: alternative
+    attributes: { label: Phương án khác đã cân nhắc }
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Phạm vi
+      options:
+        - label: Backend
+        - label: Mobile
+        - label: Web
+        - label: DevOps
+  - type: textarea
+    id: risks
+    attributes: { label: Rủi ro/ảnh hưởng }
+  - type: textarea
+    id: metrics
+    attributes: { label: KPI/Metric thành công }

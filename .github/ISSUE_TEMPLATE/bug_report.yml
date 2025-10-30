@@ -1,0 +1,36 @@
+﻿name: " Báo lỗi"
+description: "Báo lỗi có thể tái hiện"
+title: "🐛 [Bug]: "
+labels: ["bug","triage"]
+body:
+  - type: checkboxes
+    id: confirm
+    attributes:
+      label: Xác nhận
+      options:
+        - label: Tôi đã tìm kiếm trùng lặp (Issues/PRs)
+          required: true
+  - type: textarea
+    id: steps
+    attributes: { label: Bước tái hiện, placeholder: "1) ...
+2) ...
+3) ..." }
+    validations: { required: true }
+  - type: textarea
+    id: expected
+    attributes: { label: Kỳ vọng }
+    validations: { required: true }
+  - type: textarea
+    id: actual
+    attributes: { label: Thực tế }
+    validations: { required: true }
+  - type: input
+    id: env
+    attributes: { label: Môi trường, placeholder: "OS, Browser/App, API env (prod/stg/dev)..." }
+  - type: textarea
+    id: logs
+    attributes: { label: Log/Lỗi màn hình, render: shell }
+  - type: dropdown
+    id: severity
+    attributes: { label: Mức độ, options: [critical, high, medium, low] }
+    validations: { required: true }
