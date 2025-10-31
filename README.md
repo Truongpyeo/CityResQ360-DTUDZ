@@ -1,4 +1,4 @@
-// ...existing code...
+
 # 🌆 CityResQ360 — Nền tảng phản ánh, cảnh báo & giám sát đô thị thông minh
 
 CityResQ360 là hệ thống web + mobile mã nguồn mở giúp người dân, chính quyền và hệ thống AI phối hợp trong việc phát hiện, phản ánh và xử lý sự cố đô thị theo thời gian thực. Mục tiêu của dự án là tăng tính minh bạch, cải thiện tốc độ phản ứng của cơ quan chức năng và ứng dụng trí tuệ nhân tạo để hướng tới một thành phố vận hành tự động, an toàn và bền vững hơn.
@@ -43,6 +43,64 @@ Vấn đề thực tế:
 - Dashboard trực quan cho cơ quan xử lý: bản đồ realtime, biểu đồ KPI, phân công nhiệm vụ.
 - Cơ chế thưởng CityPoint khuyến khích đóng góp hữu ích.
 - API mở (NGSI-LD) để tích hợp với hệ thống thành phố và bên thứ ba.
+
+---
+## 🎯 Đối tượng hướng đến
+
+Hệ thống **CityResQ360** được phát triển nhằm phục vụ nhiều nhóm người dùng khác nhau, tập trung vào việc **hỗ trợ, điều phối và quản lý hoạt động cứu trợ trong thảm họa**.
+
+---
+
+### 👥 1. Người dân trong khu vực bị ảnh hưởng
+**Mục tiêu:** Hỗ trợ người dân nhanh chóng gửi yêu cầu cứu trợ và nhận thông tin an toàn trong tình huống khẩn cấp.  
+
+**Lợi ích:**
+- Gửi yêu cầu cứu trợ (thực phẩm, thuốc men, di tản...).
+- Nhận thông báo khẩn cấp và cảnh báo sớm theo vị trí.
+- Xem bản đồ cập nhật khu vực nguy hiểm, trung tâm cứu trợ và tuyến đường an toàn.
+
+---
+
+### 🏛️ 2. Cơ quan chức năng & tổ chức cứu trợ
+**Mục tiêu:** Hỗ trợ các đơn vị quản lý thảm họa và cứu hộ **điều phối nguồn lực và nhân sự** hiệu quả.  
+
+**Lợi ích:**
+- Quản lý nguồn lực (nhân viên, phương tiện, hàng cứu trợ...).
+- Theo dõi và xử lý yêu cầu cứu trợ theo mức độ ưu tiên.
+- Gửi thông báo khẩn cấp và cập nhật tình hình theo thời gian thực.
+- Tạo báo cáo, thống kê hỗ trợ ra quyết định nhanh chóng.
+
+---
+
+### 🤝 3. Tình nguyện viên & tổ chức phi chính phủ (NGO)
+**Mục tiêu:** Kết nối và quản lý hoạt động của các cá nhân/tổ chức cứu trợ tự nguyện.  
+
+**Lợi ích:**
+- Đăng ký tham gia cứu trợ.
+- Nhận nhiệm vụ phù hợp với năng lực, vị trí, thời gian.
+- Báo cáo tiến độ và tình hình tại hiện trường.
+- Hợp tác với các nhóm hoặc tổ chức khác thông qua nền tảng.
+
+---
+
+### 🧑‍💼 4. Quản trị viên hệ thống (Admin)
+**Mục tiêu:** Quản lý toàn bộ hệ thống và người dùng, đảm bảo vận hành ổn định.  
+
+**Lợi ích:**
+- Quản lý tài khoản và phân quyền người dùng.
+- Giám sát hoạt động toàn hệ thống.
+- Cấu hình tích hợp API bản đồ, cảnh báo hoặc dịch vụ bên thứ ba.
+- Phát hiện và xử lý sự cố hoặc yêu cầu bất thường.
+
+---
+
+### 🧠 5. Nhà nghiên cứu & nhà phát triển
+**Mục tiêu:** Mở rộng khả năng nghiên cứu và ứng dụng công nghệ mới trong lĩnh vực cứu hộ - cứu nạn.  
+
+**Lợi ích:**
+- Tích hợp IoT để thu thập dữ liệu môi trường (mực nước, nhiệt độ...).
+- Ứng dụng AI để dự đoán rủi ro và hỗ trợ ra quyết định.
+- Cung cấp dữ liệu mở (Open Data) cho các nghiên cứu và dự án tương lai.
 
 ---
 
@@ -115,27 +173,7 @@ Vấn đề thực tế:
 
 ## 🛠 Hướng dẫn cài đặt nhanh (phát triển — Windows)
 
-Yêu cầu: PHP >= 8.1, Composer, Node.js, npm/yarn, PostgreSQL, Redis, Docker (tuỳ chọn).
 
-1. Clone repository:
-   - git clone <repo-url> .
-2. Backend:
-   - composer install
-   - cp .env.example .env && chỉnh cấu hình DB, S3, Redis
-   - php artisan key:generate
-   - php artisan migrate --seed
-3. Frontend:
-   - cd frontend
-   - npm install
-   - npm run dev
-4. Chạy server:
-   - php artisan serve --host=127.0.0.1 --port=8000
-5. AI services (local):
-   - cd ai-service
-   - pip install -r requirements.txt
-   - uvicorn app:app --host 0.0.0.0 --port 8001
-6. Hoặc chạy Docker Compose (nếu có file):
-   - docker compose up --build
 
 ---
 
@@ -158,7 +196,6 @@ Dự án sử dụng MIT License — tự do sử dụng, chỉnh sửa và phá
 
 - Nhóm phát triển: CityResQ360 Research Group  
 - Email: (điền email nhóm phát triển tại đây)  
-- Tài liệu tham khảo: https://github.com/NguyenThai11103/DTU-Relieflink-documents
+- Tài liệu tham khảo: 
 
 ---
-Cần bổ sung phần cụ thể (Docker Compose example, script seed, API reference hoặc hướng dẫn deploy lên VPS/Kubernetes) thì cho biết phần bạn muốn mở rộng.
