@@ -8,20 +8,22 @@
 CityResQ360 là hệ thống web + mobile mã nguồn mở giúp người dân, chính quyền và hệ thống AI phối hợp trong việc phát hiện, phản ánh và xử lý sự cố đô thị theo thời gian thực. Mục tiêu của dự án là tăng tính minh bạch, cải thiện tốc độ phản ứng của cơ quan chức năng và ứng dụng trí tuệ nhân tạo để hướng tới một thành phố vận hành tự động, an toàn và bền vững hơn.
 
 ---
-
 ## 🧭 Giới thiệu & Ý tưởng tổng thể
 
-Trong các đô thị hiện đại, việc phát hiện sớm và xử lý nhanh các sự cố như kẹt xe, ngập úng, cháy nổ, tai nạn giao thông, rác thải hoặc vi phạm công cộng đóng vai trò quan trọng. CityResQ360 ra đời như “mắt thần đô thị 360°”, nơi người dân, chính quyền và AI cùng giám sát, phản hồi và cảnh báo các vấn đề đô thị theo thời gian thực.
+**CityResQ360 là "mắt thần đô thị 360°" - một nền tảng Web & Mobile mã nguồn mở đột phá, kết nối người dân, chính quyền và AI để giải quyết các sự cố đô thị theo thời gian thực.**
 
-Vấn đề thực tế:
-- Phản ánh từ người dân còn chậm và rời rạc.
-- Cơ quan quản lý thiếu thông tin tức thời để ra quyết định.
-- Dữ liệu đô thị chưa được liên kết và khai thác hiệu quả.
-- Hệ thống cảnh báo còn thủ công, thiếu khả năng dự đoán.
+Trong bối cảnh đô thị hiện đại, việc phát hiện và phản ứng nhanh chóng với các vấn đề như kẹt xe, ngập úng, cháy nổ, tai nạn, hoặc rác thải là cực kỳ quan trọng. CityResQ360 ra đời để khắc phục các hạn chế hiện tại:
+* Phản ánh từ người dân còn **chậm và rời rạc**.
+* Cơ quan quản lý **thiếu thông tin tức thời** để ra quyết định.
+* Dữ liệu đô thị **chưa được liên kết và khai thác hiệu quả**.
+* Hệ thống cảnh báo còn **thủ công và thiếu khả năng dự đoán**.
 
 ---
 
 ## 🎯 Mục tiêu dự án
+
+![s](/static/img/muctieu.png)
+
 
 - Tăng tính minh bạch và tương tác công dân — mọi phản ánh được ghi nhận và theo dõi công khai.
 - Tối ưu hóa quy trình phản ứng đô thị bằng AI (phân loại, đánh giá mức độ, gợi ý xử lý).
@@ -125,92 +127,51 @@ Hệ thống **CityResQ360** được phát triển nhằm phục vụ nhiều n
 - API mở để nhà phát triển khai thác dữ liệu.
 
 ---
-## 🧠 Tính năng nổi bật
+## 🗺️ Kiến Trúc Hệ Thống (System Architecture)
 
-### 🤖 Phản ánh & nhận diện tự động
-- AI Vision & NLP phân tích hình ảnh, âm thanh, nội dung phản ánh.  
-- Phân loại mức độ nguy hiểm & cảnh báo khẩn cấp đến cơ quan liên quan.  
-- Gợi ý hướng dẫn an toàn và thông báo cộng đồng lân cận.
-
-### 📡 Giám sát & quản lý realtime
-- Bản đồ trực quan thể hiện trạng thái từng khu vực.  
-- Dashboard phân tích thống kê phản ánh theo thời gian, vị trí và loại sự cố.  
-- Chấm điểm mức độ minh bạch và tốc độ phản hồi của từng cơ quan.
-
-### 🏦 CityWallet – Hệ thống điểm thưởng
-- Công dân được thưởng điểm **CityPoint** khi phản ánh hữu ích.  
-- Đổi quà, voucher, hoặc sử dụng trong các dịch vụ đô thị.
-
-# 🗺️ Kiến Trúc Hệ Thống (System Architecture)
-
-Tài liệu này mô tả kiến trúc Microservices và Hướng sự kiện (Event-Driven Architecture) của hệ thống, bao gồm các công nghệ cốt lõi, dịch vụ và luồng dữ liệu chính.
+![s](/static/img/kientruc.png)
 
 ---
 
-## ⚙️ Công Nghệ và Framework
+### 1. Công nghệ cốt lõi (Core Technologies)
 
-Hệ thống sử dụng đa dạng các công nghệ hiện đại, tập trung vào hiệu năng và khả năng mở rộng:
+| Thành phần/Vai trò Chính | Công nghệ được sử dụng |
+| :----------------------- | :---------------------- |
+| **Giao diện người dùng** | `React Native`, `HTTPS`, `JWT`, `VueJS` |
+| **Cổng API & Bảo mật** | `API Gateway` (`Kong`/`Traefik`), `Keycloak` (`OIDC`) |
+| **Logic nghiệp vụ Core** | `API CORE` (`Laravel`/`PHP`), `Redis` (Cache) |
+| **Xử lý AI/Chuyên sâu** | `FastAPI` (Python) cho `NLP`, `Vision`, `Report service` |
+| **Truyền tải Sự kiện** | `Event Bus` (`Apache Kafka`), `MQTT Broker` (`EMQX`/`Mosquitto`) |
+| **Thông báo Realtime** | `Notify service`, `Reverb` (WebSocket Server) |
+| **Lưu trữ Dữ liệu** | `Postgres` + `PostGIS`, `MinIO`/`S3`, `OpenSearch` |
 
-| Phân Loại | Công Nghệ Cụ Thể | Vai trò |
-| :--- | :--- | :--- |
-| **Giao diện Người dùng (UI)** | **React Native** | Phát triển ứng dụng di động đa nền tảng. |
-| **Cổng API (Gateway)** | **API Gateway** (Kong/Nginx) | Bảo mật, giới hạn tốc độ (Rate Limit), xác thực JWT. |
-| **Backend/Core APIs** | **Laravel** (PHP), **Python** (FastAPI) | Phát triển dịch vụ RFI/Public API và các microservices. |
-| **Xác thực (Auth)** | **Keycloak** (SSO/ID), **JWT** | Quản lý định danh và truy cập (IDDC), xác thực người dùng. |
-| **Tin nhắn/Sự kiện** | **Kafka** (Redpanda), **MQTT Broker** (EMQX/Mosquitto) | Xử lý hàng đợi sự kiện tốc độ cao và tin nhắn từ cảm biến (Sensors). |
-| **Cơ sở dữ liệu (Database)** | **PostgreSQL/PostGIS** | Dữ liệu quan hệ và dữ liệu địa lý (Geo/PoI). |
-| **Lưu trữ đối tượng (Object Storage)** | **MinIO / S3** | Lưu trữ dữ liệu media (Media Service). |
-| **Tìm kiếm (Search)** | **OpenSearch** | Cung cấp khả năng tìm kiếm nâng cao (Search API). |
-| **Cache/Hàng đợi** | **Redis Queue/Cache** | Caching, quản lý hàng đợi cho Notifier Service và Rule Engine. |
-| **Rule Engine** | **NDx/Drools** | Xử lý logic nghiệp vụ và các quy tắc cảnh báo. |
+### 2. Luồng Dữ liệu và Sự kiện Chính
 
----
-
-## 🛠️ Các Dịch Vụ và Chức Năng Chính (Microservices)
+1.  **Phản ánh:** **React Native App** gửi yêu cầu qua **API Gateway** đến **API CORE**.
+2.  **Dữ liệu Cảm biến:** **Sensors** -> **MQTT Broker** -> **IoT Adapter** -> **Kafka (IoT Data Stream)**.
+3.  **Luồng Xử lý AI:** **API CORE** ủy quyền cho **Vision/NLP** xử lý, tạo **`vision/report alert`** (Sự kiện) vào **Kafka**.
+4.  **Luồng Cảnh báo:** **Rule Engine** tiêu thụ sự kiện từ **Kafka**, áp dụng luật và tạo **`alert triggered`**.
+5.  **Thông báo:** **Notifier Service** nhận sự kiện **`alert triggered`** và đẩy thông báo tức thì đến **React Native App** qua **Reverb** (WebSocket).
 
 Hệ thống được tổ chức thành các dịch vụ độc lập (Microservices), giao tiếp chủ yếu qua HTTP (REST) và Kafka/MQTT.
 
-### 1. Dịch vụ Cốt lõi
+### 3. Dịch vụ Cốt lõi
 * **RFI/Public API:** Điểm truy cập chính cho các giao diện người dùng. Xử lý logic tổng hợp dữ liệu (Aggregation) và caching (Vũ Cache).
 * **Media Service:** Quản lý và lưu trữ tệp tin đa phương tiện vào **MinIO / S3**.
 * **Wallet Service:** Xử lý các chức năng liên quan đến ví điện tử/thanh toán.
 * **Search API:** Cung cấp giao diện tìm kiếm dữ liệu thông qua **OpenSearch**.
 
-### 2. Dịch vụ IoT và Phân tích Dữ liệu
+### 4. Dịch vụ IoT và Phân tích Dữ liệu
 * **IoT Adapter:** Nhận tin nhắn từ **MQTT Broker** (Sensors), xử lý và đưa vào luồng sự kiện **Kafka**.
 * **NLP (Natural Language Processing):** Phân tích và xử lý ngôn ngữ tự nhiên.
 * **Vision (Vision Python/FastAPI):** Xử lý thị giác máy tính, tạo ra các sự kiện **`vision_alert`**.
 * **Geo/PoI:** Xử lý dữ liệu vị trí và điểm quan tâm (Point of Interest) sử dụng **PostGIS**.
 
-### 3. Dịch vụ Quản lý và Thông báo
+### 5. Dịch vụ Quản lý và Thông báo
 * **Report Service:** Tạo báo cáo, lưu trữ vào **DB Report** và **`Produce report observed`** event.
 * **Rule Engine (NDx/Drools):** Tiêu thụ các sự kiện cảnh báo từ Vision và Report, áp dụng luật nghiệp vụ để **`Produce alert triggered`**.
 * **Incident Service:** Xử lý và quản lý vòng đời của các sự cố, lưu trữ vào **DB Incident**.
 * **Notifier Service:** Nhận sự kiện **`alert triggered`** và phân phối thông báo (sử dụng **Redis Queue/Cache**) tới ứng dụng (React Native App) và các nền tảng khác (Laravel Webhook).
-
----
-
-## ➡️ Luồng Dữ liệu Chính
-
-1.  **Truy cập Ứng dụng:** **React Native App** gửi yêu cầu qua **HTTPS + JWT** đến **API Gateway**.
-2.  **Dữ liệu Cảm biến:** **Sensors** -> **MQTT Broker** -> **IoT Adapter** -> **Kafka**.
-3.  **Luồng Cảnh báo/Sự cố:**
-    * **Vision Service** (hoặc **Report Service**) tạo **`vision/report alert`**.
-    * **Kafka** truyền tải các sự kiện này.
-    * **Rule Engine** tiêu thụ, áp dụng luật, và tạo **`alert triggered`**.
-    * **Notifier Service** nhận **`alert triggered`** để **broadcast data** tới **React Native App** (qua HTTP/Websocket) và **Laravel Webhook**.
-4.  **Dữ liệu Báo cáo:** **Report Service** lưu dữ liệu vào **DB Report** và tạo sự kiện cho **Rule Engine**.
-5.  **Quản lý Sự cố:** **Incident Service** nhận thông tin liên quan và lưu vào **DB Incident**.
-
----
-
-## 🔬 AI & dữ liệu
-
-- Vision: YOLOv8 / Detectron2 cho phát hiện đối tượng/sự cố từ ảnh.  
-- NLP: PhoBERT / XLM-R cho phân loại mô tả tiếng Việt và trích xuất thực thể.  
-- Fusion Layer: hợp nhất kết quả ảnh, văn bản và metadata để đưa ra nhãn cuối cùng và mức ưu tiên.  
-- Đánh giá: Precision, Recall, F1-score, mAP và chỉ số độ tin cậy AI.  
-- Dữ liệu lưu trữ theo chuẩn NGSI-LD để dễ tích hợp và chia sẻ.
 
 ---
 
@@ -253,7 +214,6 @@ Hệ thống được tổ chức thành các dịch vụ độc lập (Microser
 ### 🌍 Quốc tế hóa & học thuật
 - Đa ngôn ngữ.  
 - Mở rộng mô hình cho các đô thị khác tại Việt Nam & khu vực.  
-- Phát triển mô hình **Digital Twin** đô thị mô phỏng & dự báo rủi ro.
 
 ## 🛠 Hướng dẫn cài đặt nhanh (phát triển — Windows)
 
@@ -270,7 +230,7 @@ Nếu bạn phát hiện lỗi, vui lòng tạo issue mới với:
 - Fork → tạo branch feature/{tên} → mở Pull Request mô tả thay đổi.  
 - Viết unit test cho tính năng mới; tuân thủ PSR-12 (PHP).
 - Báo lỗi bảo mật trực tiếp cho maintainer trước khi public issue.  
-- Chúng tôi rất hoan nghênh mọi đóng góp! Xem [CONTRIBUTING](https://github.com/Truongpyeo/CityResQ360-DTUDZ/blob/master/LICENSE) để biết thêm chi tiết.
+- Chúng tôi rất hoan nghênh mọi đóng góp! Xem [CONTRIBUTING](https://github.com/Truongpyeo/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md) để biết thêm chi tiết.
 
 ---
 
@@ -291,4 +251,4 @@ Dự án được phân phối dưới giấy phép [MIT License](https://github
 - Nguyễn Ngọc Duy Thái      :  <u>kkdn011@gmail.com</u>
 ---
 
-*"Được phát triển với ❤️ bởi Nhóm DTU-DZ"*
+© 2025 CityResQ360 – Được phát triển với ❤️ bởi Nhóm DTU-DZ
