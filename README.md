@@ -1,9 +1,8 @@
 
 # 🌆 CityResQ360 — Nền tảng phản ánh, cảnh báo & giám sát đô thị thông minh
 
-![s](Banner.png)
+![s](/static/img/Banner.png)
 > *"🏙️ Smart City Platform 🤖"*
-
 
 
 CityResQ360 là hệ thống web + mobile mã nguồn mở giúp người dân, chính quyền và hệ thống AI phối hợp trong việc phát hiện, phản ánh và xử lý sự cố đô thị theo thời gian thực. Mục tiêu của dự án là tăng tính minh bạch, cải thiện tốc độ phản ứng của cơ quan chức năng và ứng dụng trí tuệ nhân tạo để hướng tới một thành phố vận hành tự động, an toàn và bền vững hơn.
@@ -52,7 +51,10 @@ Vấn đề thực tế:
 ---
 ## 🎯 Đối tượng hướng đến
 
-Hệ thống **CityResQ360** được phát triển nhằm phục vụ nhiều nhóm người dùng khác nhau, tập trung vào việc **hỗ trợ, điều phối và quản lý hoạt động cứu trợ trong thảm họa**.
+![s](/static/img/doituong.png)
+
+
+Hệ thống **CityResQ360** được phát triển nhằm phục vụ nhiều nhóm người dùng trong đô thị, tập trung vào việc phản ánh, giám sát và cảnh báo sự cố hạ tầng, môi trường và an toàn đô thị theo thời gian thực.
 
 ---
 
@@ -60,9 +62,10 @@ Hệ thống **CityResQ360** được phát triển nhằm phục vụ nhiều n
 **Mục tiêu:** Hỗ trợ người dân nhanh chóng gửi yêu cầu cứu trợ và nhận thông tin an toàn trong tình huống khẩn cấp.  
 
 **Lợi ích:**
-- Gửi yêu cầu cứu trợ (thực phẩm, thuốc men, di tản...).
-- Nhận thông báo khẩn cấp và cảnh báo sớm theo vị trí.
-- Xem bản đồ cập nhật khu vực nguy hiểm, trung tâm cứu trợ và tuyến đường an toàn.
+- Gửi phản ánh kèm hình ảnh, mô tả và vị trí GPS.
+- Theo dõi tiến trình xử lý phản ánh của cơ quan chức năng.
+- Nhận thông báo và cảnh báo khu vực nguy hiểm (ngập, kẹt xe, ô nhiễm...).
+- Nhận điểm thưởng CityPoint khi đóng góp thông tin hữu ích.
 
 ---
 
@@ -70,21 +73,19 @@ Hệ thống **CityResQ360** được phát triển nhằm phục vụ nhiều n
 **Mục tiêu:** Hỗ trợ các đơn vị quản lý thảm họa và cứu hộ **điều phối nguồn lực và nhân sự** hiệu quả.  
 
 **Lợi ích:**
-- Quản lý nguồn lực (nhân viên, phương tiện, hàng cứu trợ...).
-- Theo dõi và xử lý yêu cầu cứu trợ theo mức độ ưu tiên.
-- Gửi thông báo khẩn cấp và cập nhật tình hình theo thời gian thực.
-- Tạo báo cáo, thống kê hỗ trợ ra quyết định nhanh chóng.
-
+- Tiếp nhận, phân loại và xử lý phản ánh tự động theo mức độ ưu tiên.
+- Quản lý dữ liệu sự cố, bản đồ realtime và báo cáo thống kê.
+- Theo dõi chỉ số minh bạch và tốc độ phản hồi.
 ---
 
 ### 🤝 3. Tình nguyện viên & tổ chức phi chính phủ (NGO)
 **Mục tiêu:** Kết nối và quản lý hoạt động của các cá nhân/tổ chức cứu trợ tự nguyện.  
 
 **Lợi ích:**
-- Đăng ký tham gia cứu trợ.
-- Nhận nhiệm vụ phù hợp với năng lực, vị trí, thời gian.
-- Báo cáo tiến độ và tình hình tại hiện trường.
-- Hợp tác với các nhóm hoặc tổ chức khác thông qua nền tảng.
+- Truy cập dữ liệu công khai theo chuẩn NGSI-LD.
+- Kết nối dịch vụ hoặc cảm biến IoT vào hệ thống.
+- Phân tích xu hướng và rủi ro đô thị phục vụ nghiên cứu & kinh doanh.
+- Cung cấp giải pháp mở rộng: camera, AI Vision, bản đồ số, v.v.
 
 ---
 
@@ -92,10 +93,10 @@ Hệ thống **CityResQ360** được phát triển nhằm phục vụ nhiều n
 **Mục tiêu:** Quản lý toàn bộ hệ thống và người dùng, đảm bảo vận hành ổn định.  
 
 **Lợi ích:**
-- Quản lý tài khoản và phân quyền người dùng.
-- Giám sát hoạt động toàn hệ thống.
-- Cấu hình tích hợp API bản đồ, cảnh báo hoặc dịch vụ bên thứ ba.
-- Phát hiện và xử lý sự cố hoặc yêu cầu bất thường.
+- Quản lý người dùng, phân quyền theo vai trò.
+- Giám sát hoạt động của toàn hệ thống và API tích hợp.
+- Cấu hình nguồn dữ liệu, cảm biến và tích hợp bản đồ.
+- Theo dõi hiệu năng và cảnh báo sự cố kỹ thuật.
 
 ---
 
@@ -103,13 +104,17 @@ Hệ thống **CityResQ360** được phát triển nhằm phục vụ nhiều n
 **Mục tiêu:** Mở rộng khả năng nghiên cứu và ứng dụng công nghệ mới trong lĩnh vực cứu hộ - cứu nạn.  
 
 **Lợi ích:**
-- Tích hợp IoT để thu thập dữ liệu môi trường (mực nước, nhiệt độ...).
-- Ứng dụng AI để dự đoán rủi ro và hỗ trợ ra quyết định.
-- Cung cấp dữ liệu mở (Open Data) cho các nghiên cứu và dự án tương lai.
+- Truy cập dữ liệu mở (Open Data) để phân tích xu hướng đô thị.
+- Nghiên cứu ứng dụng AI, NLP, Vision, IoT trong quản lý đô thị.
+- Thử nghiệm mô hình Digital Twin và dự báo rủi ro hạ tầng.
+- Đóng góp module mở rộng hoặc plugin mới cho hệ thống.
 
 ---
 
 ## 📱 Chức năng chính
+
+![s](/static/img/chucnang.png)
+
 
 - AI tự động phân loại phản ánh: cháy, ngập, tai nạn, rác, tắc đường, v.v.
 - Bản đồ đô thị realtime hiển thị mức độ khẩn cấp theo khu vực.
