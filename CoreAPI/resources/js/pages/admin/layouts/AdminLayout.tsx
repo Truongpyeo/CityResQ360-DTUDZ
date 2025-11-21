@@ -5,11 +5,14 @@ import {
   FileText,
   Users,
   Building2,
+  Shield,
+  UserCog,
   Settings,
   LogOut,
   Menu,
   X,
-  ChevronDown
+  ChevronDown,
+  BarChart3
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -25,6 +28,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'Quản lý phản ánh', href: '/admin/reports', icon: FileText },
     { name: 'Người dùng', href: '/admin/users', icon: Users },
     { name: 'Cơ quan xử lý', href: '/admin/agencies', icon: Building2 },
+    { name: 'Phân tích & Thống kê', href: '/admin/analytics', icon: BarChart3 },
+    { name: 'Quản lý Admin', href: '/admin/admins', icon: UserCog },
+    { name: 'Phân quyền', href: '/admin/permissions/roles', icon: Shield },
     { name: 'Cài đặt', href: '/admin/settings', icon: Settings },
   ];
 

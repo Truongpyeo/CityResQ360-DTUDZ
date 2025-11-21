@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Hash;
 
 class QuanTriVien extends Authenticatable
 {
@@ -21,7 +22,8 @@ class QuanTriVien extends Authenticatable
         'ten_quan_tri',
         'email',
         'mat_khau',
-        'vai_tro',
+        'id_vai_tro',
+        'is_master',
         'anh_dai_dien',
         'trang_thai',
         'lan_dang_nhap_cuoi',
@@ -44,7 +46,8 @@ class QuanTriVien extends Authenticatable
     protected function casts(): array
     {
         return [
-            'vai_tro' => 'integer',
+            'id_vai_tro' => 'integer',
+            'is_master' => 'boolean',
             'trang_thai' => 'integer',
             'lan_dang_nhap_cuoi' => 'datetime',
             'created_at' => 'datetime',
@@ -52,13 +55,6 @@ class QuanTriVien extends Authenticatable
             'deleted_at' => 'datetime',
         ];
     }
-
-    /**
-     * Constants for vai_tro
-     */
-    const VAI_TRO_SUPERADMIN = 0;
-    const VAI_TRO_DATA_ADMIN = 1;
-    const VAI_TRO_AGENCY_ADMIN = 2;
 
     /**
      * Constants for trang_thai
@@ -75,11 +71,126 @@ class QuanTriVien extends Authenticatable
     }
 
     /**
-     * Check if admin is superadmin
+     * Check if admin is master (Super Admin with full access)
      */
-    public function isSuperAdmin(): bool
+    public function isMaster(): bool
     {
-        return $this->vai_tro === self::VAI_TRO_SUPERADMIN;
+        return $this->is_master === true;
+    }
+
+    /**
+     * Relationship: Role
+     */
+    public function vaiTro()
+    {
+        return $this->belongsTo(VaiTro::class, 'id_vai_tro');
+    }
+
+    /**
+     * Relationship: Admin logs
+     */
+    public function logs()
+    {
+        return $this->hasMany(NhatKyHeThong::class, 'nguoi_thuc_hien_id')
+            ->where('loai_nguoi_thuc_hien', 'admin');
+    }
+
+    /**
+     * Check if admin has permission to access route
+     */
+    public function hasPermission(string $routeName): bool
+    {
+        // Master admin has all permissions
+        if ($this->is_master) {
+            return true;
+        }
+
+        // Check role permissions
+        if ($this->vaiTro) {
+            return $this->vaiTro->hasPermission($routeName);
+        }
+
+        return false;
+    }
+
+    /**
+     * Get all permissions
+     */
+    public function getPermissions(): array
+    {
+        // Master admin has all permissions
+        if ($this->is_master) {
+            return ['*']; // Wildcard means all permissions
+        }
+
+        // Get role permissions
+        if ($this->vaiTro) {
+            return $this->vaiTro->getPermissions();
+        }
+
+        return [];
+    }
+
+    /**
+     * Check if has any of the permissions
+     */
+    public function hasAnyPermission(array $routeNames): bool
+    {
+        if ($this->is_master) {
+            return true;
+        }
+
+        foreach ($routeNames as $routeName) {
+            if ($this->hasPermission($routeName)) {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    /**
+     * Check if has all permissions
+     */
+    public function hasAllPermissions(array $routeNames): bool
+    {
+        if ($this->is_master) {
+            return true;
+        }
+
+        foreach ($routeNames as $routeName) {
+            if (!$this->hasPermission($routeName)) {
+                return false;
+            }
+        }
+
+        return true;
+    }
+
+    /**
+     * Get role name
+     */
+    public function getRoleName(): string
+    {
+        if ($this->is_master) {
+            return 'Super Admin (Master)';
+        }
+
+        return $this->vaiTro ? $this->vaiTro->ten_vai_tro : 'Chưa có vai trò';
+    }
+
+    /**
+     * Set password with bcrypt (auto-hash plain text passwords)
+     */
+    public function setMatKhauAttribute($value)
+    {
+        // If value is not already hashed, hash it
+        // Hash::needsRehash returns false if already hashed
+        if (!empty($value)) {
+            $this->attributes['mat_khau'] = Hash::needsRehash($value)
+                ? Hash::make($value)
+                : $value;
+        }
     }
 
     /**
@@ -100,5 +211,21 @@ class QuanTriVien extends Authenticatable
     public function getRememberTokenName()
     {
         return null; // Disable remember token if not using it
+    }
+
+    /**
+     * Scope: Only master admins
+     */
+    public function scopeMaster($query)
+    {
+        return $query->where('is_master', true);
+    }
+
+    /**
+     * Scope: Active admins only
+     */
+    public function scopeActive($query)
+    {
+        return $query->where('trang_thai', self::TRANG_THAI_ACTIVE);
     }
 }

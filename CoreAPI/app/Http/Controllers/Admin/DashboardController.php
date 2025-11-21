@@ -17,7 +17,9 @@ class DashboardController extends Controller
      */
     public function index()
     {
-        $admin = auth()->guard('admin')->user();
+        // Get admin from DB to have fresh instance with relationships
+        $authAdmin = auth()->guard('admin')->user();
+        $admin = QuanTriVien::with('vaiTro')->find($authAdmin->id);
 
         // Get statistics
         $stats = [
@@ -93,9 +95,15 @@ class DashboardController extends Controller
                 'id' => $admin->id,
                 'ten_quan_tri' => $admin->ten_quan_tri,
                 'email' => $admin->email,
-                'vai_tro' => $admin->vai_tro,
-                'vai_tro_text' => $this->getRoleName($admin->vai_tro),
+                'is_master' => $admin->is_master,
+                'vai_tro' => $admin->vaiTro ? [
+                    'id' => $admin->vaiTro->id,
+                    'ten_vai_tro' => $admin->vaiTro->ten_vai_tro,
+                    'slug' => $admin->vaiTro->slug,
+                ] : null,
+                'vai_tro_text' => $admin->getRoleName(),
                 'anh_dai_dien' => $admin->anh_dai_dien,
+                'permissions' => $admin->getPermissions(),
             ],
             'stats' => $stats,
             'reportsByCategory' => $reportsByCategory,
@@ -114,16 +122,6 @@ class DashboardController extends Controller
             PhanAnh::TRANG_THAI_RESOLVED => 'Đã giải quyết',
             PhanAnh::TRANG_THAI_REJECTED => 'Từ chối',
             default => 'Không xác định',
-        };
-    }
-
-    private function getRoleName($role): string
-    {
-        return match($role) {
-            QuanTriVien::VAI_TRO_SUPERADMIN => 'Super Admin',
-            QuanTriVien::VAI_TRO_DATA_ADMIN => 'Data Admin',
-            QuanTriVien::VAI_TRO_AGENCY_ADMIN => 'Agency Admin',
-            default => 'Unknown',
         };
     }
 }

@@ -3,9 +3,12 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\StoreAgencyRequest;
+use App\Http\Requests\Admin\UpdateAgencyRequest;
 use App\Models\CoQuanXuLy;
 use App\Models\NhatKyHeThong;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class AgencyController extends Controller
@@ -75,19 +78,9 @@ class AgencyController extends Controller
     /**
      * Store new agency
      */
-    public function store(Request $request)
+    public function store(StoreAgencyRequest $request)
     {
-        $validated = $request->validate([
-            'ten_co_quan' => ['required', 'string', 'max:200'],
-            'email_lien_he' => ['required', 'email', 'max:100', 'unique:co_quan_xu_lys,email_lien_he'],
-            'so_dien_thoai' => ['nullable', 'string', 'max:15'],
-            'dia_chi' => ['nullable', 'string', 'max:300'],
-            'cap_do' => ['required', 'integer', 'in:0,1,2'],
-            'mo_ta' => ['nullable', 'string', 'max:500'],
-            'trang_thai' => ['required', 'integer', 'in:0,1'],
-        ]);
-
-        $agency = CoQuanXuLy::create($validated);
+        $agency = CoQuanXuLy::create($request->validated());
 
         // Log activity
         NhatKyHeThong::logActivity(
@@ -157,21 +150,11 @@ class AgencyController extends Controller
     /**
      * Update agency
      */
-    public function update(Request $request, $id)
+    public function update(UpdateAgencyRequest $request, $id)
     {
         $agency = CoQuanXuLy::findOrFail($id);
 
-        $validated = $request->validate([
-            'ten_co_quan' => ['required', 'string', 'max:200'],
-            'email_lien_he' => ['required', 'email', 'max:100', 'unique:co_quan_xu_lys,email_lien_he,' . $id],
-            'so_dien_thoai' => ['nullable', 'string', 'max:15'],
-            'dia_chi' => ['nullable', 'string', 'max:300'],
-            'cap_do' => ['required', 'integer', 'in:0,1,2'],
-            'mo_ta' => ['nullable', 'string', 'max:500'],
-            'trang_thai' => ['required', 'integer', 'in:0,1'],
-        ]);
-
-        $agency->update($validated);
+        $agency->update($request->validated());
 
         // Log activity
         NhatKyHeThong::logActivity(
@@ -192,14 +175,19 @@ class AgencyController extends Controller
     {
         $agency = CoQuanXuLy::findOrFail($id);
 
-        // Check if agency has reports
+        // Authorization check
+        if (Gate::forUser(auth()->guard('admin')->user())->denies('delete', $agency)) {
+            return redirect()->back()->with('error', 'Bạn không có quyền xóa cơ quan này!');
+        }
+
+        // Check if agency has reports (policy also checks this)
         if ($agency->phanAnhs()->count() > 0) {
             return redirect()->back()->with('error', 'Không thể xóa cơ quan đang có phản ánh!');
         }
 
         // Log before delete
         NhatKyHeThong::logActivity(
-            auth()->guard('admin')->id(),
+            auth()->guard('admin')->user()->id,
             NhatKyHeThong::HANH_DONG_DELETE,
             NhatKyHeThong::LOAI_CO_QUAN,
             $agency->id,
@@ -209,5 +197,20 @@ class AgencyController extends Controller
         $agency->delete();
 
         return redirect()->route('admin.agencies.index')->with('success', 'Xóa cơ quan xử lý thành công!');
+    }
+
+    /**
+     * Export agencies to Excel
+     */
+    public function export(Request $request)
+    {
+        $filters = $request->only(['search']);
+
+        $filename = 'co-quan-xu-ly-' . now()->format('Y-m-d-H-i-s') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\AgenciesExport($filters),
+            $filename
+        );
     }
 }
