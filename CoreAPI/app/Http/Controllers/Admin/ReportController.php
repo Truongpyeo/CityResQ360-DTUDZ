@@ -5,8 +5,11 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\PhanAnh;
 use App\Models\CoQuanXuLy;
+use App\Models\DanhMucPhanAnh;
+use App\Models\MucUuTien;
 use App\Models\NhatKyHeThong;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class ReportController extends Controller
@@ -16,25 +19,30 @@ class ReportController extends Controller
      */
     public function index(Request $request)
     {
-        $query = PhanAnh::with(['nguoiDung', 'coQuanXuLy']);
+        $query = PhanAnh::with(['nguoiDung', 'coQuanXuLy', 'danhMuc', 'uuTien']);
 
         // Filter by status
-        if ($request->has('trang_thai') && $request->trang_thai !== '') {
+        if ($request->filled('trang_thai')) {
             $query->where('trang_thai', $request->trang_thai);
         }
 
         // Filter by category
-        if ($request->has('danh_muc') && $request->danh_muc !== '') {
-            $query->where('danh_muc', $request->danh_muc);
+        if ($request->filled('danh_muc_id')) {
+            $query->where('danh_muc_id', $request->danh_muc_id);
         }
 
         // Filter by priority
-        if ($request->has('uu_tien') && $request->uu_tien !== '') {
-            $query->where('uu_tien', $request->uu_tien);
+        if ($request->filled('uu_tien_id')) {
+            $query->where('uu_tien_id', $request->uu_tien_id);
+        }
+
+        // Filter by agency
+        if ($request->filled('co_quan_phu_trach_id')) {
+            $query->where('co_quan_phu_trach_id', $request->co_quan_phu_trach_id);
         }
 
         // Search
-        if ($request->has('search') && $request->search !== '') {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('tieu_de', 'like', "%{$search}%")
@@ -52,13 +60,11 @@ class ReportController extends Controller
             return [
                 'id' => $report->id,
                 'tieu_de' => $report->tieu_de,
-                'mo_ta' => $report->mo_ta,
-                'danh_muc' => $report->danh_muc,
-                'danh_muc_text' => $report->getCategoryName(),
+                'mo_ta' => substr($report->mo_ta, 0, 100) . '...',
+                'danh_muc' => $report->danhMuc?->ten_danh_muc,
                 'trang_thai' => $report->trang_thai,
                 'trang_thai_text' => $report->getStatusName(),
-                'uu_tien' => $report->uu_tien,
-                'uu_tien_text' => $report->getPriorityName(),
+                'uu_tien' => $report->uuTien?->ten_muc,
                 'dia_chi' => $report->dia_chi,
                 'vi_do' => $report->vi_do,
                 'kinh_do' => $report->kinh_do,
@@ -66,23 +72,43 @@ class ReportController extends Controller
                 'luot_ung_ho' => $report->luot_ung_ho,
                 'luot_khong_ung_ho' => $report->luot_khong_ung_ho,
                 'luot_xem' => $report->luot_xem,
-                'nguoi_dung' => [
-                    'id' => $report->nguoiDung?->id,
-                    'ho_ten' => $report->nguoiDung?->ho_ten,
-                    'email' => $report->nguoiDung?->email,
-                ],
-                'co_quan' => [
-                    'id' => $report->coQuanXuLy?->id,
-                    'ten_co_quan' => $report->coQuanXuLy?->ten_co_quan,
-                ],
+                'nguoi_dung' => $report->nguoiDung?->ho_ten,
+                'co_quan' => $report->coQuanXuLy?->ten_co_quan,
                 'created_at' => $report->created_at->format('d/m/Y H:i'),
                 'updated_at' => $report->updated_at->format('d/m/Y H:i'),
             ];
         });
 
+        // Get stats for dashboard cards
+        $stats = [
+            'total' => PhanAnh::count(),
+            'pending' => PhanAnh::where('trang_thai', PhanAnh::TRANG_THAI_PENDING)->count(),
+            'in_progress' => PhanAnh::where('trang_thai', PhanAnh::TRANG_THAI_IN_PROGRESS)->count(),
+            'resolved' => PhanAnh::where('trang_thai', PhanAnh::TRANG_THAI_RESOLVED)->count(),
+        ];
+
+        // Get categories for filter
+        $categories = DanhMucPhanAnh::where('trang_thai', true)
+            ->orderBy('thu_tu_hien_thi')
+            ->get(['id', 'ten_danh_muc', 'ma_danh_muc']);
+
+        // Get priorities for filter
+        $priorities = MucUuTien::where('trang_thai', true)
+            ->orderBy('cap_do')
+            ->get(['id', 'ten_muc', 'ma_muc']);
+
+        // Get agencies for filter
+        $agencies = CoQuanXuLy::where('trang_thai', CoQuanXuLy::TRANG_THAI_ACTIVE)
+            ->orderBy('ten_co_quan')
+            ->get(['id', 'ten_co_quan']);
+
         return Inertia::render('admin/reports/Index', [
             'reports' => $reports,
-            'filters' => $request->only(['trang_thai', 'danh_muc', 'uu_tien', 'search', 'sort_by', 'sort_order']),
+            'stats' => $stats,
+            'categories' => $categories,
+            'priorities' => $priorities,
+            'agencies' => $agencies,
+            'filters' => $request->only(['trang_thai', 'danh_muc_id', 'uu_tien_id', 'co_quan_phu_trach_id', 'search', 'sort_by', 'sort_order']),
         ]);
     }
 
@@ -91,20 +117,24 @@ class ReportController extends Controller
      */
     public function show($id)
     {
-        $report = PhanAnh::with(['nguoiDung', 'coQuanXuLy', 'binhLuans.nguoiDung', 'binhChons'])
-            ->findOrFail($id);
+        $report = PhanAnh::with(['nguoiDung', 'coQuanXuLy', 'danhMuc', 'uuTien', 'binhLuans.nguoiDung', 'binhChons'])
+                         ->findOrFail($id);
 
         return Inertia::render('admin/reports/Show', [
             'report' => [
                 'id' => $report->id,
                 'tieu_de' => $report->tieu_de,
                 'mo_ta' => $report->mo_ta,
-                'danh_muc' => $report->danh_muc,
-                'danh_muc_text' => $report->getCategoryName(),
+                'danh_muc' => [
+                    'id' => $report->danhMuc?->id,
+                    'ten_danh_muc' => $report->danhMuc?->ten_danh_muc,
+                ],
                 'trang_thai' => $report->trang_thai,
                 'trang_thai_text' => $report->getStatusName(),
-                'uu_tien' => $report->uu_tien,
-                'uu_tien_text' => $report->getPriorityName(),
+                'uu_tien' => [
+                    'id' => $report->uuTien?->id,
+                    'ten_muc' => $report->uuTien?->ten_muc,
+                ],
                 'dia_chi' => $report->dia_chi,
                 'vi_do' => $report->vi_do,
                 'kinh_do' => $report->kinh_do,
@@ -168,6 +198,7 @@ class ReportController extends Controller
 
         $report = PhanAnh::findOrFail($id);
         $oldStatus = $report->trang_thai;
+        $oldAgency = $report->co_quan_phu_trach_id;
 
         $report->update([
             'trang_thai' => $request->trang_thai,
@@ -175,17 +206,24 @@ class ReportController extends Controller
         ]);
 
         // Log activity
-        NhatKyHeThong::logActivity(
-            auth()->guard('admin')->id(),
-            NhatKyHeThong::HANH_DONG_UPDATE,
-            NhatKyHeThong::LOAI_PHAN_ANH,
-            $report->id,
-            [
-                'old_status' => $oldStatus,
-                'new_status' => $request->trang_thai,
+        $admin = auth()->guard('admin')->user();
+        NhatKyHeThong::create([
+            'nguoi_thuc_hien_id' => $admin->id,
+            'loai_nguoi_thuc_hien' => 'admin',
+            'hanh_dong' => 'update_status',
+            'mo_ta' => "Cập nhật trạng thái phản ánh #{$report->id}: {$report->getStatusName()}",
+            'dia_chi_ip' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'du_lieu_cu' => json_encode([
+                'trang_thai' => $oldStatus,
+                'co_quan_phu_trach_id' => $oldAgency,
+            ]),
+            'du_lieu_moi' => json_encode([
+                'trang_thai' => $request->trang_thai,
+                'co_quan_phu_trach_id' => $request->co_quan_phu_trach_id,
                 'ghi_chu' => $request->ghi_chu,
-            ]
-        );
+            ]),
+        ]);
 
         return redirect()->back()->with('success', 'Cập nhật trạng thái thành công!');
     }
@@ -196,20 +234,26 @@ class ReportController extends Controller
     public function updatePriority(Request $request, $id)
     {
         $request->validate([
-            'uu_tien' => ['required', 'integer', 'in:0,1,2,3'],
+            'uu_tien_id' => ['required', 'exists:muc_uu_tiens,id'],
         ]);
 
         $report = PhanAnh::findOrFail($id);
-        $report->update(['uu_tien' => $request->uu_tien]);
+        $oldPriority = $report->uu_tien_id;
+
+        $report->update(['uu_tien_id' => $request->uu_tien_id]);
 
         // Log activity
-        NhatKyHeThong::logActivity(
-            auth()->guard('admin')->id(),
-            NhatKyHeThong::HANH_DONG_UPDATE,
-            NhatKyHeThong::LOAI_PHAN_ANH,
-            $report->id,
-            ['action' => 'update_priority', 'uu_tien' => $request->uu_tien]
-        );
+        $admin = auth()->guard('admin')->user();
+        NhatKyHeThong::create([
+            'nguoi_thuc_hien_id' => $admin->id,
+            'loai_nguoi_thuc_hien' => 'admin',
+            'hanh_dong' => 'update_priority',
+            'mo_ta' => "Cập nhật độ ưu tiên phản ánh #{$report->id}",
+            'dia_chi_ip' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'du_lieu_cu' => json_encode(['uu_tien_id' => $oldPriority]),
+            'du_lieu_moi' => json_encode(['uu_tien_id' => $request->uu_tien_id]),
+        ]);
 
         return redirect()->back()->with('success', 'Cập nhật độ ưu tiên thành công!');
     }
@@ -221,17 +265,54 @@ class ReportController extends Controller
     {
         $report = PhanAnh::findOrFail($id);
 
+        // Authorization check
+        if (Gate::forUser(auth()->guard('admin')->user())->denies('delete', $report)) {
+            return redirect()->back()->with('error', 'Bạn không có quyền xóa phản ánh này!');
+        }
+
+        $admin = auth()->guard('admin')->user();
+
         // Log before delete
-        NhatKyHeThong::logActivity(
-            auth()->guard('admin')->id(),
-            NhatKyHeThong::HANH_DONG_DELETE,
-            NhatKyHeThong::LOAI_PHAN_ANH,
-            $report->id,
-            ['tieu_de' => $report->tieu_de]
-        );
+        NhatKyHeThong::create([
+            'nguoi_thuc_hien_id' => $admin->id,
+            'loai_nguoi_thuc_hien' => 'admin',
+            'hanh_dong' => 'delete_report',
+            'mo_ta' => "Xóa phản ánh #{$report->id}: {$report->tieu_de}",
+            'dia_chi_ip' => request()->ip(),
+            'user_agent' => request()->userAgent(),
+            'du_lieu_cu' => json_encode([
+                'id' => $report->id,
+                'tieu_de' => $report->tieu_de,
+                'trang_thai' => $report->trang_thai,
+            ]),
+            'du_lieu_moi' => null,
+        ]);
 
         $report->delete();
 
         return redirect()->route('admin.reports.index')->with('success', 'Xóa phản ánh thành công!');
+    }
+
+    /**
+     * Export reports to Excel
+     */
+    public function export(Request $request)
+    {
+        $filters = $request->only([
+            'trang_thai',
+            'danh_muc_id',
+            'uu_tien_id',
+            'co_quan_phu_trach_id',
+            'tu_ngay',
+            'den_ngay',
+            'search'
+        ]);
+
+        $filename = 'phan-anh-' . now()->format('Y-m-d-H-i-s') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\ReportsExport($filters),
+            $filename
+        );
     }
 }

@@ -29,7 +29,9 @@ return Application::configure(basePath: dirname(__DIR__))
 
         // Register admin middleware aliases
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminMiddleware::class,
+            'admin' => \App\Http\Middleware\AdminAuthenticate::class,
+            'admin.guest' => \App\Http\Middleware\AdminAuthenticate::class . ':guest',
+            'admin.track' => \App\Http\Middleware\AdminAuthenticate::class . ':track',
             'admin.role' => \App\Http\Middleware\CheckAdminRole::class,
         ]);
     })

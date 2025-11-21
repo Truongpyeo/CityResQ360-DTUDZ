@@ -16,12 +16,20 @@ class DatabaseSeeder extends Seeder
 
         // Seed in correct order (respecting foreign keys)
         $this->call([
-            QuanTriVienSeeder::class,
+            // Admin & RBAC
+            RBACSeeder::class,
+            AdminSeeder::class,
+
+            // Master data
             CoQuanXuLySeeder::class,
             DanhMucPhanAnhSeeder::class,
             MucUuTienSeeder::class,
+
+            // Users & Reports
             NguoiDungSeeder::class,
-            PhanAnhSeeder::class,
+            ReportSeeder::class,
+
+            // System config
             CauHinhHeThongSeeder::class,
         ]);
 
@@ -29,11 +37,18 @@ class DatabaseSeeder extends Seeder
         $this->command->info('✅ Database seeding completed successfully!');
         $this->command->newLine();
         $this->command->info('🔐 Admin Login Credentials:');
-        $this->command->info('   Email: superadmin@cityresq.com');
+        $this->command->info('   Email: superadmin@cityresq360.com');
         $this->command->info('   Password: password123');
         $this->command->newLine();
-        $this->command->info('👤 User Login Credentials:');
+        $this->command->info('👤 Citizen Login Credentials:');
         $this->command->info('   Email: nguyenvanan@gmail.com');
         $this->command->info('   Password: password123');
+        $this->command->newLine();
+        $this->command->info('📊 Database Summary:');
+        $this->command->info('   - Admins: 3 (Super Admin, Data Admin, Agency Admin)');
+        $this->command->info('   - Citizens: 10 users');
+        $this->command->info('   - Agencies: 12 (4 city, 6 district, 2 ward level)');
+        $this->command->info('   - Reports: 50 (distributed over last 30 days)');
+        $this->command->info('   - Categories: 6 (Traffic, Environment, Fire, Waste, Flood, Other)');
     }
 }

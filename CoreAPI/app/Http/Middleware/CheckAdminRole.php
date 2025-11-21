@@ -11,21 +11,35 @@ class CheckAdminRole
 {
     /**
      * Handle an incoming request.
+     * Check if admin has permission to access specific functionality
      *
      * @param  \Closure(\Illuminate\Http\Request): (\Symfony\Component\HttpFoundation\Response)  $next
-     * @param  int  ...$roles
+     * @param  string|null  $permission  Optional specific permission to check (route name)
      */
-    public function handle(Request $request, Closure $next, int ...$roles): Response
+    public function handle(Request $request, Closure $next, ?string $permission = null): Response
     {
-        $admin = auth()->guard('admin')->user();
+        $authAdmin = auth()->guard('admin')->user();
 
-        if (!$admin) {
+        if (!$authAdmin) {
             abort(403, 'Unauthorized');
         }
 
-        // Check if admin has required role
-        if (!in_array($admin->vai_tro, $roles)) {
-            abort(403, 'Bạn không có quyền truy cập trang này.');
+        // If no specific permission required, allow access
+        if (!$permission) {
+            return $next($request);
+        }
+
+        // Get admin from DB with relationships
+        $admin = QuanTriVien::with('vaiTro')->find($authAdmin->id);
+
+        // Master admin has all permissions
+        if ($admin->is_master) {
+            return $next($request);
+        }
+
+        // Check permission
+        if (!$admin->hasPermission($permission)) {
+            abort(403, 'Bạn không có quyền truy cập chức năng này.');
         }
 
         return $next($request);

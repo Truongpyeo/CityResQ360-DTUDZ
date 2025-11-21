@@ -12,6 +12,13 @@ class NhatKyHeThong extends Model
     protected $table = 'nhat_ky_he_thongs';
 
     /**
+     * Indicates if the model should be timestamped.
+     *
+     * @var bool
+     */
+    public $timestamps = false;
+
+    /**
      * The attributes that are mass assignable.
      *
      * @var array<int, string>
@@ -24,6 +31,7 @@ class NhatKyHeThong extends Model
         'du_lieu_meta',
         'dia_chi_ip',
         'user_agent',
+        'created_at',
     ];
 
     /**
@@ -38,7 +46,6 @@ class NhatKyHeThong extends Model
             'id_doi_tuong' => 'integer',
             'du_lieu_meta' => 'array',
             'created_at' => 'datetime',
-            'updated_at' => 'datetime',
         ];
     }
 
@@ -106,6 +113,7 @@ class NhatKyHeThong extends Model
             'du_lieu_meta' => $duLieuMeta,
             'dia_chi_ip' => $diaChiIp ?? request()->ip(),
             'user_agent' => $userAgent ?? request()->userAgent(),
+            'created_at' => now(),
         ]);
     }
 }
