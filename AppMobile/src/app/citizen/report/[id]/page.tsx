@@ -2,11 +2,15 @@ export const metadata = {
   title: "Report Details",
 };
 
-export default function Page({ params }: { params: { id: string } }) {
+type PageParams = Promise<{ id: string }>;
+
+export default async function Page({ params }: { params: PageParams }) {
+  const { id } = await params;
+
   return (
     <main>
       <h1>Report Details</h1>
-      <p>Detailed information for a specific citizen report. Currently viewing report {params.id}.</p>
+      <p>Detailed information for a specific citizen report. Currently viewing report {id}.</p>
     </main>
   );
 }

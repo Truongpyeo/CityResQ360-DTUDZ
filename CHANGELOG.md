@@ -1,3 +1,4 @@
+- Tiếp tục sửa các route Next.js động (`citizen/report/[id]`) để tương thích `PageProps` dạng Promise giúp build production không lỗi.
 ## 2025-11-24
 
 - Thêm Dockerfile placeholder cho các service còn thiếu (`AIMLService`, `AnalyticsService`, `FloodEyeService`, `IncidentService`, `IoTService`, `SearchService`) để bảo đảm `docker-compose.production.yml` build thành công.
