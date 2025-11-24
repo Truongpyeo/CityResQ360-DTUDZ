@@ -1,0 +1,66 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: wallet-postgres
+    ports:
+      - "5433:5432"
+    environment:
+      POSTGRES_USER: walletservice
+      POSTGRES_PASSWORD: walletservice_password
+      POSTGRES_DB: wallet_db
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+      - ./migrations:/docker-entrypoint-initdb.d
+    networks:
+      - cityresq-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U walletservice"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  redis:
+    image: redis:7-alpine
+    container_name: wallet-redis
+    ports:
+      - "6381:6379"
+    networks:
+      - cityresq-network
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  wallet-service:
+    build: .
+    container_name: wallet-service
+    ports:
+      - "8005:8005"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    environment:
+      PORT: 8005
+      ENV: development
+      POSTGRES_HOST: postgres
+      POSTGRES_PORT: 5432
+      POSTGRES_USER: walletservice
+      POSTGRES_PASSWORD: walletservice_password
+      POSTGRES_DB: wallet_db
+      REDIS_URL: redis://redis:6379
+      RABBITMQ_URL: amqp://cityresq:cityresq_password@rabbitmq:5672
+      JWT_SECRET: your-secret-key
+    networks:
+      - cityresq-network
+
+volumes:
+  postgres_data:
+
+networks:
+  cityresq-network:
+    external: true

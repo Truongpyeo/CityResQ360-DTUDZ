@@ -5,7 +5,6 @@ namespace Database\Seeders;
 use App\Models\QuanTriVien;
 use App\Models\VaiTro;
 use Illuminate\Database\Seeder;
-use Illuminate\Support\Facades\DB;
 
 class AdminSeeder extends Seeder
 {
@@ -15,56 +14,67 @@ class AdminSeeder extends Seeder
     public function run(): void
     {
         $this->command->info('👤 Creating admin accounts...');
-        DB::table('quan_tri_viens')->delete();
-        DB::table('quan_tri_viens')->truncate();
+
         // Get roles from vai_tros table
-        $superAdminRole     = VaiTro::where('slug', VaiTro::SLUG_SUPER_ADMIN)->first();
-        $dataAdminRole      = VaiTro::where('slug', VaiTro::SLUG_DATA_ADMIN)->first();
-        $agencyAdminRole    = VaiTro::where('slug', VaiTro::SLUG_AGENCY_ADMIN)->first();
+        $superAdminRole = VaiTro::where('slug', VaiTro::SLUG_SUPER_ADMIN)->first();
+        $dataAdminRole = VaiTro::where('slug', VaiTro::SLUG_DATA_ADMIN)->first();
+        $agencyAdminRole = VaiTro::where('slug', VaiTro::SLUG_AGENCY_ADMIN)->first();
 
-        // Create Super Admin (is_master = true)
-        QuanTriVien::create([
-            'ten_quan_tri' => 'Super Admin',
-            'email' => 'admin@master.com',
-            'mat_khau' => '123456', // Auto-hashed by setMatKhauAttribute mutator
-            'id_vai_tro' => $superAdminRole->id,
-            'is_master' => true, // Only Super Admin has is_master = true
-            'anh_dai_dien' => null,
-            'trang_thai' => QuanTriVien::TRANG_THAI_ACTIVE,
-            'lan_dang_nhap_cuoi' => now(),
-        ]);
-        $this->command->info('  ✓ Super Admin (is_master)');
+        if (! $superAdminRole || ! $dataAdminRole || ! $agencyAdminRole) {
+            $this->command->error('❌ Roles not found! Please run RBACSeeder first.');
 
-        // Create Data Admin
-        QuanTriVien::create([
-            'ten_quan_tri' => 'Data Admin',
-            'email' => 'dataadmin@cityresq360.com',
-            'mat_khau' => 'password123',
-            'id_vai_tro' => $dataAdminRole->id,
-            'is_master' => false,
-            'anh_dai_dien' => null,
-            'trang_thai' => QuanTriVien::TRANG_THAI_ACTIVE,
-            'lan_dang_nhap_cuoi' => now(),
-        ]);
-        $this->command->info('  ✓ Data Admin');
+            return;
+        }
 
-        // Create Agency Admin
-        QuanTriVien::create([
-            'ten_quan_tri' => 'Agency Admin',
-            'email' => 'agencyadmin@cityresq360.com',
-            'mat_khau' => 'password123',
-            'id_vai_tro' => $agencyAdminRole->id,
-            'is_master' => false,
-            'anh_dai_dien' => null,
-            'trang_thai' => QuanTriVien::TRANG_THAI_ACTIVE,
-            'lan_dang_nhap_cuoi' => now(),
-        ]);
-        $this->command->info('  ✓ Agency Admin');
+        // Create or update Super Admin (is_master = true)
+        $superAdmin = QuanTriVien::updateOrCreate(
+            ['email' => 'admin@master.com'],
+            [
+                'ten_quan_tri' => 'Super Admin',
+                'mat_khau' => '123456', // Auto-hashed by setMatKhauAttribute mutator
+                'id_vai_tro' => $superAdminRole->id,
+                'is_master' => true, // Only Super Admin has is_master = true
+                'anh_dai_dien' => null,
+                'trang_thai' => QuanTriVien::TRANG_THAI_ACTIVE,
+                'lan_dang_nhap_cuoi' => now(),
+            ]
+        );
+        $this->command->info('  ✓ Super Admin (is_master) - '.($superAdmin->wasRecentlyCreated ? 'created' : 'updated'));
+
+        // Create or update Data Admin
+        $dataAdmin = QuanTriVien::updateOrCreate(
+            ['email' => 'dataadmin@cityresq360.com'],
+            [
+                'ten_quan_tri' => 'Data Admin',
+                'mat_khau' => 'password123',
+                'id_vai_tro' => $dataAdminRole->id,
+                'is_master' => false,
+                'anh_dai_dien' => null,
+                'trang_thai' => QuanTriVien::TRANG_THAI_ACTIVE,
+                'lan_dang_nhap_cuoi' => now(),
+            ]
+        );
+        $this->command->info('  ✓ Data Admin - '.($dataAdmin->wasRecentlyCreated ? 'created' : 'updated'));
+
+        // Create or update Agency Admin
+        $agencyAdmin = QuanTriVien::updateOrCreate(
+            ['email' => 'agencyadmin@cityresq360.com'],
+            [
+                'ten_quan_tri' => 'Agency Admin',
+                'mat_khau' => 'password123',
+                'id_vai_tro' => $agencyAdminRole->id,
+                'is_master' => false,
+                'anh_dai_dien' => null,
+                'trang_thai' => QuanTriVien::TRANG_THAI_ACTIVE,
+                'lan_dang_nhap_cuoi' => now(),
+            ]
+        );
+        $this->command->info('  ✓ Agency Admin - '.($agencyAdmin->wasRecentlyCreated ? 'created' : 'updated'));
 
         $this->command->info('');
-        $this->command->info('✅ Created 3 admin accounts (password: password123):');
-        $this->command->info('   - superadmin@cityresq360.com (Super Admin - is_master)');
-        $this->command->info('   - dataadmin@cityresq360.com (Data Admin)');
-        $this->command->info('   - agencyadmin@cityresq360.com (Agency Admin)');
+        $this->command->info('✅ Created 3 admin accounts:');
+        $this->command->info('   - admin@master.com (Super Admin - is_master, password: 123456)');
+        $this->command->info('   - dataadmin@cityresq360.com (Data Admin, password: password123)');
+        $this->command->info('   - agencyadmin@cityresq360.com (Agency Admin, password: password123)');
     }
 }
