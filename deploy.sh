@@ -200,7 +200,9 @@ cp -r . $PROJECT_DIR/
 cd $PROJECT_DIR
 
 # Load environment variables
-export $(cat .env | xargs)
+set -a
+source .env
+set +a
 
 # Build và start Docker containers
 echo -e "${YELLOW}Build và khởi động Docker containers...${NC}"
