@@ -1,6 +1,7 @@
 - Tiếp tục sửa các route Next.js động (`citizen/report/[id]`) để tương thích `PageProps` dạng Promise giúp build production không lỗi.
 - Sửa lỗi Mosquitto MQTT: `Invalid max_packet_size value (0)` trong `mosquitto/config/mosquitto.conf`, thay giá trị 0 bằng 268435456 bytes (256MB).
 - Cập nhật `.gitignore` của AppMobile để ignore thư mục `.next/` build output.
+- **Fix critical**: Sửa lỗi 502 Bad Gateway do password tự động sinh ra chứa ký tự đặc biệt (`/`, `+`, `=`) gây MySQL/MongoDB authentication failed. Thay `openssl rand -base64` bằng `tr -dc A-Za-z0-9` để chỉ tạo password alphanumeric trong `deploy.sh`.
 
 ## 2025-11-24
 
