@@ -1,0 +1,15 @@
+{
+  "name": "iot-service",
+  "version": "0.1.0",
+  "description": "Placeholder IoT Service",
+  "main": "src/server.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js"
+  },
+  "dependencies": {
+    "express": "^4.19.2"
+  }
+}
+

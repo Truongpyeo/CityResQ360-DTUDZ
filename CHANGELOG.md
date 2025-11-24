@@ -6,6 +6,10 @@
   - Bỏ bước `export` thủ công vì `docker-compose --env-file` đã đủ, tránh lỗi `not a valid identifier`.
   - Tự động tạo `WalletService/go.sum` nếu thiếu để Docker build không thất bại.
 - Bổ sung `NotificationService` placeholder đầy đủ (package.json, package-lock, server.js) và cập nhật Dockerfile fallback `npm install` để bảo đảm build được dù chưa có code thật.
+- Thêm mã placeholder chạy được cho các service phụ trợ:
+  - `WalletService` (Go HTTP health endpoint) + dọn gọn `go.mod`/`go.sum`.
+  - `IncidentService`, `IoTService` (Express health endpoint + Dockerfile mới).
+  - `AIMLService`, `AnalyticsService`, `FloodEyeService`, `SearchService` (FastAPI health endpoint + requirements + Dockerfile chạy Uvicorn).
 - Cập nhật `nginx/nginx.conf` loại bỏ cảnh báo `http2` và chuẩn bị sẵn cấu hình cho Certbot (thay đổi liên quan đến các commit `Fix nginx Error SSL*`).
 - Hoàn thiện cấu hình domain/email và script deploy production (các commit `Add Domain and Email`, `Docker Deloy Production`).
 - Hoàn thiện service RabbitMQ + MediaService + MinIO chạy trong Docker Compose cho production.

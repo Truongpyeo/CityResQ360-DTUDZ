@@ -6,15 +6,13 @@ ENV PYTHONDONTWRITEBYTECODE=1 \
 
 WORKDIR /app
 
-COPY . /app
+COPY requirements.txt .
 
-RUN if [ -f requirements.txt ]; then \
-        pip install --no-cache-dir -r requirements.txt; \
-    else \
-        pip install --no-cache-dir fastapi uvicorn; \
-    fi
+RUN pip install --no-cache-dir -r requirements.txt
+
+COPY . /app
 
 EXPOSE 8008
 
-CMD ["python", "-m", "http.server", "8008"]
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8008"]
 

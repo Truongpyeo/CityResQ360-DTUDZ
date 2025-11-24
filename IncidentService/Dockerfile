@@ -5,13 +5,17 @@ ENV NODE_ENV=production \
 
 WORKDIR /app
 
-COPY . /app
+COPY package*.json ./
 
-RUN if [ -f package.json ]; then \
-        npm install --production && npm cache clean --force; \
+RUN if [ -f package-lock.json ]; then \
+        npm ci --only=production; \
+    else \
+        npm install --omit=dev && npm cache clean --force; \
     fi
+
+COPY . /app
 
 EXPOSE 8001
 
-CMD ["sh", "-c", "if [ -f server.js ]; then node server.js; else tail -f /dev/null; fi"]
+CMD ["node", "src/server.js"]
 
