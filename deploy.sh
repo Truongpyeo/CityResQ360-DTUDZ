@@ -95,16 +95,17 @@ APP_URL=https://api.$DOMAIN
 NEXT_PUBLIC_API_URL=https://api.$DOMAIN/api/v1
 
 # Database Passwords - THAY ĐỔI CÁC MẬT KHẨU NÀY
-MYSQL_ROOT_PASSWORD="$(openssl rand -base64 32)"
-MYSQL_PASSWORD="$(openssl rand -base64 32)"
-MONGODB_PASSWORD="$(openssl rand -base64 32)"
-POSTGRES_PASSWORD="$(openssl rand -base64 32)"
-CLICKHOUSE_PASSWORD="$(openssl rand -base64 32)"
-RABBITMQ_PASSWORD="$(openssl rand -base64 32)"
+# Chỉ dùng ký tự alphanumeric để tránh lỗi với MySQL và MongoDB connection string
+MYSQL_ROOT_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
+MYSQL_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
+MONGODB_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
+POSTGRES_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
+CLICKHOUSE_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
+RABBITMQ_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
 MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD="$(openssl rand -base64 32)"
+MINIO_ROOT_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
 
-# JWT Secret - THAY ĐỔI
+# JWT Secret - THAY ĐỔI (JWT có thể dùng base64 vì không dùng trong connection string)
 JWT_SECRET="$(openssl rand -base64 64)"
 
 # Service URLs
