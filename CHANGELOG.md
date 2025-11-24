@@ -11,3 +11,29 @@
 ## 2025-11-21
 
 - Hoàn thiện nhánh `develop` với nền tảng dịch vụ lõi, đảm bảo build Docker cơ bản chạy được trên môi trường master (`Done Master`).
+
+## 2025-11-18
+
+- Merge chuỗi PR document + frontend:
+  - `feat/document`, `feat/app` hợp nhất vào `develop` và `master`.
+  - Thêm core frontend (FE Admin Panel) và cập nhật README/docs.
+- Cập nhật tài liệu dự án: README, hướng dẫn sử dụng, ảnh minh họa.
+
+## 2025-11-15
+
+- Merge `develop` vào `master` (PR #7) ổn định kiến trúc microservice và tài liệu đi kèm.
+
+## 2025-11-11
+
+- Merge `feature/microservice` vào `master`: bổ sung nền tảng microservices.
+- Hoàn thiện FE Admin Panel đầu tiên.
+
+## 2025-11-07
+
+- Cập nhật assets hình ảnh phục vụ document/FE (`fix: add img`).
+
+## 2025-11-06
+
+- Khởi tạo dự án (các commit `Init`).
+- Thêm license, changelog, code of conduct, contributing guide.
+- Merge `feature/laravel` và `feat/document` vào master để hoàn thiện nền tảng Laravel ban đầu.
