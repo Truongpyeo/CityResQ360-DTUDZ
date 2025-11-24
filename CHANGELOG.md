@@ -1,4 +1,7 @@
 - Tiếp tục sửa các route Next.js động (`citizen/report/[id]`) để tương thích `PageProps` dạng Promise giúp build production không lỗi.
+- Sửa lỗi Mosquitto MQTT: `Invalid max_packet_size value (0)` trong `mosquitto/config/mosquitto.conf`, thay giá trị 0 bằng 268435456 bytes (256MB).
+- Cập nhật `.gitignore` của AppMobile để ignore thư mục `.next/` build output.
+
 ## 2025-11-24
 
 - Thêm Dockerfile placeholder cho các service còn thiếu (`AIMLService`, `AnalyticsService`, `FloodEyeService`, `IncidentService`, `IoTService`, `SearchService`) để bảo đảm `docker-compose.production.yml` build thành công.
