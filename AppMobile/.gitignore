@@ -15,7 +15,9 @@ lerna-debug.log*
 # OS
 .DS_Store
 .cursor
-.next/cache/
+
+# Next.js
+.next/
 # Tests
 /coverage
 /.nyc_output
