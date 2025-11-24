@@ -70,9 +70,12 @@ class DanhMucPhanAnhSeeder extends Seeder
         ];
 
         foreach ($categories as $category) {
-            DanhMucPhanAnh::create($category);
+            DanhMucPhanAnh::firstOrCreate(
+                ['ma_danh_muc' => $category['ma_danh_muc']],
+                $category
+            );
         }
 
-        $this->command->info('✅ Created ' . count($categories) . ' report categories');
+        $this->command->info('✅ Created '.count($categories).' report categories');
     }
 }

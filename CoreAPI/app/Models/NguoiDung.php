@@ -7,10 +7,11 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Notifications\Notifiable;
+use Laravel\Sanctum\HasApiTokens;
 
 class NguoiDung extends Model
 {
-    use HasFactory, SoftDeletes, Notifiable;
+    use HasApiTokens, HasFactory, Notifiable, SoftDeletes;
 
     protected $table = 'nguoi_dungs';
 
@@ -75,20 +76,25 @@ class NguoiDung extends Model
      * Constants for vai_tro
      */
     const VAI_TRO_CITIZEN = 0;
+
     const VAI_TRO_OFFICER = 1;
 
     /**
      * Constants for trang_thai
      */
     const TRANG_THAI_BANNED = 0;
+
     const TRANG_THAI_ACTIVE = 1;
 
     /**
      * Constants for cap_huy_hieu
      */
     const HUY_HIEU_BRONZE = 0;
+
     const HUY_HIEU_SILVER = 1;
+
     const HUY_HIEU_GOLD = 2;
+
     const HUY_HIEU_PLATINUM = 3;
 
     /**

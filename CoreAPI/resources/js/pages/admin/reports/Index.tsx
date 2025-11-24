@@ -17,13 +17,15 @@ import {
     ChevronLeft,
     ChevronRight,
 } from 'lucide-react';
+import { showSuccess, showError, showDeleteConfirm } from '@/utils/notifications';
 
 interface Report {
     id: number;
     tieu_de: string;
     danh_muc: string;
     uu_tien: string;
-    trang_thai: string;
+    trang_thai: number;
+    trang_thai_text: string;
     nguoi_dung: string;
     dia_chi: string;
     luot_ung_ho: number;
@@ -31,97 +33,111 @@ interface Report {
     created_at: string;
 }
 
-export default function ReportsIndex() {
-    const [searchTerm, setSearchTerm] = useState('');
-    const [statusFilter, setStatusFilter] = useState('');
-    const [categoryFilter, setCategoryFilter] = useState('');
-    const [priorityFilter, setPriorityFilter] = useState('');
+interface Category {
+    id: number;
+    ten_danh_muc: string;
+    ma_danh_muc: string;
+}
 
-    // Mock data - sẽ thay bằng props từ backend
-    const mockReports: Report[] = [
-        {
-            id: 1,
-            tieu_de: 'Đường Nguyễn Huệ bị hư hỏng nghiêm trọng',
-            danh_muc: 'Giao thông',
-            uu_tien: 'Cao',
-            trang_thai: 'Chờ xử lý',
-            nguoi_dung: 'Nguyễn Văn A',
-            dia_chi: 'Đường Nguyễn Huệ, Quận 1, TP.HCM',
-            luot_ung_ho: 45,
-            luot_xem: 230,
-            created_at: '10/11/2025 14:30',
-        },
-        {
-            id: 2,
-            tieu_de: 'Rác thải tràn lan trên vỉa hè',
-            danh_muc: 'Rác thải',
-            uu_tien: 'Trung bình',
-            trang_thai: 'Đang xử lý',
-            nguoi_dung: 'Trần Thị B',
-            dia_chi: 'Đường Lê Lợi, Quận 3, TP.HCM',
-            luot_ung_ho: 32,
-            luot_xem: 156,
-            created_at: '10/11/2025 10:15',
-        },
-        {
-            id: 3,
-            tieu_de: 'Cây xanh bị đổ chắn ngang đường',
-            danh_muc: 'Môi trường',
-            uu_tien: 'Khẩn cấp',
-            trang_thai: 'Đã xác minh',
-            nguoi_dung: 'Lê Văn C',
-            dia_chi: 'Đường Điện Biên Phủ, Bình Thạnh, TP.HCM',
-            luot_ung_ho: 78,
-            luot_xem: 345,
-            created_at: '09/11/2025 16:45',
-        },
-        {
-            id: 4,
-            tieu_de: 'Ngập nước kéo dài sau mưa',
-            danh_muc: 'Ngập lụt',
-            uu_tien: 'Cao',
-            trang_thai: 'Đã giải quyết',
-            nguoi_dung: 'Phạm Thị D',
-            dia_chi: 'Đường Xô Viết Nghệ Tĩnh, Bình Thạnh, TP.HCM',
-            luot_ung_ho: 56,
-            luot_xem: 289,
-            created_at: '09/11/2025 08:20',
-        },
-        {
-            id: 5,
-            tieu_de: 'Báo cháy nhà dân - cần hỗ trợ khẩn',
-            danh_muc: 'Cháy nổ',
-            uu_tien: 'Khẩn cấp',
-            trang_thai: 'Từ chối',
-            nguoi_dung: 'Hoàng Văn E',
-            dia_chi: 'Đường Cách Mạng Tháng 8, Quận 10, TP.HCM',
-            luot_ung_ho: 12,
-            luot_xem: 98,
-            created_at: '08/11/2025 22:10',
-        },
-    ];
+interface Priority {
+    id: number;
+    ten_muc: string;
+    ma_muc: string;
+}
 
-    const getStatusBadge = (status: string) => {
-        const styles = {
-            'Chờ xử lý': 'bg-yellow-100 text-yellow-800 border-yellow-200',
-            'Đã xác minh': 'bg-blue-100 text-blue-800 border-blue-200',
-            'Đang xử lý': 'bg-orange-100 text-orange-800 border-orange-200',
-            'Đã giải quyết': 'bg-green-100 text-green-800 border-green-200',
-            'Từ chối': 'bg-red-100 text-red-800 border-red-200',
+interface Agency {
+    id: number;
+    ten_co_quan: string;
+}
+
+interface Stats {
+    total: number;
+    pending: number;
+    in_progress: number;
+    resolved: number;
+}
+
+interface Props {
+    reports: {
+        data: Report[];
+        current_page: number;
+        last_page: number;
+        per_page: number;
+        total: number;
+        from: number;
+        to: number;
+    };
+    stats: Stats;
+    categories: Category[];
+    priorities: Priority[];
+    agencies: Agency[];
+    filters: {
+        trang_thai?: string;
+        danh_muc_id?: string;
+        uu_tien_id?: string;
+        co_quan_phu_trach_id?: string;
+        search?: string;
+    };
+}
+
+export default function ReportsIndex({ reports, stats, categories, priorities, agencies, filters }: Props) {
+    const [searchTerm, setSearchTerm] = useState(filters.search || '');
+    const [statusFilter, setStatusFilter] = useState(filters.trang_thai || '');
+    const [categoryFilter, setCategoryFilter] = useState(filters.danh_muc_id || '');
+    const [priorityFilter, setPriorityFilter] = useState(filters.uu_tien_id || '');
+
+    const handleFilter = () => {
+        router.get('/admin/reports', {
+            search: searchTerm,
+            trang_thai: statusFilter,
+            danh_muc_id: categoryFilter,
+            uu_tien_id: priorityFilter,
+        }, {
+            preserveState: true,
+            onSuccess: () => {
+                showSuccess('Đã áp dụng bộ lọc!');
+            },
+        });
+    };
+
+    const handleRefresh = () => {
+        router.reload({
+            onSuccess: () => {
+                showSuccess('Đã làm mới dữ liệu!');
+            },
+        });
+    };
+
+    const handleDelete = async (reportId: number, title: string) => {
+        const confirmed = await showDeleteConfirm(`phản ánh "${title}"`);
+
+        if (confirmed) {
+            router.delete(`/admin/reports/${reportId}`, {
+                onSuccess: () => {
+                    showSuccess('Xóa phản ánh thành công!');
+                },
+                onError: () => {
+                    showError('Không thể xóa phản ánh!');
+                },
+            });
+        }
+    };
+
+    const getStatusBadge = (status: number) => {
+        const statusMap = {
+            0: { text: 'Chờ xử lý', style: 'bg-yellow-100 text-yellow-800 border-yellow-200', icon: <Clock className="w-3.5 h-3.5" /> },
+            1: { text: 'Đã xác minh', style: 'bg-blue-100 text-blue-800 border-blue-200', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+            2: { text: 'Đang xử lý', style: 'bg-orange-100 text-orange-800 border-orange-200', icon: <AlertCircle className="w-3.5 h-3.5" /> },
+            3: { text: 'Đã giải quyết', style: 'bg-green-100 text-green-800 border-green-200', icon: <CheckCircle2 className="w-3.5 h-3.5" /> },
+            4: { text: 'Từ chối', style: 'bg-red-100 text-red-800 border-red-200', icon: <XCircle className="w-3.5 h-3.5" /> },
         };
 
-        const icons = {
-            'Chờ xử lý': <Clock className="w-3.5 h-3.5" />,
-            'Đã xác minh': <CheckCircle2 className="w-3.5 h-3.5" />,
-            'Đang xử lý': <AlertCircle className="w-3.5 h-3.5" />,
-            'Đã giải quyết': <CheckCircle2 className="w-3.5 h-3.5" />,
-            'Từ chối': <XCircle className="w-3.5 h-3.5" />,
-        };
+        const statusInfo = statusMap[status as keyof typeof statusMap] || statusMap[0];
 
         return (
-            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${styles[status as keyof typeof styles] || 'bg-gray-100 text-gray-800 border-gray-200'}`}>
-                {icons[status as keyof typeof icons]}
-                {status}
+            <span className={`inline-flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs font-medium border ${statusInfo.style}`}>
+                {statusInfo.icon}
+                {statusInfo.text}
             </span>
         );
     };
@@ -142,7 +158,6 @@ export default function ReportsIndex() {
     };
 
     const getCategoryIcon = (category: string) => {
-        // Bạn có thể thêm icon cho từng category
         return (
             <span className="inline-flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-medium bg-gray-100 text-gray-700">
                 {category}
@@ -164,11 +179,24 @@ export default function ReportsIndex() {
                         </p>
                     </div>
                     <div className="flex gap-3">
-                        <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <button
+                            onClick={handleRefresh}
+                            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
                             <RefreshCw className="h-4 w-4" />
                             Làm mới
                         </button>
-                        <button className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                        <button
+                            onClick={() => {
+                                router.get('/admin/reports/export', {
+                                    search: searchTerm,
+                                    trang_thai: statusFilter,
+                                    danh_muc_id: categoryFilter,
+                                    uu_tien_id: priorityFilter,
+                                });
+                            }}
+                            className="inline-flex items-center gap-2 rounded-lg border border-gray-300 bg-white px-4 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                        >
                             <Download className="h-4 w-4" />
                             Xuất Excel
                         </button>
@@ -181,8 +209,8 @@ export default function ReportsIndex() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-600">Tổng phản ánh</p>
-                                <p className="mt-1 text-2xl font-bold text-gray-900">156</p>
-                                <p className="mt-1 text-xs text-green-600">↑ 12% so với tháng trước</p>
+                                <p className="mt-1 text-2xl font-bold text-gray-900">{stats.total}</p>
+                                <p className="mt-1 text-xs text-gray-500">Tất cả các trạng thái</p>
                             </div>
                             <div className="rounded-full bg-blue-100 p-3">
                                 <FileText className="h-6 w-6 text-blue-600" />
@@ -193,7 +221,7 @@ export default function ReportsIndex() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-600">Chờ xử lý</p>
-                                <p className="mt-1 text-2xl font-bold text-yellow-600">23</p>
+                                <p className="mt-1 text-2xl font-bold text-yellow-600">{stats.pending}</p>
                                 <p className="mt-1 text-xs text-gray-500">Cần xử lý ngay</p>
                             </div>
                             <div className="rounded-full bg-yellow-100 p-3">
@@ -205,7 +233,7 @@ export default function ReportsIndex() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-600">Đang xử lý</p>
-                                <p className="mt-1 text-2xl font-bold text-orange-600">48</p>
+                                <p className="mt-1 text-2xl font-bold text-orange-600">{stats.in_progress}</p>
                                 <p className="mt-1 text-xs text-gray-500">Đang theo dõi</p>
                             </div>
                             <div className="rounded-full bg-orange-100 p-3">
@@ -217,8 +245,8 @@ export default function ReportsIndex() {
                         <div className="flex items-center justify-between">
                             <div>
                                 <p className="text-sm font-medium text-gray-600">Đã giải quyết</p>
-                                <p className="mt-1 text-2xl font-bold text-green-600">85</p>
-                                <p className="mt-1 text-xs text-green-600">↑ 8% hiệu suất</p>
+                                <p className="mt-1 text-2xl font-bold text-green-600">{stats.resolved}</p>
+                                <p className="mt-1 text-xs text-green-600">{stats.total > 0 ? Math.round((stats.resolved / stats.total) * 100) : 0}% tỷ lệ</p>
                             </div>
                             <div className="rounded-full bg-green-100 p-3">
                                 <CheckCircle2 className="h-6 w-6 text-green-600" />
@@ -265,12 +293,9 @@ export default function ReportsIndex() {
                                 className="block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20"
                             >
                                 <option value="">Tất cả</option>
-                                <option value="1">Giao thông</option>
-                                <option value="2">Môi trường</option>
-                                <option value="3">Cháy nổ</option>
-                                <option value="4">Rác thải</option>
-                                <option value="5">Ngập lụt</option>
-                                <option value="6">Khác</option>
+                                {categories.map((cat) => (
+                                    <option key={cat.id} value={cat.id}>{cat.ten_danh_muc}</option>
+                                ))}
                             </select>
                         </div>
                         <div className="flex-1 min-w-[150px]">
@@ -281,14 +306,16 @@ export default function ReportsIndex() {
                                 className="block w-full rounded-lg border border-gray-300 px-4 py-3 text-sm focus:border-blue-500 focus:ring-2 focus:ring-blue-500 focus:ring-opacity-20"
                             >
                                 <option value="">Tất cả</option>
-                                <option value="0">Thấp</option>
-                                <option value="1">Trung bình</option>
-                                <option value="2">Cao</option>
-                                <option value="3">Khẩn cấp</option>
+                                {priorities.map((priority) => (
+                                    <option key={priority.id} value={priority.id}>{priority.ten_muc}</option>
+                                ))}
                             </select>
                         </div>
                         <div className="flex items-end">
-                            <button className="whitespace-nowrap rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors">
+                            <button
+                                onClick={handleFilter}
+                                className="whitespace-nowrap rounded-lg bg-blue-600 px-6 py-3 text-sm font-medium text-white hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 transition-colors"
+                            >
                                 Áp dụng
                             </button>
                         </div>
@@ -300,7 +327,7 @@ export default function ReportsIndex() {
                     <div className="border-b border-gray-200 bg-gray-50 px-6 py-4">
                         <div className="flex items-center justify-between">
                             <h3 className="text-lg font-semibold text-gray-900">Danh sách phản ánh</h3>
-                            <span className="text-sm text-gray-500">{mockReports.length} phản ánh</span>
+                            <span className="text-sm text-gray-500">{reports.total} phản ánh</span>
                         </div>
                     </div>
 
@@ -309,7 +336,7 @@ export default function ReportsIndex() {
                             <thead className="border-b border-gray-200 bg-gray-50">
                                 <tr>
                                     <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
-                                        ID
+                                        STT
                                     </th>
                                     <th className="px-6 py-3 text-left text-xs font-semibold uppercase tracking-wider text-gray-600">
                                         Thông tin phản ánh
@@ -335,10 +362,10 @@ export default function ReportsIndex() {
                                 </tr>
                             </thead>
                             <tbody className="divide-y divide-gray-200 bg-white">
-                                {mockReports.map((report) => (
+                                {reports.data.map((report, index) => (
                                     <tr key={report.id} className="hover:bg-gray-50 transition-colors">
                                         <td className="px-6 py-4 whitespace-nowrap">
-                                            <span className="text-sm font-medium text-blue-600">#{report.id}</span>
+                                            <span className="text-sm font-medium text-gray-900">{reports.from + index}</span>
                                         </td>
                                         <td className="px-6 py-4">
                                             <div className="max-w-md">
@@ -398,9 +425,6 @@ export default function ReportsIndex() {
                                                     <Eye className="h-4 w-4" />
                                                     Chi tiết
                                                 </Link>
-                                                <button className="inline-flex items-center justify-center rounded-lg p-1.5 text-gray-400 hover:bg-gray-100 hover:text-gray-600 transition-colors">
-                                                    <MoreVertical className="h-4 w-4" />
-                                                </button>
                                             </div>
                                         </td>
                                     </tr>
@@ -413,31 +437,62 @@ export default function ReportsIndex() {
                     <div className="border-t border-gray-200 bg-gray-50 px-6 py-4">
                         <div className="flex items-center justify-between">
                             <div className="text-sm text-gray-500">
-                                Hiển thị <span className="font-medium">1</span> đến <span className="font-medium">5</span> trong tổng số{' '}
-                                <span className="font-medium">156</span> kết quả
+                                Hiển thị <span className="font-medium">{reports.from || 0}</span> đến <span className="font-medium">{reports.to || 0}</span> trong tổng số{' '}
+                                <span className="font-medium">{reports.total}</span> kết quả
                             </div>
                             <div className="flex items-center gap-2">
-                                <button className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 disabled:opacity-50">
+                                <Link
+                                    href={reports.current_page > 1 ? `/admin/reports?page=${reports.current_page - 1}` : '#'}
+                                    className={`inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${reports.current_page <= 1 ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    preserveState
+                                    preserveScroll
+                                >
                                     <ChevronLeft className="h-4 w-4" />
                                     Trước
-                                </button>
-                                <button className="inline-flex items-center justify-center rounded-lg bg-blue-600 px-3 py-2 text-sm font-medium text-white">
-                                    1
-                                </button>
-                                <button className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    2
-                                </button>
-                                <button className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    3
-                                </button>
-                                <span className="px-2 text-gray-500">...</span>
-                                <button className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
-                                    32
-                                </button>
-                                <button className="inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50">
+                                </Link>
+
+                                {[...Array(Math.min(5, reports.last_page))].map((_, i) => {
+                                    const page = i + 1;
+                                    return (
+                                        <Link
+                                            key={page}
+                                            href={`/admin/reports?page=${page}`}
+                                            className={`inline-flex items-center justify-center rounded-lg px-3 py-2 text-sm font-medium ${
+                                                page === reports.current_page
+                                                    ? 'bg-blue-600 text-white'
+                                                    : 'border border-gray-300 bg-white text-gray-700 hover:bg-gray-50'
+                                            }`}
+                                            preserveState
+                                            preserveScroll
+                                        >
+                                            {page}
+                                        </Link>
+                                    );
+                                })}
+
+                                {reports.last_page > 5 && (
+                                    <>
+                                        <span className="px-2 text-gray-500">...</span>
+                                        <Link
+                                            href={`/admin/reports?page=${reports.last_page}`}
+                                            className="inline-flex items-center justify-center rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50"
+                                            preserveState
+                                            preserveScroll
+                                        >
+                                            {reports.last_page}
+                                        </Link>
+                                    </>
+                                )}
+
+                                <Link
+                                    href={reports.current_page < reports.last_page ? `/admin/reports?page=${reports.current_page + 1}` : '#'}
+                                    className={`inline-flex items-center gap-1 rounded-lg border border-gray-300 bg-white px-3 py-2 text-sm font-medium text-gray-700 hover:bg-gray-50 ${reports.current_page >= reports.last_page ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                    preserveState
+                                    preserveScroll
+                                >
                                     Sau
                                     <ChevronRight className="h-4 w-4" />
-                                </button>
+                                </Link>
                             </div>
                         </div>
                     </div>

@@ -3,9 +3,13 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\Admin\UpdateUserRequest;
+use App\Http\Requests\Admin\UpdateUserStatusRequest;
+use App\Http\Requests\Admin\AddUserPointsRequest;
 use App\Models\NguoiDung;
 use App\Models\NhatKyHeThong;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
 
 class UserController extends Controller
@@ -51,13 +55,13 @@ class UserController extends Controller
                 'vai_tro' => $user->vai_tro,
                 'vai_tro_text' => $user->vai_tro === NguoiDung::VAI_TRO_CITIZEN ? 'Công dân' : 'Cán bộ',
                 'trang_thai' => $user->trang_thai,
-                'trang_thai_text' => $user->isActive() ? 'Hoạt động' : 'Đã khóa',
+                'trang_thai_text' => $user->trang_thai === NguoiDung::TRANG_THAI_ACTIVE ? 'Hoạt động' : 'Đã khóa',
                 'diem_thanh_pho' => $user->diem_thanh_pho,
                 'xac_thuc_cong_dan' => $user->xac_thuc_cong_dan,
                 'diem_uy_tin' => $user->diem_uy_tin,
                 'tong_so_phan_anh' => $user->tong_so_phan_anh,
                 'ty_le_chinh_xac' => $user->ty_le_chinh_xac,
-                'cap_huy_hieu' => $user->cap_huy_hieu,
+                'cap_huy_hieu' => $this->getBadgeName($user->cap_huy_hieu),
                 'created_at' => $user->created_at->format('d/m/Y H:i'),
             ];
         });
@@ -108,14 +112,30 @@ class UserController extends Controller
     }
 
     /**
+     * Update user information
+     */
+    public function update(UpdateUserRequest $request, $id)
+    {
+        $user = NguoiDung::findOrFail($id);
+        $user->update($request->validated());
+
+        // Log activity
+        NhatKyHeThong::logActivity(
+            auth()->guard('admin')->id(),
+            NhatKyHeThong::HANH_DONG_UPDATE,
+            NhatKyHeThong::LOAI_NGUOI_DUNG,
+            $user->id,
+            ['action' => 'update_info', 'data' => $request->validated()]
+        );
+
+        return redirect()->back()->with('success', 'Cập nhật thông tin thành công!');
+    }
+
+    /**
      * Update user status
      */
-    public function updateStatus(Request $request, $id)
+    public function updateStatus(UpdateUserStatusRequest $request, $id)
     {
-        $request->validate([
-            'trang_thai' => ['required', 'integer', 'in:0,1'],
-        ]);
-
         $user = NguoiDung::findOrFail($id);
         $user->update(['trang_thai' => $request->trang_thai]);
 
@@ -158,13 +178,8 @@ class UserController extends Controller
     /**
      * Add city points to user
      */
-    public function addPoints(Request $request, $id)
+    public function addPoints(AddUserPointsRequest $request, $id)
     {
-        $request->validate([
-            'diem' => ['required', 'integer', 'min:1', 'max:1000'],
-            'ly_do' => ['required', 'string', 'max:200'],
-        ]);
-
         $user = NguoiDung::findOrFail($id);
         $user->addCityPoints($request->diem);
 
@@ -191,6 +206,11 @@ class UserController extends Controller
     {
         $user = NguoiDung::findOrFail($id);
 
+        // Authorization check
+        if (Gate::forUser(auth()->guard('admin')->user())->denies('delete', $user)) {
+            return redirect()->back()->with('error', 'Bạn không có quyền xóa người dùng này!');
+        }
+
         // Log before delete
         NhatKyHeThong::logActivity(
             auth()->guard('admin')->id(),
@@ -203,5 +223,39 @@ class UserController extends Controller
         $user->delete();
 
         return redirect()->route('admin.users.index')->with('success', 'Xóa người dùng thành công!');
+    }
+
+    /**
+     * Get badge name from badge level
+     */
+    private function getBadgeName($badge): string
+    {
+        return match($badge) {
+            NguoiDung::HUY_HIEU_BRONZE => 'bronze',
+            NguoiDung::HUY_HIEU_SILVER => 'silver',
+            NguoiDung::HUY_HIEU_GOLD => 'gold',
+            NguoiDung::HUY_HIEU_PLATINUM => 'platinum',
+            default => 'bronze',
+        };
+    }
+
+    /**
+     * Export users to Excel
+     */
+    public function export(Request $request)
+    {
+        $filters = $request->only([
+            'vai_tro',
+            'trang_thai',
+            'xac_thuc_danh_tinh',
+            'search'
+        ]);
+
+        $filename = 'nguoi-dung-' . now()->format('Y-m-d-H-i-s') . '.xlsx';
+
+        return \Maatwebsite\Excel\Facades\Excel::download(
+            new \App\Exports\UsersExport($filters),
+            $filename
+        );
     }
 }

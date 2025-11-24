@@ -181,10 +181,13 @@ class CauHinhHeThongSeeder extends Seeder
         ];
 
         foreach ($configs as $config) {
-            CauHinhHeThong::create($config);
+            CauHinhHeThong::firstOrCreate(
+                ['khoa_cau_hinh' => $config['khoa_cau_hinh']],
+                $config
+            );
         }
 
-        $this->command->info('✅ Created ' . count($configs) . ' system configurations');
+        $this->command->info('✅ Created '.count($configs).' system configurations');
         $this->command->info('   - General: 3 configs');
         $this->command->info('   - Report: 4 configs');
         $this->command->info('   - Gamification: 6 configs');

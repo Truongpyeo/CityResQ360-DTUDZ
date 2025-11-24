@@ -246,10 +246,13 @@ class NguoiDungSeeder extends Seeder
         ];
 
         foreach ($users as $user) {
-            NguoiDung::create($user);
+            NguoiDung::updateOrCreate(
+                ['email' => $user['email']],
+                $user
+            );
         }
 
-        $this->command->info('✅ Created ' . count($users) . ' users');
+        $this->command->info('✅ Created '.count($users).' users');
         $this->command->info('   - Verified citizens: 4 users');
         $this->command->info('   - Unverified citizens: 2 users');
         $this->command->info('   - Officers: 2 users');

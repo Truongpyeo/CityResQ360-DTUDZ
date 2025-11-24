@@ -196,7 +196,7 @@ export default function Dashboard() {
             <table className="w-full">
               <thead className="border-b bg-gray-50">
                 <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">ID</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">STT</th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">Tiêu đề</th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">Danh mục</th>
                   <th className="px-6 py-3 text-left text-xs font-medium uppercase text-gray-500">Trạng thái</th>
@@ -206,9 +206,9 @@ export default function Dashboard() {
                 </tr>
               </thead>
               <tbody className="divide-y divide-gray-200">
-                {recentReports.map((report) => (
+                {recentReports.map((report, index) => (
                   <tr key={report.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 text-sm text-gray-900">#{report.id}</td>
+                    <td className="px-6 py-4 text-sm text-gray-900">{index + 1}</td>
                     <td className="px-6 py-4 text-sm text-gray-900">{report.tieu_de}</td>
                     <td className="px-6 py-4 text-sm">
                       <span className="inline-flex rounded-full bg-blue-100 px-2 py-1 text-xs font-medium text-blue-800">

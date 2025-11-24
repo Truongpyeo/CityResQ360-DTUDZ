@@ -1,8 +1,6 @@
-# Hướng dẫn đóng góp chi tiết
-
 # Hướng dẫn đóng góp
 
-Cảm ơn bạn đã quan tâm đến việc đóng góp cho RELIEFLINK! 
+Cảm ơn bạn đã quan tâm đến việc đóng góp cho CityResQ360! 
 
 ## Các cách đóng góp
 

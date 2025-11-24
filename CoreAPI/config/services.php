@@ -35,4 +35,9 @@ return [
         ],
     ],
 
+    'media_service' => [
+        'url' => env('MEDIA_SERVICE_URL', 'http://localhost:8004/api/v1'),
+        'api_key' => env('MEDIA_SERVICE_API_KEY', ''),
+    ],
+
 ];

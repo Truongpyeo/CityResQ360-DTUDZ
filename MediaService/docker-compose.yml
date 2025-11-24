@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  # MongoDB
+  mongodb:
+    image: mongo:7.0
+    container_name: media-mongodb
+    ports:
+      - "27017:27017"
+    environment:
+      MONGO_INITDB_ROOT_USERNAME: mediaservice
+      MONGO_INITDB_ROOT_PASSWORD: mediaservice_password
+      MONGO_INITDB_DATABASE: media_db
+    volumes:
+      - mongodb_data:/data/db
+    networks:
+      - cityresq-network
+
+  # MinIO (S3-compatible)
+  minio:
+    image: minio/minio:latest
+    container_name: media-minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minioadmin
+      MINIO_ROOT_PASSWORD: minioadmin
+    command: server /data --console-address ":9001"
+    volumes:
+      - minio_data:/data
+    networks:
+      - cityresq-network
+
+  # Media Service
+  media-service:
+    build: .
+    container_name: media-service
+    ports:
+      - "8004:8004"
+    environment:
+      NODE_ENV: development
+      PORT: 8004
+      MONGODB_URI: mongodb://mediaservice:mediaservice_password@mongodb:27017/media_db
+      MINIO_ENDPOINT: minio
+      MINIO_PORT: 9000
+      MINIO_ACCESS_KEY: minioadmin
+      MINIO_SECRET_KEY: minioadmin
+      MINIO_BUCKET: cityresq-media
+    depends_on:
+      - mongodb
+      - minio
+    networks:
+      - cityresq-network
+
+volumes:
+  mongodb_data:
+  minio_data:
+
+networks:
+  cityresq-network:
+    external: true

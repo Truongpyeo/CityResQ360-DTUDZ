@@ -135,10 +135,13 @@ class CoQuanXuLySeeder extends Seeder
         ];
 
         foreach ($agencies as $agency) {
-            CoQuanXuLy::create($agency);
+            CoQuanXuLy::firstOrCreate(
+                ['email_lien_he' => $agency['email_lien_he']],
+                $agency
+            );
         }
 
-        $this->command->info('✅ Created ' . count($agencies) . ' agencies');
+        $this->command->info('✅ Created '.count($agencies).' agencies');
         $this->command->info('   - City level: 4 agencies');
         $this->command->info('   - District level: 6 agencies');
         $this->command->info('   - Ward level: 2 agencies');
