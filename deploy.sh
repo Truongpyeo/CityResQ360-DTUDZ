@@ -95,17 +95,17 @@ APP_URL=https://api.$DOMAIN
 NEXT_PUBLIC_API_URL=https://api.$DOMAIN/api/v1
 
 # Database Passwords - THAY ĐỔI CÁC MẬT KHẨU NÀY
-MYSQL_ROOT_PASSWORD=$(openssl rand -base64 32)
-MYSQL_PASSWORD=$(openssl rand -base64 32)
-MONGODB_PASSWORD=$(openssl rand -base64 32)
-POSTGRES_PASSWORD=$(openssl rand -base64 32)
-CLICKHOUSE_PASSWORD=$(openssl rand -base64 32)
-RABBITMQ_PASSWORD=$(openssl rand -base64 32)
+MYSQL_ROOT_PASSWORD="$(openssl rand -base64 32)"
+MYSQL_PASSWORD="$(openssl rand -base64 32)"
+MONGODB_PASSWORD="$(openssl rand -base64 32)"
+POSTGRES_PASSWORD="$(openssl rand -base64 32)"
+CLICKHOUSE_PASSWORD="$(openssl rand -base64 32)"
+RABBITMQ_PASSWORD="$(openssl rand -base64 32)"
 MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=$(openssl rand -base64 32)
+MINIO_ROOT_PASSWORD="$(openssl rand -base64 32)"
 
 # JWT Secret - THAY ĐỔI
-JWT_SECRET=$(openssl rand -base64 64)
+JWT_SECRET="$(openssl rand -base64 64)"
 
 # Service URLs
 MEDIA_SERVICE_URL=https://media.$DOMAIN/api/v1
