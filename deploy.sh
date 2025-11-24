@@ -13,8 +13,8 @@ YELLOW='\033[1;33m'
 NC='\033[0m' # No Color
 
 # Variables - THAY ĐỔI CÁC GIÁ TRỊ NÀY
-DOMAIN="yourdomain.com"
-EMAIL="your-email@example.com"  # Email để nhận thông báo từ Let's Encrypt
+DOMAIN="midstack.io.vn"
+EMAIL="thanhtruong23111999@gmail.com"  # Email để nhận thông báo từ Let's Encrypt
 
 echo -e "${GREEN}========================================${NC}"
 echo -e "${GREEN}CityResQ360 - Production Deployment${NC}"
