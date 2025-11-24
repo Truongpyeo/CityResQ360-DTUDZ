@@ -199,11 +199,6 @@ echo -e "${YELLOW}Copy project files...${NC}"
 cp -r . $PROJECT_DIR/
 cd $PROJECT_DIR
 
-# Load environment variables
-set -a
-source .env
-set +a
-
 # Build và start Docker containers
 echo -e "${YELLOW}Build và khởi động Docker containers...${NC}"
 docker-compose -f docker-compose.production.yml --env-file .env up -d --build
