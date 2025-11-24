@@ -205,6 +205,12 @@ if [ ! -f "WalletService/go.sum" ]; then
     touch WalletService/go.sum
 fi
 
+# Ensure package-lock.json exists for NotificationService (npm ci requirement)
+if [ ! -f "NotificationService/package-lock.json" ]; then
+    echo -e "${YELLOW}NotificationService: tạo package-lock.json...${NC}"
+    (cd NotificationService && npm install --package-lock-only >/dev/null 2>&1 || npm install --package-lock-only)
+fi
+
 # Build và start Docker containers
 echo -e "${YELLOW}Build và khởi động Docker containers...${NC}"
 docker-compose -f docker-compose.production.yml --env-file .env up -d --build
