@@ -10,6 +10,7 @@
   - `WalletService` (Go HTTP health endpoint) + dọn gọn `go.mod`/`go.sum`.
   - `IncidentService`, `IoTService` (Express health endpoint + Dockerfile mới).
   - `AIMLService`, `AnalyticsService`, `FloodEyeService`, `SearchService` (FastAPI health endpoint + requirements + Dockerfile chạy Uvicorn).
+- Fix lỗi build Next.js (AppMobile) bằng cách điều chỉnh `src/app/(admin)/users/[id]/page.tsx` tuân thủ typing mới của `PageProps` (params dạng Promise).
 - Cập nhật `nginx/nginx.conf` loại bỏ cảnh báo `http2` và chuẩn bị sẵn cấu hình cho Certbot (thay đổi liên quan đến các commit `Fix nginx Error SSL*`).
 - Hoàn thiện cấu hình domain/email và script deploy production (các commit `Add Domain and Email`, `Docker Deloy Production`).
 - Hoàn thiện service RabbitMQ + MediaService + MinIO chạy trong Docker Compose cho production.
