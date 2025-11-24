@@ -1,4 +1,4 @@
-// File: /Volumes/MAC_OPTION/Projects/Code_DZ/CityResQ360-DTUDZ/app/src/app/actions/page.tsx
+// File: /Volumes/MyVolume/Laravel/CityResQ360-DTUDZ/AppMobile/src/app/actions/page.tsx
 import * as entry from '../../../../src/app/actions/page.js'
 import type { ResolvingMetadata, ResolvingViewport } from 'next/dist/lib/metadata/types/metadata-interface.js'
 
