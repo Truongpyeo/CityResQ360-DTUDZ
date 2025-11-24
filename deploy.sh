@@ -199,6 +199,12 @@ echo -e "${YELLOW}Copy project files...${NC}"
 cp -r . $PROJECT_DIR/
 cd $PROJECT_DIR
 
+# Ensure go.sum exists for wallet-service to avoid Docker build issues
+if [ ! -f "WalletService/go.sum" ]; then
+    echo -e "${YELLOW}WalletService: tạo placeholder go.sum...${NC}"
+    touch WalletService/go.sum
+fi
+
 # Build và start Docker containers
 echo -e "${YELLOW}Build và khởi động Docker containers...${NC}"
 docker-compose -f docker-compose.production.yml --env-file .env up -d --build
