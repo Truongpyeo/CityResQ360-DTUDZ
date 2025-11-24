@@ -2,9 +2,9 @@
 
 namespace Database\Seeders;
 
-use App\Models\VaiTro;
-use App\Models\ChucNang;
 use App\Models\ChiTietPhanQuyen;
+use App\Models\ChucNang;
+use App\Models\VaiTro;
 use Illuminate\Database\Seeder;
 
 class RBACSeeder extends Seeder
@@ -69,8 +69,15 @@ class RBACSeeder extends Seeder
         ];
 
         foreach ($roles as $role) {
-            VaiTro::create($role);
-            $this->command->info("  ✓ {$role['ten_vai_tro']}");
+            $vaiTro = VaiTro::firstOrCreate(
+                ['slug' => $role['slug']],
+                $role
+            );
+            if ($vaiTro->wasRecentlyCreated) {
+                $this->command->info("  ✓ {$role['ten_vai_tro']} (created)");
+            } else {
+                $this->command->info("  ✓ {$role['ten_vai_tro']} (already exists)");
+            }
         }
     }
 
@@ -249,8 +256,16 @@ class RBACSeeder extends Seeder
 
         $createdPermissions = [];
         foreach ($permissions as $permission) {
-            $createdPermissions[] = ChucNang::create($permission);
-            $this->command->info("  ✓ {$permission['ten_chuc_nang']}");
+            $chucNang = ChucNang::firstOrCreate(
+                ['route_name' => $permission['route_name']],
+                $permission
+            );
+            $createdPermissions[] = $chucNang;
+            if ($chucNang->wasRecentlyCreated) {
+                $this->command->info("  ✓ {$permission['ten_chuc_nang']} (created)");
+            } else {
+                $this->command->info("  ✓ {$permission['ten_chuc_nang']} (already exists)");
+            }
         }
 
         return $createdPermissions;
@@ -266,7 +281,7 @@ class RBACSeeder extends Seeder
         $roles = VaiTro::all()->keyBy('slug');
 
         // Super Admin - No permissions needed (is_master = 1 grants all access)
-        $this->command->info("  ✓ Super Admin: Toàn quyền (is_master)");
+        $this->command->info('  ✓ Super Admin: Toàn quyền (is_master)');
 
         // Data Admin - Agencies + Settings
         $dataAdminPermissions = collect($permissions)->filter(function ($perm) {
@@ -285,7 +300,7 @@ class RBACSeeder extends Seeder
                 ChucNang::NHOM_DASHBOARD,
                 ChucNang::NHOM_REPORTS,
                 ChucNang::NHOM_USERS,
-            ]) && !str_contains($perm->route_name, 'destroy');
+            ]) && ! str_contains($perm->route_name, 'destroy');
         });
         $this->assignToRole($roles[VaiTro::SLUG_AGENCY_ADMIN], $agencyAdminPermissions);
 
@@ -311,12 +326,20 @@ class RBACSeeder extends Seeder
      */
     private function assignToRole($role, $permissions)
     {
+        $assignedCount = 0;
         foreach ($permissions as $permission) {
-            ChiTietPhanQuyen::create([
-                'id_vai_tro' => $role->id,
-                'id_chuc_nang' => $permission->id,
-            ]);
+            $existing = ChiTietPhanQuyen::where('id_vai_tro', $role->id)
+                ->where('id_chuc_nang', $permission->id)
+                ->first();
+
+            if (! $existing) {
+                ChiTietPhanQuyen::create([
+                    'id_vai_tro' => $role->id,
+                    'id_chuc_nang' => $permission->id,
+                ]);
+                $assignedCount++;
+            }
         }
-        $this->command->info("  ✓ {$role->ten_vai_tro}: {$permissions->count()} quyền");
+        $this->command->info("  ✓ {$role->ten_vai_tro}: {$assignedCount} quyền mới / {$permissions->count()} tổng");
     }
 }

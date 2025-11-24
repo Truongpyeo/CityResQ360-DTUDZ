@@ -37,8 +37,12 @@ class DatabaseSeeder extends Seeder
         $this->command->info('✅ Database seeding completed successfully!');
         $this->command->newLine();
         $this->command->info('🔐 Admin Login Credentials:');
-        $this->command->info('   Email: superadmin@cityresq360.com');
-        $this->command->info('   Password: password123');
+        $this->command->info('   Super Admin:');
+        $this->command->info('     Email: admin@master.com');
+        $this->command->info('     Password: 123456');
+        $this->command->info('   Data Admin / Agency Admin:');
+        $this->command->info('     Email: dataadmin@cityresq360.com / agencyadmin@cityresq360.com');
+        $this->command->info('     Password: password123');
         $this->command->newLine();
         $this->command->info('👤 Citizen Login Credentials:');
         $this->command->info('   Email: nguyenvanan@gmail.com');

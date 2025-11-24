@@ -1,0 +1,1118 @@
+{
+	"info": {
+		"_postman_id": "api-mnm-2025-1",
+		"name": "API_MNM_2025_1",
+		"description": "CityResQ360 Client API Collection - Version 1\n\n**Base URL:** {{base_url}}/api/v1\n**Authentication:** Bearer Token (Laravel Sanctum)\n\n**Setup:**\n1. Set base_url variable (default: http://localhost:8000)\n2. Login to get token\n3. Token will be automatically saved to 'auth_token' variable\n\n**Quick Start:**\n1. Import collection vào Postman\n2. Set base_url = http://localhost:8000 (hoặc URL server của bạn)\n3. Chạy \"Login\" request để lấy token\n4. Token sẽ tự động được lưu vào biến auth_token\n5. Tất cả protected requests sẽ tự động dùng token này\n\n**Test với Docker:**\n- Base URL: http://localhost:8000\n- Đảm bảo Docker containers đang chạy: docker-compose ps\n\n**Test với Local:**\n- Base URL: http://localhost:8000\n- Đảm bảo CoreAPI đang chạy: php artisan serve",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+	},
+	"item": [
+		{
+			"name": "Authentication (Public)",
+			"item": [
+				{
+					"name": "Register",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.token) {",
+									"        pm.collectionVariables.set('auth_token', jsonData.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ho_ten\": \"Nguyễn Văn A\",\n  \"email\": \"nguyenvana@example.com\",\n  \"so_dien_thoai\": \"0901234567\",\n  \"mat_khau\": \"password123\",\n  \"mat_khau_confirmation\": \"password123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/register",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "register"]
+						},
+						"description": "Đăng ký tài khoản mới"
+					},
+					"response": []
+				},
+				{
+					"name": "Login",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.token) {",
+									"        pm.collectionVariables.set('auth_token', jsonData.data.token);",
+									"        console.log('Token saved:', jsonData.data.token);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"nguyenvanan@gmail.com\",\n  \"mat_khau\": \"123456\",\n  \"remember\": true\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/login",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "login"]
+						},
+						"description": "Đăng nhập và nhận Bearer Token"
+					},
+					"response": []
+				},
+				{
+					"name": "Forgot Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"email\": \"nguyenvana@example.com\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/forgot-password",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "forgot-password"]
+						},
+						"description": "Gửi link đặt lại mật khẩu"
+					},
+					"response": []
+				},
+				{
+					"name": "Reset Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"token\": \"reset_token_here\",\n  \"email\": \"nguyenvana@example.com\",\n  \"mat_khau\": \"newpassword123\",\n  \"mat_khau_confirmation\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/reset-password",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "reset-password"]
+						},
+						"description": "Đặt lại mật khẩu với token"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Authentication (Protected)",
+			"item": [
+				{
+					"name": "Get Current User",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/me",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "me"]
+						},
+						"description": "Lấy thông tin user hiện tại"
+					},
+					"response": []
+				},
+				{
+					"name": "Logout",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/logout",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "logout"]
+						},
+						"description": "Đăng xuất và revoke token"
+					},
+					"response": []
+				},
+				{
+					"name": "Refresh Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/refresh",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "refresh"]
+						},
+						"description": "Làm mới token"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Profile",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"ho_ten\": \"Nguyễn Văn A Updated\",\n  \"so_dien_thoai\": \"0901234567\",\n  \"anh_dai_dien\": \"https://example.com/avatar.jpg\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/profile",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "profile"]
+						},
+						"description": "Cập nhật thông tin profile"
+					},
+					"response": []
+				},
+				{
+					"name": "Change Password",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"mat_khau_cu\": \"oldpassword123\",\n  \"mat_khau_moi\": \"newpassword123\",\n  \"mat_khau_moi_confirmation\": \"newpassword123\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/change-password",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "change-password"]
+						},
+						"description": "Đổi mật khẩu"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Email",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"code\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/verify-email",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "verify-email"]
+						},
+						"description": "Xác thực email với mã code"
+					},
+					"response": []
+				},
+				{
+					"name": "Verify Phone",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"code\": \"123456\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/verify-phone",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "verify-phone"]
+						},
+						"description": "Xác thực số điện thoại với mã code"
+					},
+					"response": []
+				},
+				{
+					"name": "Update FCM Token",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"fcm_token\": \"fcm_token_here\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/auth/update-fcm-token",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "update-fcm-token"]
+						},
+						"description": "Cập nhật FCM token cho push notifications"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Reports",
+			"item": [
+				{
+					"name": "List Reports",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports?page=1&per_page=20&danh_muc=&trang_thai=&sort_by=created_at&sort_order=desc",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "20"
+								},
+								{
+									"key": "danh_muc",
+									"value": "",
+									"description": "0:traffic, 1:environment, 2:fire, 3:waste, 4:flood, 5:other"
+								},
+								{
+									"key": "trang_thai",
+									"value": "",
+									"description": "0:pending, 1:verified, 2:in_progress, 3:resolved, 4:rejected"
+								},
+								{
+									"key": "sort_by",
+									"value": "created_at"
+								},
+								{
+									"key": "sort_order",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Lấy danh sách phản ánh"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Report",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tieu_de\": \"Ổ gà trên đường Lê Lợi\",\n  \"mo_ta\": \"Nhiều ổ gà lớn gây nguy hiểm cho người tham gia giao thông\",\n  \"danh_muc\": 0,\n  \"vi_do\": 10.7769,\n  \"kinh_do\": 106.7009,\n  \"dia_chi\": \"123 Lê Lợi, Quận 1, TP.HCM\",\n  \"media_ids\": [1, 2],\n  \"uu_tien\": 1,\n  \"la_cong_khai\": true,\n  \"the_tags\": []\n}",
+							"options": {
+								"raw": {
+									"language": "json"
+								}
+							}
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports"]
+						},
+						"description": "Tạo phản ánh mới\n\n**Lưu ý:**\n- Upload ảnh trước qua Media API để lấy media IDs\n- Dùng media_ids (array) để gắn ảnh vào report\n- dia_chi (không phải dia_chi_chi_tiet)\n- danh_muc: 0=traffic, 1=environment, 2=fire, 3=waste, 4=flood, 5=other\n- uu_tien: 1=normal, 2=high, 3=urgent (optional, default: 1)\n- la_cong_khai: true/false (optional, default: true)\n- the_tags: array of strings (optional)"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Reports",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/my?page=1&per_page=20",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "my"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "per_page",
+									"value": "20"
+								}
+							]
+						},
+						"description": "Lấy danh sách phản ánh của tôi"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Nearby Reports",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/nearby?vi_do=10.7769&kinh_do=106.7009&radius=5000",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "nearby"],
+							"query": [
+								{
+									"key": "vi_do",
+									"value": "10.7769"
+								},
+								{
+									"key": "kinh_do",
+									"value": "106.7009"
+								},
+								{
+									"key": "radius",
+									"value": "5000",
+									"description": "Radius in meters"
+								}
+							]
+						},
+						"description": "Lấy phản ánh gần đây"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Trending Reports",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/trending?limit=10",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "trending"],
+							"query": [
+								{
+									"key": "limit",
+									"value": "10"
+								}
+							]
+						},
+						"description": "Lấy phản ánh đang trending"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Report Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1"]
+						},
+						"description": "Lấy chi tiết phản ánh"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Report",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"tieu_de\": \"Updated Title\",\n  \"mo_ta\": \"Updated description\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1"]
+						},
+						"description": "Cập nhật phản ánh (chỉ owner)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Report",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1"]
+						},
+						"description": "Xóa phản ánh (chỉ owner)"
+					},
+					"response": []
+				},
+				{
+					"name": "Vote Report",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"loai_vote\": \"ung_ho\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/1/vote",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1", "vote"]
+						},
+						"description": "Vote phản ánh (ung_ho hoặc khong_ung_ho)"
+					},
+					"response": []
+				},
+				{
+					"name": "Increment View",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/1/view",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1", "view"]
+						},
+						"description": "Tăng lượt xem"
+					},
+					"response": []
+				},
+				{
+					"name": "Rate Report",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"diem_so\": 5\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/1/rate",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1", "rate"]
+						},
+						"description": "Đánh giá phản ánh (1-5 sao)"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Comments",
+			"item": [
+				{
+					"name": "Get Report Comments",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/1/comments?page=1&sort_by=created_at&sort_order=desc",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1", "comments"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "sort_by",
+									"value": "created_at"
+								},
+								{
+									"key": "sort_order",
+									"value": "desc"
+								}
+							]
+						},
+						"description": "Lấy danh sách bình luận của phản ánh"
+					},
+					"response": []
+				},
+				{
+					"name": "Create Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"noi_dung\": \"Tôi cũng gặp vấn đề tương tự ở đoạn đường này\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/reports/1/comments",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1", "comments"]
+						},
+						"description": "Tạo bình luận mới"
+					},
+					"response": []
+				},
+				{
+					"name": "Update Comment",
+					"request": {
+						"method": "PUT",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Content-Type",
+								"value": "application/json"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "raw",
+							"raw": "{\n  \"noi_dung\": \"Updated comment content\"\n}"
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/comments/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "comments", "1"]
+						},
+						"description": "Cập nhật bình luận (chỉ author)"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/comments/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "comments", "1"]
+						},
+						"description": "Xóa bình luận (chỉ author hoặc admin)"
+					},
+					"response": []
+				},
+				{
+					"name": "Like Comment",
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/comments/1/like",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "comments", "1", "like"]
+						},
+						"description": "Like bình luận"
+					},
+					"response": []
+				},
+				{
+					"name": "Unlike Comment",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/comments/1/like",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "comments", "1", "like"]
+						},
+						"description": "Unlike bình luận"
+					},
+					"response": []
+				}
+			]
+		},
+		{
+			"name": "Media",
+			"item": [
+				{
+					"name": "Upload Media",
+					"event": [
+						{
+							"listen": "test",
+							"script": {
+								"exec": [
+									"if (pm.response.code === 201 || pm.response.code === 200) {",
+									"    var jsonData = pm.response.json();",
+									"    if (jsonData.data && jsonData.data.id) {",
+									"        // Lưu media ID vào biến để dùng sau",
+									"        var mediaIds = pm.collectionVariables.get('uploaded_media_ids') || [];",
+									"        mediaIds.push(jsonData.data.id);",
+									"        pm.collectionVariables.set('uploaded_media_ids', JSON.stringify(mediaIds));",
+									"        console.log('Media ID saved:', jsonData.data.id);",
+									"        console.log('All uploaded media IDs:', mediaIds);",
+									"    }",
+									"}"
+								],
+								"type": "text/javascript"
+							}
+						}
+					],
+					"request": {
+						"method": "POST",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"body": {
+							"mode": "formdata",
+							"formdata": [
+								{
+									"key": "file",
+									"type": "file",
+									"src": [],
+									"description": "Chọn file ảnh (jpg, png, gif) hoặc video (mp4, mov, avi)"
+								},
+								{
+									"key": "type",
+									"value": "image",
+									"type": "text",
+									"description": "image or video"
+								},
+								{
+									"key": "lien_ket_den",
+									"value": "phan_anh",
+									"type": "text",
+									"description": "phan_anh or binh_luan"
+								},
+								{
+									"key": "id_lien_ket",
+									"value": "",
+									"type": "text",
+									"description": "ID của phản ánh hoặc bình luận (optional, có thể để trống khi upload trước khi tạo report)"
+								},
+								{
+									"key": "mo_ta",
+									"value": "Hình ảnh hiện trường",
+									"type": "text",
+									"description": "Description (optional)"
+								}
+							]
+						},
+						"url": {
+							"raw": "{{base_url}}/api/v1/media/upload",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "media", "upload"]
+						},
+						"description": "Upload media (image/video)\n\n**Hướng dẫn:**\n1. Chọn tab 'Body'\n2. Chọn 'form-data'\n3. Click vào field 'file' → chọn 'File' từ dropdown\n4. Click 'Select Files' và chọn ảnh từ máy\n5. Điền các thông tin khác\n6. Send request\n7. Lấy media ID từ response để dùng trong Create Report\n\n**Response:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"id\": 123,  // ← Dùng ID này trong media_ids\n    \"url\": \"...\",\n    \"thumbnail_url\": \"...\"\n  }\n}\n```"
+					},
+					"response": []
+				},
+				{
+					"name": "Get My Media",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/media/my?page=1&type=image",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "media", "my"],
+							"query": [
+								{
+									"key": "page",
+									"value": "1"
+								},
+								{
+									"key": "type",
+									"value": "image",
+									"description": "image or video (optional)"
+								}
+							]
+						},
+						"description": "Lấy danh sách media của tôi"
+					},
+					"response": []
+				},
+				{
+					"name": "Get Media Detail",
+					"request": {
+						"method": "GET",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/media/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "media", "1"]
+						},
+						"description": "Lấy chi tiết media"
+					},
+					"response": []
+				},
+				{
+					"name": "Delete Media",
+					"request": {
+						"method": "DELETE",
+						"header": [
+							{
+								"key": "Authorization",
+								"value": "Bearer {{auth_token}}",
+								"type": "text"
+							},
+							{
+								"key": "Accept",
+								"value": "application/json"
+							}
+						],
+						"url": {
+							"raw": "{{base_url}}/api/v1/media/1",
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "media", "1"]
+						},
+						"description": "Xóa media (chỉ owner)"
+					},
+					"response": []
+				}
+			]
+		}
+	],
+	"variable": [
+		{
+			"key": "base_url",
+			"value": "http://localhost:8000",
+			"type": "string"
+		},
+		{
+			"key": "auth_token",
+			"value": "",
+			"type": "string"
+		}
+	]
+}
+

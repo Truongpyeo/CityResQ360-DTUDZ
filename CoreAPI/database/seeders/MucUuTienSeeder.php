@@ -52,9 +52,12 @@ class MucUuTienSeeder extends Seeder
         ];
 
         foreach ($priorities as $priority) {
-            MucUuTien::create($priority);
+            MucUuTien::firstOrCreate(
+                ['ma_muc' => $priority['ma_muc']],
+                $priority
+            );
         }
 
-        $this->command->info('✅ Created ' . count($priorities) . ' priority levels');
+        $this->command->info('✅ Created '.count($priorities).' priority levels');
     }
 }
