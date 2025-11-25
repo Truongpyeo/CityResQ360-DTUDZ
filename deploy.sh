@@ -315,7 +315,16 @@ systemctl reload nginx
 
 # Copy project files
 echo -e "${YELLOW}Copy project files...${NC}"
-rsync -av --exclude='.git' --exclude='node_modules' --exclude='vendor' ./ $PROJECT_DIR/
+# Copy toàn bộ project
+mkdir -p $PROJECT_DIR
+cp -r . $PROJECT_DIR/
+
+# Xóa các thư mục không cần thiết
+echo -e "${YELLOW}Dọn dẹp thư mục không cần thiết...${NC}"
+rm -rf $PROJECT_DIR/.git
+find $PROJECT_DIR -type d -name "node_modules" -exec rm -rf {} + 2>/dev/null || true
+find $PROJECT_DIR -type d -name "vendor" -exec rm -rf {} + 2>/dev/null || true
+find $PROJECT_DIR -type d -name ".next" -exec rm -rf {} + 2>/dev/null || true
 
 # Di chuyển vào thư mục project
 cd $PROJECT_DIR
