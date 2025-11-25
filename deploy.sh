@@ -87,27 +87,147 @@ else
     exit 1
 fi
 
-# Tạo file .env cho production
-echo -e "${YELLOW}[7/8] Tạo file .env production...${NC}"
+# File .env sẽ được tạo sau khi copy files
+echo -e "${YELLOW}[7/8] Chuẩn bị deploy...${NC}"
 
-# Generate random passwords (alphanumeric only để tránh lỗi với shell và connection strings)
-MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-MYSQL_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-MONGODB_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-POSTGRES_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-CLICKHOUSE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-# JWT_SECRET dùng alphanumeric
-JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
+# Hướng dẫn cấu hình DNS
+echo -e "${YELLOW}[8/8] Hướng dẫn cấu hình DNS...${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo -e "${GREEN}Cấu hình DNS records:${NC}"
+echo -e "${GREEN}========================================${NC}"
+echo "A     @              -> $(curl -s ifconfig.me)"
+echo "A     www            -> $(curl -s ifconfig.me)"
+echo "A     api            -> $(curl -s ifconfig.me)"
+echo "A     media          -> $(curl -s ifconfig.me)"
+echo "A     notification   -> $(curl -s ifconfig.me)"
+echo "A     wallet         -> $(curl -s ifconfig.me)"
+echo "A     incident       -> $(curl -s ifconfig.me)"
+echo "A     iot            -> $(curl -s ifconfig.me)"
+echo "A     aiml           -> $(curl -s ifconfig.me)"
+echo "A     search         -> $(curl -s ifconfig.me)"
+echo "A     floodeye       -> $(curl -s ifconfig.me)"
+echo "A     analytics      -> $(curl -s ifconfig.me)"
+echo -e "${GREEN}========================================${NC}"
 
-cat > $PROJECT_DIR/.env << EOF
+echo -e "${YELLOW}Chờ DNS propagate (có thể mất vài phút đến vài giờ)...${NC}"
+read -p "Nhấn Enter khi đã cấu hình DNS xong..."
+
+# Cấp SSL certificate cho tất cả subdomains
+echo -e "${YELLOW}Cấp SSL certificates...${NC}"
+
+# Main domain
+certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# API domain
+certbot --nginx -d api.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# Media domain
+certbot --nginx -d media.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# Notification domain
+certbot --nginx -d notification.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# Wallet domain
+certbot --nginx -d wallet.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# Incident domain
+certbot --nginx -d incident.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# IoT domain
+certbot --nginx -d iot.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# AI/ML domain
+certbot --nginx -d aiml.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# Search domain
+certbot --nginx -d search.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# FloodEye domain
+certbot --nginx -d floodeye.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# Analytics domain
+certbot --nginx -d analytics.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
+
+# Cập nhật nginx config với SSL paths
+echo -e "${YELLOW}Cập nhật nginx config với SSL paths...${NC}"
+# Certbot đã tự động cập nhật, chỉ cần reload
+systemctl reload nginx
+
+# Copy project files
+echo -e "${YELLOW}Copy project files...${NC}"
+# Copy toàn bộ project
+mkdir -p $PROJECT_DIR
+cp -r . $PROJECT_DIR/
+
+# Xóa các thư mục không cần thiết
+echo -e "${YELLOW}Dọn dẹp thư mục không cần thiết...${NC}"
+rm -rf $PROJECT_DIR/.git
+find $PROJECT_DIR -type d -name "node_modules" -exec rm -rf {} + 2>/dev/null || true
+find $PROJECT_DIR -type d -name "vendor" -exec rm -rf {} + 2>/dev/null || true
+find $PROJECT_DIR -type d -name ".next" -exec rm -rf {} + 2>/dev/null || true
+
+# Di chuyển vào thư mục project
+cd $PROJECT_DIR
+
+# Kiểm tra và tạo file .env với passwords
+echo -e "${YELLOW}Kiểm tra file .env...${NC}"
+if [ -f "$PROJECT_DIR/.env" ]; then
+    echo -e "${GREEN}.env đã tồn tại, sử dụng lại passwords cũ...${NC}"
+    # Load passwords từ .env cũ
+    MYSQL_ROOT_PASSWORD=$(grep "^MYSQL_ROOT_PASSWORD=" .env | cut -d '=' -f2)
+    MYSQL_PASSWORD=$(grep "^MYSQL_PASSWORD=" .env | cut -d '=' -f2 | head -1)
+    MONGODB_PASSWORD=$(grep "^MONGODB_PASSWORD=" .env | cut -d '=' -f2)
+    POSTGRES_PASSWORD=$(grep "^POSTGRES_PASSWORD=" .env | cut -d '=' -f2)
+    CLICKHOUSE_PASSWORD=$(grep "^CLICKHOUSE_PASSWORD=" .env | cut -d '=' -f2)
+    RABBITMQ_PASSWORD=$(grep "^RABBITMQ_PASSWORD=" .env | cut -d '=' -f2)
+    MINIO_ROOT_PASSWORD=$(grep "^MINIO_ROOT_PASSWORD=" .env | cut -d '=' -f2)
+    JWT_SECRET=$(grep "^JWT_SECRET=" .env | cut -d '=' -f2)
+    APP_KEY=$(grep "^APP_KEY=" .env | cut -d '=' -f2)
+    
+    # Kiểm tra nếu không load được thì generate mới
+    if [ -z "$MYSQL_PASSWORD" ] || [ -z "$MONGODB_PASSWORD" ]; then
+        echo -e "${YELLOW}.env cũ không đầy đủ, generate passwords mới...${NC}"
+        MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        MYSQL_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        MONGODB_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        POSTGRES_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        CLICKHOUSE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
+    fi
+    
+    # Generate APP_KEY nếu chưa có
+    if [ -z "$APP_KEY" ]; then
+        echo -e "${YELLOW}Generate APP_KEY mới...${NC}"
+        APP_KEY="base64:$(openssl rand -base64 32 | tr -d '\n')"
+    fi
+else
+    echo -e "${YELLOW}.env chưa tồn tại, generate passwords mới...${NC}"
+    # Generate random passwords
+    MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    MYSQL_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    MONGODB_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    POSTGRES_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    CLICKHOUSE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
+    
+    # Generate APP_KEY theo chuẩn Laravel
+    echo -e "${YELLOW}Generate APP_KEY...${NC}"
+    APP_KEY="base64:$(openssl rand -base64 32 | tr -d '\n')"
+fi
+
+# Tạo/Cập nhật file .env
+echo -e "${YELLOW}Tạo file .env...${NC}"
+cat > .env << EOF
 # ============================================
 # Laravel Application Config
 # ============================================
 APP_NAME=CityResQ360
 APP_ENV=production
-APP_KEY=
+APP_KEY=${APP_KEY}
 APP_DEBUG=false
 APP_TIMEZONE=Asia/Ho_Chi_Minh
 APP_URL=https://api.$DOMAIN
@@ -247,87 +367,7 @@ LOG_DEPRECATIONS_CHANNEL=null
 # FCM_PRIVATE_KEY=
 EOF
 
-echo -e "${GREEN}File .env đã được tạo tại $PROJECT_DIR/.env${NC}"
-echo -e "${YELLOW}Vui lòng kiểm tra và cập nhật các giá trị trong file này!${NC}"
-
-# Hướng dẫn cấu hình DNS
-echo -e "${YELLOW}[8/8] Hướng dẫn cấu hình DNS...${NC}"
-echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}Cấu hình DNS records:${NC}"
-echo -e "${GREEN}========================================${NC}"
-echo "A     @              -> $(curl -s ifconfig.me)"
-echo "A     www            -> $(curl -s ifconfig.me)"
-echo "A     api            -> $(curl -s ifconfig.me)"
-echo "A     media          -> $(curl -s ifconfig.me)"
-echo "A     notification   -> $(curl -s ifconfig.me)"
-echo "A     wallet         -> $(curl -s ifconfig.me)"
-echo "A     incident       -> $(curl -s ifconfig.me)"
-echo "A     iot            -> $(curl -s ifconfig.me)"
-echo "A     aiml           -> $(curl -s ifconfig.me)"
-echo "A     search         -> $(curl -s ifconfig.me)"
-echo "A     floodeye       -> $(curl -s ifconfig.me)"
-echo "A     analytics      -> $(curl -s ifconfig.me)"
-echo -e "${GREEN}========================================${NC}"
-
-echo -e "${YELLOW}Chờ DNS propagate (có thể mất vài phút đến vài giờ)...${NC}"
-read -p "Nhấn Enter khi đã cấu hình DNS xong..."
-
-# Cấp SSL certificate cho tất cả subdomains
-echo -e "${YELLOW}Cấp SSL certificates...${NC}"
-
-# Main domain
-certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# API domain
-certbot --nginx -d api.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Media domain
-certbot --nginx -d media.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Notification domain
-certbot --nginx -d notification.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Wallet domain
-certbot --nginx -d wallet.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Incident domain
-certbot --nginx -d incident.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# IoT domain
-certbot --nginx -d iot.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# AI/ML domain
-certbot --nginx -d aiml.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Search domain
-certbot --nginx -d search.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# FloodEye domain
-certbot --nginx -d floodeye.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Analytics domain
-certbot --nginx -d analytics.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Cập nhật nginx config với SSL paths
-echo -e "${YELLOW}Cập nhật nginx config với SSL paths...${NC}"
-# Certbot đã tự động cập nhật, chỉ cần reload
-systemctl reload nginx
-
-# Copy project files
-echo -e "${YELLOW}Copy project files...${NC}"
-# Copy toàn bộ project
-mkdir -p $PROJECT_DIR
-cp -r . $PROJECT_DIR/
-
-# Xóa các thư mục không cần thiết
-echo -e "${YELLOW}Dọn dẹp thư mục không cần thiết...${NC}"
-rm -rf $PROJECT_DIR/.git
-find $PROJECT_DIR -type d -name "node_modules" -exec rm -rf {} + 2>/dev/null || true
-find $PROJECT_DIR -type d -name "vendor" -exec rm -rf {} + 2>/dev/null || true
-find $PROJECT_DIR -type d -name ".next" -exec rm -rf {} + 2>/dev/null || true
-
-# Di chuyển vào thư mục project
-cd $PROJECT_DIR
+echo -e "${GREEN}File .env đã được tạo/cập nhật${NC}"
 
 # Đảm bảo file .env có trong thư mục CoreAPI (Laravel cần)
 echo -e "${YELLOW}Tạo symlink .env cho CoreAPI...${NC}"
@@ -348,8 +388,21 @@ if docker ps -a --format '{{.Names}}' | grep -q 'cityresq-'; then
     read -p "Bạn có muốn down containers cũ trước khi rebuild? (y/N): " -n 1 -r
     echo
     if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "${YELLOW}Dừng và xóa containers cũ (giữ nguyên volumes)...${NC}"
-        docker-compose -f docker-compose.production.yml down
+        echo -e "${YELLOW}Down containers cũ...${NC}"
+        read -p "Có muốn XÓA VOLUMES (XÓA HẾT DATABASE DATA)? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo -e "${RED}⚠️  Xóa containers và volumes (XÓA HẾT DATABASE DATA)...${NC}"
+            docker-compose -f docker-compose.production.yml down -v
+            # Xóa .env để force generate passwords mới cho lần deploy sau
+            rm -f .env
+            echo -e "${YELLOW}Đã xóa .env, sẽ generate passwords mới ở lần deploy tiếp theo${NC}"
+            echo -e "${RED}LƯU Ý: Bạn cần chạy lại script deploy.sh để tạo .env mới!${NC}"
+            exit 0
+        else
+            echo -e "${YELLOW}Dừng và xóa containers cũ (giữ nguyên volumes & passwords)...${NC}"
+            docker-compose -f docker-compose.production.yml down
+        fi
     fi
 fi
 
@@ -358,10 +411,6 @@ docker-compose -f docker-compose.production.yml --env-file .env up -d --build
 # Chờ các database services khởi động trước
 echo -e "${YELLOW}Chờ database services khởi động...${NC}"
 sleep 20
-
-# Generate Laravel APP_KEY trong container
-echo -e "${YELLOW}Generate Laravel APP_KEY...${NC}"
-docker exec cityresq-coreapi php artisan key:generate --force
 
 # Chạy Laravel migrations
 echo -e "${YELLOW}Chạy Laravel migrations...${NC}"

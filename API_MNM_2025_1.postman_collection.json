@@ -2,7 +2,7 @@
 	"info": {
 		"_postman_id": "api-mnm-2025-1",
 		"name": "API_MNM_2025_1",
-		"description": "CityResQ360 Client API Collection - Version 1\n\n**Base URL:** {{base_url}}/api/v1\n**Authentication:** Bearer Token (Laravel Sanctum)\n\n**Setup:**\n1. Set base_url variable (default: http://localhost:8000)\n2. Login to get token\n3. Token will be automatically saved to 'auth_token' variable\n\n**Quick Start:**\n1. Import collection vào Postman\n2. Set base_url = http://localhost:8000 (hoặc URL server của bạn)\n3. Chạy \"Login\" request để lấy token\n4. Token sẽ tự động được lưu vào biến auth_token\n5. Tất cả protected requests sẽ tự động dùng token này\n\n**Test với Docker:**\n- Base URL: http://localhost:8000\n- Đảm bảo Docker containers đang chạy: docker-compose ps\n\n**Test với Local:**\n- Base URL: http://localhost:8000\n- Đảm bảo CoreAPI đang chạy: php artisan serve",
+		"description": "CityResQ360 Client API Collection - Version 1\n\n**Base URL:** {{base_url}}/api/v1\n**Authentication:** Bearer Token (Laravel Sanctum)\n\n**Setup:**\n1. Set base_url variable:\n   - Local: http://localhost:8000\n   - Production: https://api.midstack.io.vn\n2. Login to get token\n3. Token will be automatically saved to 'auth_token' variable\n\n**Quick Start:**\n1. Import collection vào Postman\n2. Set base_url:\n   - Local Development: http://localhost:8000\n   - Production Server: https://api.midstack.io.vn\n3. Chạy \"Login\" request để lấy token\n4. Token sẽ tự động được lưu vào biến auth_token\n5. Tất cả protected requests sẽ tự động dùng token này\n\n**Environments:**\n\n**Local Development:**\n- Base URL: http://localhost:8000\n- Đảm bảo Docker containers đang chạy: docker-compose ps\n- Hoặc chạy: php artisan serve\n\n**Production:**\n- Base URL: https://api.midstack.io.vn\n- Server: VPS 34.85.44.142\n- SSL: Enabled (Let's Encrypt)\n\n**Available Endpoints:**\n- Main App: https://midstack.io.vn\n- API: https://api.midstack.io.vn\n- Admin Panel: https://api.midstack.io.vn/admin\n- Media: https://media.midstack.io.vn",
 		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
 	},
 	"item": [
@@ -85,7 +85,7 @@
 						],
 						"body": {
 							"mode": "raw",
-							"raw": "{\n  \"email\": \"nguyenvanan@gmail.com\",\n  \"mat_khau\": \"123456\",\n  \"remember\": true\n}"
+							"raw": "{\n  \"email\": \"admin@cityresq360.com\",\n  \"mat_khau\": \"password123\",\n  \"remember\": true\n}"
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/login",
@@ -1106,12 +1106,26 @@
 		{
 			"key": "base_url",
 			"value": "http://localhost:8000",
-			"type": "string"
+			"type": "string",
+			"description": "API Base URL - Change to production_url for production testing"
+		},
+		{
+			"key": "production_url",
+			"value": "https://api.midstack.io.vn",
+			"type": "string",
+			"description": "Production server URL"
+		},
+		{
+			"key": "local_url",
+			"value": "http://localhost:8000",
+			"type": "string",
+			"description": "Local development URL"
 		},
 		{
 			"key": "auth_token",
 			"value": "",
-			"type": "string"
+			"type": "string",
+			"description": "Authentication token (auto-saved after login)"
 		}
 	]
 }
