@@ -369,7 +369,7 @@ docker exec cityresq-coreapi php artisan migrate --force
 
 # Chạy Laravel seeders (nếu cần)
 echo -e "${YELLOW}Chạy Laravel seeders...${NC}"
-docker exec cityresq-coreapi php artisan db:seed --force --class=AdminSeeder || true
+docker exec cityresq-coreapi php artisan db:seed --force || true
 
 # Tối ưu Laravel
 echo -e "${YELLOW}Tối ưu Laravel cache...${NC}"
