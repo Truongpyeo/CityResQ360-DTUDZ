@@ -90,7 +90,7 @@ fi
 # Tạo file .env cho production
 echo -e "${YELLOW}[7/8] Tạo file .env production...${NC}"
 
-# Generate random passwords (alphanumeric only)
+# Generate random passwords (alphanumeric only để tránh lỗi với shell và connection strings)
 MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 MYSQL_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 MONGODB_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
@@ -98,8 +98,9 @@ POSTGRES_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 CLICKHOUSE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-APP_KEY=$(openssl rand -base64 32)
-JWT_SECRET=$(openssl rand -base64 64)
+# APP_KEY và JWT_SECRET dùng base64 nhưng xóa newline và chỉ dùng alphanumeric an toàn hơn
+APP_KEY=$(openssl rand -base64 32 | tr -d '\n' | tr -d '/' | tr -d '+' | tr -d '=')
+JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
 
 cat > $PROJECT_DIR/.env << EOF
 # ============================================
