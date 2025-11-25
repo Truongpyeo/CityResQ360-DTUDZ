@@ -11,6 +11,29 @@
   - Expose ports cho tất cả services (coreapi:8000, app-mobile:3000, media:8004, notification:8006, wallet:8005, incident:8001, iot:8002, aiml:8003, search:8007, floodeye:8008, analytics:8009)
   - Cập nhật internal service URLs từ `coreapi:8000` → `coreapi:80` trong Docker network
 
+## 2025-11-25
+
+- **Cải thiện deploy script**: Sửa lại `deploy.sh` để tạo `.env` chuẩn Laravel với đầy đủ config:
+  - Laravel core config (APP_NAME, APP_ENV, APP_KEY, APP_DEBUG, APP_URL, APP_TIMEZONE, APP_LOCALE)
+  - Database config theo Laravel convention (DB_CONNECTION, DB_HOST, DB_PORT, DB_DATABASE, DB_USERNAME, DB_PASSWORD)
+  - Redis config (REDIS_HOST, REDIS_PORT, REDIS_DB, REDIS_CACHE_DB)
+  - Queue & Broadcasting với RabbitMQ (QUEUE_CONNECTION=rabbitmq, BROADCAST_CONNECTION=rabbitmq)
+  - Session & Cache (SESSION_DRIVER=redis, CACHE_STORE=redis)
+  - File Storage với MinIO S3-compatible (FILESYSTEM_DISK=s3, AWS_* variables)
+  - JWT Authentication (JWT_SECRET, JWT_TTL, JWT_REFRESH_TTL)
+  - Microservices URLs (internal Docker network URLs)
+  - Public URLs cho Frontend (NEXT_PUBLIC_API_URL, NEXT_PUBLIC_MEDIA_URL)
+  - MQTT, MongoDB, Mail configuration
+- Deploy script tự động tạo symlink `.env` từ `$PROJECT_DIR/.env` sang `$PROJECT_DIR/CoreAPI/.env` để Laravel đọc được
+- Deploy script sử dụng `rsync` thay vì `cp -r` để tránh copy `.git`, `node_modules`, `vendor`
+- Thêm các bước Laravel optimization trong deployment:
+  - `php artisan migrate --force` để tự động chạy migrations
+  - `php artisan db:seed --force --class=AdminSeeder` để tạo admin user mặc định
+  - `php artisan config:cache` để cache config
+  - `php artisan route:cache` để cache routes
+  - `php artisan view:cache` để cache views
+- Đảm bảo tất cả lệnh deploy chạy từ đúng thư mục `PROJECT_DIR=/opt/cityresq360`
+
 ## 2025-11-24
 
 - Thêm Dockerfile placeholder cho các service còn thiếu (`AIMLService`, `AnalyticsService`, `FloodEyeService`, `IncidentService`, `IoTService`, `SearchService`) để bảo đảm `docker-compose.production.yml` build thành công.

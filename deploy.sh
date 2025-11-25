@@ -89,44 +89,162 @@ fi
 
 # Tạo file .env cho production
 echo -e "${YELLOW}[7/8] Tạo file .env production...${NC}"
+
+# Generate random passwords (alphanumeric only)
+MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+MYSQL_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+MONGODB_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+POSTGRES_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+CLICKHOUSE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+APP_KEY=$(openssl rand -base64 32)
+JWT_SECRET=$(openssl rand -base64 64)
+
 cat > $PROJECT_DIR/.env << EOF
-# Domain Configuration
+# ============================================
+# Laravel Application Config
+# ============================================
+APP_NAME=CityResQ360
+APP_ENV=production
+APP_KEY=base64:${APP_KEY}
+APP_DEBUG=false
+APP_TIMEZONE=Asia/Ho_Chi_Minh
 APP_URL=https://api.$DOMAIN
-NEXT_PUBLIC_API_URL=https://api.$DOMAIN/api/v1
+APP_LOCALE=vi
+APP_FALLBACK_LOCALE=vi
 
-# Database Passwords - THAY ĐỔI CÁC MẬT KHẨU NÀY
-# Chỉ dùng ký tự alphanumeric để tránh lỗi với MySQL và MongoDB connection string
-MYSQL_ROOT_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
-MYSQL_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
-MONGODB_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
-POSTGRES_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
-CLICKHOUSE_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
-RABBITMQ_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
+# ============================================
+# Laravel Database (MySQL)
+# ============================================
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=cityresq_db
+DB_USERNAME=cityresq
+DB_PASSWORD=${MYSQL_PASSWORD}
+
+# ============================================
+# Database Passwords (Docker)
+# ============================================
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+MYSQL_PASSWORD=${MYSQL_PASSWORD}
+MONGODB_PASSWORD=${MONGODB_PASSWORD}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+
+# ============================================
+# Redis Cache
+# ============================================
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_CACHE_DB=1
+
+# ============================================
+# Queue & Broadcasting
+# ============================================
+QUEUE_CONNECTION=rabbitmq
+BROADCAST_CONNECTION=rabbitmq
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_USER=cityresq
+RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+RABBITMQ_VHOST=/
+RABBITMQ_QUEUE=default
+
+# ============================================
+# Session & Cache
+# ============================================
+SESSION_DRIVER=redis
+SESSION_LIFETIME=120
+CACHE_STORE=redis
+
+# ============================================
+# File Storage (MinIO S3-compatible)
+# ============================================
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=cityresq
+AWS_ENDPOINT=http://minio:9000
+AWS_USE_PATH_STYLE_ENDPOINT=true
+AWS_URL=https://media.$DOMAIN
+
 MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD="$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)"
+MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
 
-# JWT Secret - THAY ĐỔI (JWT có thể dùng base64 vì không dùng trong connection string)
-JWT_SECRET="$(openssl rand -base64 64)"
+# ============================================
+# JWT Authentication
+# ============================================
+JWT_SECRET=${JWT_SECRET}
+JWT_TTL=60
+JWT_REFRESH_TTL=20160
 
-# Service URLs
-MEDIA_SERVICE_URL=https://media.$DOMAIN/api/v1
-NOTIFICATION_SERVICE_URL=https://notification.$DOMAIN/api/v1
-WALLET_SERVICE_URL=https://wallet.$DOMAIN/api/v1
+# ============================================
+# Microservices URLs (Internal Docker)
+# ============================================
+MEDIA_SERVICE_URL=http://media-service:8004/api/v1
+NOTIFICATION_SERVICE_URL=http://notification-service:8006/api/v1
+WALLET_SERVICE_URL=http://wallet-service:8005/api/v1
+INCIDENT_SERVICE_URL=http://incident-service:8001/api/v1
+IOT_SERVICE_URL=http://iot-service:8002/api/v1
+AIML_SERVICE_URL=http://aiml-service:8003/api/v1
+SEARCH_SERVICE_URL=http://search-service:8007/api/v1
+FLOODEYE_SERVICE_URL=http://floodeye-service:8008/api/v1
+ANALYTICS_SERVICE_URL=http://analytics-service:8009/api/v1
 
-# CDN URL (optional)
-# CDN_URL=https://cdn.$DOMAIN
+# ============================================
+# Public URLs (cho Frontend/Client)
+# ============================================
+NEXT_PUBLIC_API_URL=https://api.$DOMAIN/api/v1
+NEXT_PUBLIC_MEDIA_URL=https://media.$DOMAIN
+NEXT_PUBLIC_WS_URL=wss://api.$DOMAIN
 
-# SMTP Configuration (tùy chọn)
-# SMTP_HOST=smtp.gmail.com
-# SMTP_PORT=587
-# SMTP_USER=your-email@gmail.com
-# SMTP_PASS=your-app-password
-# SMTP_FROM=noreply@$DOMAIN
+# ============================================
+# MQTT
+# ============================================
+MQTT_HOST=mqtt
+MQTT_PORT=1883
+MQTT_USERNAME=
+MQTT_PASSWORD=
 
-# Firebase Cloud Messaging (tùy chọn)
-# FCM_PROJECT_ID=your-project-id
-# FCM_CLIENT_EMAIL=your-client-email
-# FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
+# ============================================
+# MongoDB (cho Media Service)
+# ============================================
+MONGODB_HOST=mongodb
+MONGODB_PORT=27017
+MONGODB_USERNAME=cityresq
+MONGODB_PASSWORD=${MONGODB_PASSWORD}
+MONGODB_DATABASE=media_db
+
+# ============================================
+# Mail Configuration (optional - update if needed)
+# ============================================
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@$DOMAIN
+MAIL_FROM_NAME="\${APP_NAME}"
+
+# ============================================
+# Logging
+# ============================================
+LOG_CHANNEL=daily
+LOG_LEVEL=info
+LOG_DEPRECATIONS_CHANNEL=null
+
+# ============================================
+# Services Config (optional)
+# ============================================
+# FCM_PROJECT_ID=
+# FCM_CLIENT_EMAIL=
+# FCM_PRIVATE_KEY=
 EOF
 
 echo -e "${GREEN}File .env đã được tạo tại $PROJECT_DIR/.env${NC}"
@@ -197,8 +315,14 @@ systemctl reload nginx
 
 # Copy project files
 echo -e "${YELLOW}Copy project files...${NC}"
-cp -r . $PROJECT_DIR/
+rsync -av --exclude='.git' --exclude='node_modules' --exclude='vendor' ./ $PROJECT_DIR/
+
+# Di chuyển vào thư mục project
 cd $PROJECT_DIR
+
+# Đảm bảo file .env có trong thư mục CoreAPI (Laravel cần)
+echo -e "${YELLOW}Tạo symlink .env cho CoreAPI...${NC}"
+ln -sf $PROJECT_DIR/.env $PROJECT_DIR/CoreAPI/.env
 
 # Ensure go.sum exists for wallet-service to avoid Docker build issues
 if [ ! -f "WalletService/go.sum" ]; then
@@ -210,9 +334,27 @@ fi
 echo -e "${YELLOW}Build và khởi động Docker containers...${NC}"
 docker-compose -f docker-compose.production.yml --env-file .env up -d --build
 
-# Chờ services khởi động
-echo -e "${YELLOW}Chờ services khởi động...${NC}"
-sleep 30
+# Chờ các database services khởi động trước
+echo -e "${YELLOW}Chờ database services khởi động...${NC}"
+sleep 20
+
+# Chạy Laravel migrations
+echo -e "${YELLOW}Chạy Laravel migrations...${NC}"
+docker exec -it cityresq-coreapi php artisan migrate --force
+
+# Chạy Laravel seeders (nếu cần)
+echo -e "${YELLOW}Chạy Laravel seeders...${NC}"
+docker exec -it cityresq-coreapi php artisan db:seed --force --class=AdminSeeder || true
+
+# Tối ưu Laravel
+echo -e "${YELLOW}Tối ưu Laravel cache...${NC}"
+docker exec -it cityresq-coreapi php artisan config:cache
+docker exec -it cityresq-coreapi php artisan route:cache
+docker exec -it cityresq-coreapi php artisan view:cache
+
+# Chờ các services còn lại khởi động
+echo -e "${YELLOW}Chờ các services còn lại khởi động...${NC}"
+sleep 20
 
 # Kiểm tra status
 echo -e "${YELLOW}Kiểm tra trạng thái services...${NC}"
