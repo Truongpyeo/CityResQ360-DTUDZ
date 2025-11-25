@@ -341,6 +341,18 @@ fi
 
 # Build và start Docker containers
 echo -e "${YELLOW}Build và khởi động Docker containers...${NC}"
+
+# Kiểm tra xem có containers đang chạy không
+if docker ps -a --format '{{.Names}}' | grep -q 'cityresq-'; then
+    echo -e "${YELLOW}Phát hiện containers cũ đang chạy...${NC}"
+    read -p "Bạn có muốn down containers cũ trước khi rebuild? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Dừng và xóa containers cũ (giữ nguyên volumes)...${NC}"
+        docker-compose -f docker-compose.production.yml down
+    fi
+fi
+
 docker-compose -f docker-compose.production.yml --env-file .env up -d --build
 
 # Chờ các database services khởi động trước
@@ -349,17 +361,17 @@ sleep 20
 
 # Chạy Laravel migrations
 echo -e "${YELLOW}Chạy Laravel migrations...${NC}"
-docker exec -it cityresq-coreapi php artisan migrate --force
+docker exec cityresq-coreapi php artisan migrate --force
 
 # Chạy Laravel seeders (nếu cần)
 echo -e "${YELLOW}Chạy Laravel seeders...${NC}"
-docker exec -it cityresq-coreapi php artisan db:seed --force --class=AdminSeeder || true
+docker exec cityresq-coreapi php artisan db:seed --force --class=AdminSeeder || true
 
 # Tối ưu Laravel
 echo -e "${YELLOW}Tối ưu Laravel cache...${NC}"
-docker exec -it cityresq-coreapi php artisan config:cache
-docker exec -it cityresq-coreapi php artisan route:cache
-docker exec -it cityresq-coreapi php artisan view:cache
+docker exec cityresq-coreapi php artisan config:cache
+docker exec cityresq-coreapi php artisan route:cache
+docker exec cityresq-coreapi php artisan view:cache
 
 # Chờ các services còn lại khởi động
 echo -e "${YELLOW}Chờ các services còn lại khởi động...${NC}"
