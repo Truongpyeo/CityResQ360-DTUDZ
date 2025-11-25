@@ -2,6 +2,14 @@
 - Sửa lỗi Mosquitto MQTT: `Invalid max_packet_size value (0)` trong `mosquitto/config/mosquitto.conf`, thay giá trị 0 bằng 268435456 bytes (256MB).
 - Cập nhật `.gitignore` của AppMobile để ignore thư mục `.next/` build output.
 - **Fix critical**: Sửa lỗi 502 Bad Gateway do password tự động sinh ra chứa ký tự đặc biệt (`/`, `+`, `=`) gây MySQL/MongoDB authentication failed. Thay `openssl rand -base64` bằng `tr -dc A-Za-z0-9` để chỉ tạo password alphanumeric trong `deploy.sh`.
+- **Fix production deployment**: Sửa CoreAPI để dùng Nginx + PHP-FPM production thay vì `php artisan serve`:
+  - Thêm `nginx` và `supervisor` vào CoreAPI Dockerfile
+  - Tạo Nginx config cho Laravel (`CoreAPI/nginx/default.conf`)
+  - Dùng supervisor để chạy cả Nginx (port 80) và PHP-FPM (port 9000) trong cùng container
+  - Sửa entrypoint script để chạy migrations trước khi start services
+  - Xóa `command` override trong `docker-compose.production.yml` vì đã có entrypoint trong Dockerfile
+  - Expose ports cho tất cả services (coreapi:8000, app-mobile:3000, media:8004, notification:8006, wallet:8005, incident:8001, iot:8002, aiml:8003, search:8007, floodeye:8008, analytics:8009)
+  - Cập nhật internal service URLs từ `coreapi:8000` → `coreapi:80` trong Docker network
 
 ## 2025-11-24
 
