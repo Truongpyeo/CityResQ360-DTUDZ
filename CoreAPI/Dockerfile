@@ -17,9 +17,18 @@ RUN apk add --no-cache \
     nginx \
     supervisor
 
+# Install Redis extension dependencies
+RUN apk add --no-cache \
+    autoconf \
+    g++ \
+    make
+
 # Configure and install PHP extensions with JPEG support
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype
 RUN docker-php-ext-install pdo pdo_mysql gd xml zip
+
+# Install Redis extension via PECL
+RUN pecl install redis && docker-php-ext-enable redis
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
