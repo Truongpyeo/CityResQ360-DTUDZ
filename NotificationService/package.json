@@ -1,0 +1,12 @@
+{
+  "name": "notification-service",
+  "version": "0.1.0",
+  "description": "Placeholder Notification Service for deployment scaffolding",
+  "main": "src/server.js",
+  "license": "MIT",
+  "type": "module",
+  "scripts": {
+    "start": "node src/server.js"
+  }
+}
+

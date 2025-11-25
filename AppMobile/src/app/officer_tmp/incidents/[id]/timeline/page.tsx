@@ -2,11 +2,15 @@ export const metadata = {
   title: "Incident Timeline",
 };
 
-export default function Page({ params }: { params: { id: string } }) {
+type PageParams = Promise<{ id: string }>;
+
+export default async function Page({ params }: { params: PageParams }) {
+  const { id } = await params;
+
   return (
     <main>
       <h1>Incident Timeline</h1>
-      <p>Chronological timeline for the incident. Currently viewing record {params.id}.</p>
+      <p>Chronological timeline for the incident. Currently viewing record {id}.</p>
     </main>
   );
 }

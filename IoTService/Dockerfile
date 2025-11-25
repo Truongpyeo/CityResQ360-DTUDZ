@@ -1,23 +1,21 @@
 FROM node:20-alpine
 
+ENV NODE_ENV=production \
+    SERVICE_PORT=8002
+
 WORKDIR /app
 
-# Copy package files
 COPY package*.json ./
 
-# Install dependencies
 RUN if [ -f package-lock.json ]; then \
         npm ci --only=production; \
     else \
         npm install --omit=dev && npm cache clean --force; \
     fi
 
-# Copy application files
-COPY . .
+COPY . /app
 
-# Create uploads directory
-RUN mkdir -p uploads
-
-EXPOSE 8006
+EXPOSE 8002
 
 CMD ["node", "src/server.js"]
+

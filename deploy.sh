@@ -87,49 +87,8 @@ else
     exit 1
 fi
 
-# Tạo file .env cho production
-echo -e "${YELLOW}[7/8] Tạo file .env production...${NC}"
-cat > $PROJECT_DIR/.env << EOF
-# Domain Configuration
-APP_URL=https://api.$DOMAIN
-NEXT_PUBLIC_API_URL=https://api.$DOMAIN/api/v1
-
-# Database Passwords - THAY ĐỔI CÁC MẬT KHẨU NÀY
-MYSQL_ROOT_PASSWORD=$(openssl rand -base64 32)
-MYSQL_PASSWORD=$(openssl rand -base64 32)
-MONGODB_PASSWORD=$(openssl rand -base64 32)
-POSTGRES_PASSWORD=$(openssl rand -base64 32)
-CLICKHOUSE_PASSWORD=$(openssl rand -base64 32)
-RABBITMQ_PASSWORD=$(openssl rand -base64 32)
-MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=$(openssl rand -base64 32)
-
-# JWT Secret - THAY ĐỔI
-JWT_SECRET=$(openssl rand -base64 64)
-
-# Service URLs
-MEDIA_SERVICE_URL=https://media.$DOMAIN/api/v1
-NOTIFICATION_SERVICE_URL=https://notification.$DOMAIN/api/v1
-WALLET_SERVICE_URL=https://wallet.$DOMAIN/api/v1
-
-# CDN URL (optional)
-# CDN_URL=https://cdn.$DOMAIN
-
-# SMTP Configuration (tùy chọn)
-# SMTP_HOST=smtp.gmail.com
-# SMTP_PORT=587
-# SMTP_USER=your-email@gmail.com
-# SMTP_PASS=your-app-password
-# SMTP_FROM=noreply@$DOMAIN
-
-# Firebase Cloud Messaging (tùy chọn)
-# FCM_PROJECT_ID=your-project-id
-# FCM_CLIENT_EMAIL=your-client-email
-# FCM_PRIVATE_KEY="-----BEGIN PRIVATE KEY-----\n...\n-----END PRIVATE KEY-----\n"
-EOF
-
-echo -e "${GREEN}File .env đã được tạo tại $PROJECT_DIR/.env${NC}"
-echo -e "${YELLOW}Vui lòng kiểm tra và cập nhật các giá trị trong file này!${NC}"
+# File .env sẽ được tạo sau khi copy files
+echo -e "${YELLOW}[7/8] Chuẩn bị deploy...${NC}"
 
 # Hướng dẫn cấu hình DNS
 echo -e "${YELLOW}[8/8] Hướng dẫn cấu hình DNS...${NC}"
@@ -196,19 +155,273 @@ systemctl reload nginx
 
 # Copy project files
 echo -e "${YELLOW}Copy project files...${NC}"
+# Copy toàn bộ project
+mkdir -p $PROJECT_DIR
 cp -r . $PROJECT_DIR/
+
+# Xóa các thư mục không cần thiết
+echo -e "${YELLOW}Dọn dẹp thư mục không cần thiết...${NC}"
+rm -rf $PROJECT_DIR/.git
+find $PROJECT_DIR -type d -name "node_modules" -exec rm -rf {} + 2>/dev/null || true
+find $PROJECT_DIR -type d -name "vendor" -exec rm -rf {} + 2>/dev/null || true
+find $PROJECT_DIR -type d -name ".next" -exec rm -rf {} + 2>/dev/null || true
+
+# Di chuyển vào thư mục project
 cd $PROJECT_DIR
 
-# Load environment variables
-export $(cat .env | xargs)
+# Kiểm tra và tạo file .env với passwords
+echo -e "${YELLOW}Kiểm tra file .env...${NC}"
+if [ -f "$PROJECT_DIR/.env" ]; then
+    echo -e "${GREEN}.env đã tồn tại, sử dụng lại passwords cũ...${NC}"
+    # Load passwords từ .env cũ
+    MYSQL_ROOT_PASSWORD=$(grep "^MYSQL_ROOT_PASSWORD=" .env | cut -d '=' -f2)
+    MYSQL_PASSWORD=$(grep "^MYSQL_PASSWORD=" .env | cut -d '=' -f2 | head -1)
+    MONGODB_PASSWORD=$(grep "^MONGODB_PASSWORD=" .env | cut -d '=' -f2)
+    POSTGRES_PASSWORD=$(grep "^POSTGRES_PASSWORD=" .env | cut -d '=' -f2)
+    CLICKHOUSE_PASSWORD=$(grep "^CLICKHOUSE_PASSWORD=" .env | cut -d '=' -f2)
+    RABBITMQ_PASSWORD=$(grep "^RABBITMQ_PASSWORD=" .env | cut -d '=' -f2)
+    MINIO_ROOT_PASSWORD=$(grep "^MINIO_ROOT_PASSWORD=" .env | cut -d '=' -f2)
+    JWT_SECRET=$(grep "^JWT_SECRET=" .env | cut -d '=' -f2)
+    
+    # Kiểm tra nếu không load được thì generate mới
+    if [ -z "$MYSQL_PASSWORD" ] || [ -z "$MONGODB_PASSWORD" ]; then
+        echo -e "${YELLOW}.env cũ không đầy đủ, generate passwords mới...${NC}"
+        MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        MYSQL_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        MONGODB_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        POSTGRES_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        CLICKHOUSE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+        JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
+    fi
+else
+    echo -e "${YELLOW}.env chưa tồn tại, generate passwords mới...${NC}"
+    # Generate random passwords
+    MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    MYSQL_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    MONGODB_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    POSTGRES_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    CLICKHOUSE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
+    JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
+fi
+
+# Tạo/Cập nhật file .env
+echo -e "${YELLOW}Tạo file .env...${NC}"
+cat > .env << EOF
+# ============================================
+# Laravel Application Config
+# ============================================
+APP_NAME=CityResQ360
+APP_ENV=production
+APP_KEY=
+APP_DEBUG=false
+APP_TIMEZONE=Asia/Ho_Chi_Minh
+APP_URL=https://api.$DOMAIN
+APP_LOCALE=vi
+APP_FALLBACK_LOCALE=vi
+
+# ============================================
+# Laravel Database (MySQL)
+# ============================================
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=cityresq_db
+DB_USERNAME=cityresq
+DB_PASSWORD=${MYSQL_PASSWORD}
+
+# ============================================
+# Database Passwords (Docker)
+# ============================================
+MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
+MYSQL_PASSWORD=${MYSQL_PASSWORD}
+MONGODB_PASSWORD=${MONGODB_PASSWORD}
+POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
+CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
+
+# ============================================
+# Redis Cache
+# ============================================
+REDIS_HOST=redis
+REDIS_PASSWORD=null
+REDIS_PORT=6379
+REDIS_DB=0
+REDIS_CACHE_DB=1
+
+# ============================================
+# Queue & Broadcasting
+# ============================================
+QUEUE_CONNECTION=rabbitmq
+BROADCAST_CONNECTION=rabbitmq
+RABBITMQ_HOST=rabbitmq
+RABBITMQ_PORT=5672
+RABBITMQ_USER=cityresq
+RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
+RABBITMQ_VHOST=/
+RABBITMQ_QUEUE=default
+
+# ============================================
+# Session & Cache
+# ============================================
+SESSION_DRIVER=redis
+SESSION_LIFETIME=120
+CACHE_STORE=redis
+
+# ============================================
+# File Storage (MinIO S3-compatible)
+# ============================================
+FILESYSTEM_DISK=s3
+AWS_ACCESS_KEY_ID=minioadmin
+AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
+AWS_DEFAULT_REGION=us-east-1
+AWS_BUCKET=cityresq
+AWS_ENDPOINT=http://minio:9000
+AWS_USE_PATH_STYLE_ENDPOINT=true
+AWS_URL=https://media.$DOMAIN
+
+MINIO_ROOT_USER=minioadmin
+MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
+
+# ============================================
+# JWT Authentication
+# ============================================
+JWT_SECRET=${JWT_SECRET}
+JWT_TTL=60
+JWT_REFRESH_TTL=20160
+
+# ============================================
+# Microservices URLs (Internal Docker)
+# ============================================
+MEDIA_SERVICE_URL=http://media-service:8004/api/v1
+NOTIFICATION_SERVICE_URL=http://notification-service:8006/api/v1
+WALLET_SERVICE_URL=http://wallet-service:8005/api/v1
+INCIDENT_SERVICE_URL=http://incident-service:8001/api/v1
+IOT_SERVICE_URL=http://iot-service:8002/api/v1
+AIML_SERVICE_URL=http://aiml-service:8003/api/v1
+SEARCH_SERVICE_URL=http://search-service:8007/api/v1
+FLOODEYE_SERVICE_URL=http://floodeye-service:8008/api/v1
+ANALYTICS_SERVICE_URL=http://analytics-service:8009/api/v1
+
+# ============================================
+# Public URLs (cho Frontend/Client)
+# ============================================
+NEXT_PUBLIC_API_URL=https://api.$DOMAIN/api/v1
+NEXT_PUBLIC_MEDIA_URL=https://media.$DOMAIN
+NEXT_PUBLIC_WS_URL=wss://api.$DOMAIN
+
+# ============================================
+# MQTT
+# ============================================
+MQTT_HOST=mqtt
+MQTT_PORT=1883
+MQTT_USERNAME=
+MQTT_PASSWORD=
+
+# ============================================
+# MongoDB (cho Media Service)
+# ============================================
+MONGODB_HOST=mongodb
+MONGODB_PORT=27017
+MONGODB_USERNAME=cityresq
+MONGODB_PASSWORD=${MONGODB_PASSWORD}
+MONGODB_DATABASE=media_db
+
+# ============================================
+# Mail Configuration (optional - update if needed)
+# ============================================
+MAIL_MAILER=smtp
+MAIL_HOST=smtp.gmail.com
+MAIL_PORT=587
+MAIL_USERNAME=
+MAIL_PASSWORD=
+MAIL_ENCRYPTION=tls
+MAIL_FROM_ADDRESS=noreply@$DOMAIN
+MAIL_FROM_NAME="\${APP_NAME}"
+
+# ============================================
+# Logging
+# ============================================
+LOG_CHANNEL=daily
+LOG_LEVEL=info
+LOG_DEPRECATIONS_CHANNEL=null
+
+# ============================================
+# Services Config (optional)
+# ============================================
+# FCM_PROJECT_ID=
+# FCM_CLIENT_EMAIL=
+# FCM_PRIVATE_KEY=
+EOF
+
+echo -e "${GREEN}File .env đã được tạo/cập nhật${NC}"
+
+# Đảm bảo file .env có trong thư mục CoreAPI (Laravel cần)
+echo -e "${YELLOW}Tạo symlink .env cho CoreAPI...${NC}"
+ln -sf $PROJECT_DIR/.env $PROJECT_DIR/CoreAPI/.env
+
+# Ensure go.sum exists for wallet-service to avoid Docker build issues
+if [ ! -f "WalletService/go.sum" ]; then
+    echo -e "${YELLOW}WalletService: tạo placeholder go.sum...${NC}"
+    touch WalletService/go.sum
+fi
 
 # Build và start Docker containers
 echo -e "${YELLOW}Build và khởi động Docker containers...${NC}"
+
+# Kiểm tra xem có containers đang chạy không
+if docker ps -a --format '{{.Names}}' | grep -q 'cityresq-'; then
+    echo -e "${YELLOW}Phát hiện containers cũ đang chạy...${NC}"
+    read -p "Bạn có muốn down containers cũ trước khi rebuild? (y/N): " -n 1 -r
+    echo
+    if [[ $REPLY =~ ^[Yy]$ ]]; then
+        echo -e "${YELLOW}Down containers cũ...${NC}"
+        read -p "Có muốn XÓA VOLUMES (XÓA HẾT DATABASE DATA)? (y/N): " -n 1 -r
+        echo
+        if [[ $REPLY =~ ^[Yy]$ ]]; then
+            echo -e "${RED}⚠️  Xóa containers và volumes (XÓA HẾT DATABASE DATA)...${NC}"
+            docker-compose -f docker-compose.production.yml down -v
+            # Xóa .env để force generate passwords mới cho lần deploy sau
+            rm -f .env
+            echo -e "${YELLOW}Đã xóa .env, sẽ generate passwords mới ở lần deploy tiếp theo${NC}"
+            echo -e "${RED}LƯU Ý: Bạn cần chạy lại script deploy.sh để tạo .env mới!${NC}"
+            exit 0
+        else
+            echo -e "${YELLOW}Dừng và xóa containers cũ (giữ nguyên volumes & passwords)...${NC}"
+            docker-compose -f docker-compose.production.yml down
+        fi
+    fi
+fi
+
 docker-compose -f docker-compose.production.yml --env-file .env up -d --build
 
-# Chờ services khởi động
-echo -e "${YELLOW}Chờ services khởi động...${NC}"
-sleep 30
+# Chờ các database services khởi động trước
+echo -e "${YELLOW}Chờ database services khởi động...${NC}"
+sleep 20
+
+# Generate Laravel APP_KEY trong container
+echo -e "${YELLOW}Generate Laravel APP_KEY...${NC}"
+docker exec cityresq-coreapi php artisan key:generate --force
+
+# Chạy Laravel migrations
+echo -e "${YELLOW}Chạy Laravel migrations...${NC}"
+docker exec cityresq-coreapi php artisan migrate --force
+
+# Chạy Laravel seeders (nếu cần)
+echo -e "${YELLOW}Chạy Laravel seeders...${NC}"
+docker exec cityresq-coreapi php artisan db:seed --force || true
+
+# Tối ưu Laravel
+echo -e "${YELLOW}Tối ưu Laravel cache...${NC}"
+docker exec cityresq-coreapi php artisan config:cache
+docker exec cityresq-coreapi php artisan route:cache
+docker exec cityresq-coreapi php artisan view:cache
+
+# Chờ các services còn lại khởi động
+echo -e "${YELLOW}Chờ các services còn lại khởi động...${NC}"
+sleep 20
 
 # Kiểm tra status
 echo -e "${YELLOW}Kiểm tra trạng thái services...${NC}"

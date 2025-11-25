@@ -1,9 +1,9 @@
 "use client";
 import React from "react";
-import { motion } from "framer-motion";
+import { motion, HTMLMotionProps } from "framer-motion";
 
 export interface ShimmerButtonProps
-  extends React.ButtonHTMLAttributes<HTMLButtonElement> {
+  extends Omit<HTMLMotionProps<"button">, "ref"> {
   shimmerColor?: string;
   shimmerSize?: string;
   borderRadius?: string;
