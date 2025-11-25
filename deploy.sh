@@ -98,8 +98,7 @@ POSTGRES_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 CLICKHOUSE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
 MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-# APP_KEY và JWT_SECRET dùng base64 nhưng xóa newline và chỉ dùng alphanumeric an toàn hơn
-APP_KEY=$(openssl rand -base64 32 | tr -d '\n' | tr -d '/' | tr -d '+' | tr -d '=')
+# JWT_SECRET dùng alphanumeric
 JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
 
 cat > $PROJECT_DIR/.env << EOF
@@ -108,7 +107,7 @@ cat > $PROJECT_DIR/.env << EOF
 # ============================================
 APP_NAME=CityResQ360
 APP_ENV=production
-APP_KEY=base64:${APP_KEY}
+APP_KEY=
 APP_DEBUG=false
 APP_TIMEZONE=Asia/Ho_Chi_Minh
 APP_URL=https://api.$DOMAIN
@@ -359,6 +358,10 @@ docker-compose -f docker-compose.production.yml --env-file .env up -d --build
 # Chờ các database services khởi động trước
 echo -e "${YELLOW}Chờ database services khởi động...${NC}"
 sleep 20
+
+# Generate Laravel APP_KEY trong container
+echo -e "${YELLOW}Generate Laravel APP_KEY...${NC}"
+docker exec cityresq-coreapi php artisan key:generate --force
 
 # Chạy Laravel migrations
 echo -e "${YELLOW}Chạy Laravel migrations...${NC}"
