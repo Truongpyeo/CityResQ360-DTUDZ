@@ -182,6 +182,7 @@ if [ -f "$PROJECT_DIR/.env" ]; then
     RABBITMQ_PASSWORD=$(grep "^RABBITMQ_PASSWORD=" .env | cut -d '=' -f2)
     MINIO_ROOT_PASSWORD=$(grep "^MINIO_ROOT_PASSWORD=" .env | cut -d '=' -f2)
     JWT_SECRET=$(grep "^JWT_SECRET=" .env | cut -d '=' -f2)
+    APP_KEY=$(grep "^APP_KEY=" .env | cut -d '=' -f2)
     
     # Kiểm tra nếu không load được thì generate mới
     if [ -z "$MYSQL_PASSWORD" ] || [ -z "$MONGODB_PASSWORD" ]; then
@@ -195,6 +196,12 @@ if [ -f "$PROJECT_DIR/.env" ]; then
         MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
         JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
     fi
+    
+    # Generate APP_KEY nếu chưa có
+    if [ -z "$APP_KEY" ]; then
+        echo -e "${YELLOW}Generate APP_KEY mới...${NC}"
+        APP_KEY="base64:$(openssl rand -base64 32 | tr -d '\n')"
+    fi
 else
     echo -e "${YELLOW}.env chưa tồn tại, generate passwords mới...${NC}"
     # Generate random passwords
@@ -206,6 +213,10 @@ else
     RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
     MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
     JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
+    
+    # Generate APP_KEY theo chuẩn Laravel
+    echo -e "${YELLOW}Generate APP_KEY...${NC}"
+    APP_KEY="base64:$(openssl rand -base64 32 | tr -d '\n')"
 fi
 
 # Tạo/Cập nhật file .env
@@ -216,7 +227,7 @@ cat > .env << EOF
 # ============================================
 APP_NAME=CityResQ360
 APP_ENV=production
-APP_KEY=
+APP_KEY=${APP_KEY}
 APP_DEBUG=false
 APP_TIMEZONE=Asia/Ho_Chi_Minh
 APP_URL=https://api.$DOMAIN
@@ -400,10 +411,6 @@ docker-compose -f docker-compose.production.yml --env-file .env up -d --build
 # Chờ các database services khởi động trước
 echo -e "${YELLOW}Chờ database services khởi động...${NC}"
 sleep 20
-
-# Generate Laravel APP_KEY trong container
-echo -e "${YELLOW}Generate Laravel APP_KEY...${NC}"
-docker exec cityresq-coreapi php artisan key:generate --force
 
 # Chạy Laravel migrations
 echo -e "${YELLOW}Chạy Laravel migrations...${NC}"
