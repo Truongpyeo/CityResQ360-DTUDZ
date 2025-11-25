@@ -161,7 +161,7 @@ Xem thêm hướng dẫn đóng góp tại [CONTRIBUTING.md](CONTRIBUTING.md).
 
 ## 📄 Giấy Phép
 
-Dự án này được phân phối dưới [The MIT License](LICENSE). Xem file `LICENSE` để biết thêm chi tiết.
+Dự án này được phân phối dưới [GNU General Public License v3.0](LICENSE). Xem file `LICENSE` để biết thêm chi tiết.
 
 ## 📞 Liên hệ Team DTU-DZ
 
@@ -173,4 +173,4 @@ Nếu cần trao đổi gì thêm, vui lòng liên hệ:
 
 ---
 
-_© 2025 CityResQ360 – Code with ❤️ by DTU-DZ Team
+© 2025 CityResQ360 – Code with ❤️ by DTU-DZ Team
