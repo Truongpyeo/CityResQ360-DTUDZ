@@ -315,8 +315,6 @@ services:
             MEDIA_SERVICE_URL: ${MEDIA_SERVICE_URL:-http://media-service:8004/api/v1}
             NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL:-http://notification-service:8006/api/v1}
             WALLET_SERVICE_URL: ${WALLET_SERVICE_URL:-http://wallet-service:8005/api/v1}
-        volumes:
-            - coreapi_storage:/var/www/html/storage
         ports:
             - "8000:80"
         volumes:
