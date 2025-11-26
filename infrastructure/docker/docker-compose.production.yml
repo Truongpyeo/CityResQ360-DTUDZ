@@ -32,9 +32,9 @@ services:
         image: eclipse-mosquitto:2.0
         container_name: cityresq-mqtt
         volumes:
-            - ./mosquitto/config:/mosquitto/config
-            - ./mosquitto/data:/mosquitto/data
-            - ./mosquitto/log:/mosquitto/log
+            - ../mosquitto/config../mosquitto/config
+            - ../mosquitto/data../mosquitto/data
+            - ../mosquitto/log../mosquitto/log
         networks:
             - cityresq-network
         healthcheck:
@@ -92,7 +92,7 @@ services:
             POSTGRES_DB: wallet_db
         volumes:
             - postgres_data:/var/lib/postgresql/data
-            - ./WalletService/migrations:/docker-entrypoint-initdb.d
+            - ../modules/WalletService/migrations:/docker-entrypoint-initdb.d
         networks:
             - cityresq-network
         healthcheck:
@@ -268,7 +268,7 @@ services:
     # ==========================================
     coreapi:
         build:
-            context: ./CoreAPI
+            context: ../modules/CoreAPI
             dockerfile: Dockerfile
         container_name: cityresq-coreapi
         environment:
@@ -331,7 +331,7 @@ services:
 
     media-service:
         build:
-            context: ./MediaService
+            context: ../modules/MediaService
             dockerfile: Dockerfile
         container_name: cityresq-media-service
         ports:
@@ -357,7 +357,7 @@ services:
             OPTIMIZED_HEIGHT: 1080
             JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
         volumes:
-            - ./MediaService:/app
+            - ../modules/MediaService:/app
             - media_uploads:/app/uploads
             - /app/node_modules
         depends_on:
@@ -371,7 +371,7 @@ services:
 
     notification-service:
         build:
-            context: ./NotificationService
+            context: ../modules/NotificationService
             dockerfile: Dockerfile
         container_name: cityresq-notification-service
         ports:
@@ -393,7 +393,7 @@ services:
             APP_URL: ${APP_URL:-https://yourdomain.com}
             JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
         volumes:
-            - ./NotificationService:/app
+            - ../modules/NotificationService:/app
             - /app/node_modules
         depends_on:
             mongodb:
@@ -408,7 +408,7 @@ services:
 
     wallet-service:
         build:
-            context: ./WalletService
+            context: ../modules/WalletService
             dockerfile: Dockerfile
         container_name: cityresq-wallet-service
         ports:
@@ -438,7 +438,7 @@ services:
 
     incident-service:
         build:
-            context: ./IncidentService
+            context: ../modules/IncidentService
             dockerfile: Dockerfile
         container_name: cityresq-incident-service
         ports:
@@ -456,7 +456,7 @@ services:
             CORE_API_URL: http://coreapi:80/api/v1
             JWT_SECRET: ${JWT_SECRET:-your-secret-key}
         volumes:
-            - ./IncidentService:/app
+            - ../modules/IncidentService:/app
             - /app/node_modules
         depends_on:
             postgres-incident:
@@ -473,7 +473,7 @@ services:
 
     iot-service:
         build:
-            context: ./IoTService
+            context: ../modules/IoTService
             dockerfile: Dockerfile
         container_name: cityresq-iot-service
         ports:
@@ -492,7 +492,7 @@ services:
             RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
             JWT_SECRET: ${JWT_SECRET:-your-secret-key}
         volumes:
-            - ./IoTService:/app
+            - ../modules/IoTService:/app
             - /app/node_modules
         depends_on:
             timescaledb:
@@ -507,7 +507,7 @@ services:
 
     aiml-service:
         build:
-            context: ./AIMLService
+            context: ../modules/AIMLService
             dockerfile: Dockerfile
         container_name: cityresq-aiml-service
         ports:
@@ -525,7 +525,7 @@ services:
             NLP_MODEL_PATH: /app/models/nlp
             VISION_MODEL_PATH: /app/models/vision
         volumes:
-            - ./AIMLService:/app
+            - ../modules/AIMLService:/app
             - aiml_models:/app/models
         depends_on:
             postgres-aiml:
@@ -540,7 +540,7 @@ services:
 
     search-service:
         build:
-            context: ./SearchService
+            context: ../modules/SearchService
             dockerfile: Dockerfile
         container_name: cityresq-search-service
         ports:
@@ -554,7 +554,7 @@ services:
             RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
             JWT_SECRET: ${JWT_SECRET:-your-secret-key}
         volumes:
-            - ./SearchService:/app
+            - ../modules/SearchService:/app
         depends_on:
             opensearch:
                 condition: service_healthy
@@ -566,7 +566,7 @@ services:
 
     floodeye-service:
         build:
-            context: ./FloodEyeService
+            context: ../modules/FloodEyeService
             dockerfile: Dockerfile
         container_name: cityresq-floodeye-service
         ports:
@@ -583,7 +583,7 @@ services:
             RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
             OSM_API_URL: https://nominatim.openstreetmap.org
         volumes:
-            - ./FloodEyeService:/app
+            - ../modules/FloodEyeService:/app
         depends_on:
             postgres-floodeye:
                 condition: service_healthy
@@ -597,7 +597,7 @@ services:
 
     analytics-service:
         build:
-            context: ./AnalyticsService
+            context: ../modules/AnalyticsService
             dockerfile: Dockerfile
         container_name: cityresq-analytics-service
         ports:
@@ -614,7 +614,7 @@ services:
             RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
             CORE_API_URL: http://coreapi:80/api/v1
         volumes:
-            - ./AnalyticsService:/app
+            - ../modules/AnalyticsService:/app
         depends_on:
             clickhouse:
                 condition: service_healthy
@@ -644,7 +644,7 @@ services:
 
     app-mobile:
         build:
-            context: ./AppMobile
+            context: ../modules/AppMobile
             dockerfile: Dockerfile
         container_name: cityresq-app-mobile
         ports:
@@ -656,7 +656,7 @@ services:
             API_URL: http://coreapi:80/api/v1
             DATABASE_URL: postgresql://cityresq:${POSTGRES_PASSWORD:-cityresq_password}@postgres:5432/wallet_db?schema=public
         volumes:
-            - ./AppMobile:/app
+            - ../modules/AppMobile:/app
             - /app/node_modules
             - /app/.next
         depends_on:
