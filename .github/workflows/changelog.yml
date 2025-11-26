@@ -1,11 +1,12 @@
 name: Generate Changelog
 
 on:
-  # Chạy khi push vào main/master (CHANGELOG chính thức)
+  # Chạy khi push vào main/master/develop (CHANGELOG chính thức)
   push:
     branches:
       - main
       - master
+      - develop
   
   # Chạy khi tạo Pull Request (preview CHANGELOG)
   pull_request:
