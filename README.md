@@ -1,10 +1,24 @@
 # 🌆 CityResQ360 — Chung tay vì một đô thị thông minh & an toàn
 
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
+
+[🤝 Đóng Góp](CONTRIBUTING.md) •
+[📜 Changelog](CHANGELOG.md)
+
 ![Banner](/static/img/Banner.png)
 
 > _"Kết nối người dân - Chính quyền - Công nghệ"_
 
-**CityResQ360**! Đây là dự án mã nguồn mở được xây dựng với mong muốn giúp thành phố trở nên an toàn và đáng sống hơn. CityResQ360 là cầu nối giúp người dân phản ánh nhanh các sự cố (như kẹt xe, ngập lụt, hỏa hoạn...) và giúp chính quyền tiếp nhận, xử lý thông tin kịp thời nhờ sự hỗ trợ của AI.
+## 📖 Tổng Quan
+
+**CityResQ360** là một mã nguồn mở, được phát triển bởi đội **DTU-DZ** đến từ **Đại học Duy Tân** để tham gia cuộc thi **Olympic Tin học Sinh viên - Mã nguồn mở năm 2025**. Dự án được thiết kế trong lĩnh vực **xây dựng đô thị thông minh và an toàn**, với các mục tiêu:
+
+🔗 **Kết nối người dân - chính quyền - công nghệ** một cách hiệu quả  
+📊 **Quản lý và xử lý sự cố đô thị** một cách chuyên nghiệp  
+💡 **Mang lại sự an toàn** cho cộng đồng thành phố  
+📝 **Minh bạch dữ liệu** trong quá trình phản ánh và xử lý sự cố
+
+Dự án tập trung vào việc xây dựng một nền tảng toàn diện, kết hợp công nghệ hiện đại như **AI**, **IoT**, **Blockchain** và xử lý dữ liệu thời gian thực để tạo ra một hệ sinh thái đô thị thông minh minh bạch và hiệu quả.
 
 ---
 
@@ -31,7 +45,7 @@ CityResQ360 ra đời để giải quyết những vấn đề đó, hướng t�
 
 ---
 
-## ✨ Có gì đặc biệt?
+## ✨ Chức năng
 
 ![ChucNang](/static/img/chucnang.png)
 
@@ -44,8 +58,6 @@ CityResQ360 ra đời để giải quyết những vấn đề đó, hướng t�
 
 ## 🛠️ Công nghệ sử dụng
 
-Hệ thống được xây dựng dựa trên các công nghệ hiện đại:
-
 ![KienTruc](/static/img/kientruc.png)
 
 Hệ thống được thiết kế theo kiến trúc Microservices hiện đại, đảm bảo khả năng mở rộng và xử lý dữ liệu lớn:
@@ -53,10 +65,10 @@ Hệ thống được thiết kế theo kiến trúc Microservices hiện đại
 | Thành phần         | Công nghệ sử dụng                                                   |
 | :----------------- | :------------------------------------------------------------------ |
 | **Mobile App**     | `React Native` (iOS & Android)                                      |
-| **Web Dashboard**  | `VueJS`                                                             |
+| **Web**            | `VueJS`                                                             |
 | **Backend Core**   | `Laravel` (PHP), `Redis` (Cache)                                    |
 | **AI Services**    | `FastAPI` (Python) cho NLP & Computer Vision                        |
-| **API Gateway**    | `Traefik`, `Keycloak` (Auth)                                        |
+| **API Gateway**    | `Authenticator`                                                     |
 | **Message Broker** | `Apache Kafka`, `MQTT` (EMQX/Mosquitto)                             |
 | **Realtime**       | `Reverb` (WebSocket)                                                |
 | **Database**       | `PostgreSQL` + `PostGIS` (GeoData), `MinIO` (Storage), `OpenSearch` |
@@ -98,7 +110,7 @@ Dự án không chỉ dừng lại ở việc phản ánh sự cố mà còn hư
 
 ## ⚖️ Quy Tắc Ứng Xử
 
-Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) để biết thêm chi tiết về các quy tắc và hành vi được chấp nhận.
+Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file [CODE_OF_CONDUCT.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CODE_OF_CONDUCT.md) để biết thêm chi tiết về các quy tắc và hành vi được chấp nhận.
 
 ## 🤝 Đóng Góp Cho Dự Án
 
@@ -111,7 +123,7 @@ Dự án này là **Open Source**, nên rất hoan nghênh cộng đồng tham g
 ```bash
 # Fork repository trên GitHub
 # Clone về máy local
-git clone https://github.com/Truongpyeo/CityResQ360-DTUDZ.git
+git clone https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ
 cd CityResQ360-DTUDZ
 ```
 
@@ -149,19 +161,20 @@ git push -u origin feat/<new-feature>
 - Chọn branch của bạn để merge
 - Điền thông tin mô tả chi tiết
 
-### 📋 Các Cách Đóng Góp Khác
+### 📝 Issues
 
-- Thấy lỗi? 👉 Tạo [Issue](https://github.com/Truongpyeo/CityResQ360-DTUDZ/issues)
-- Muốn thêm tính năng? 👉 Fork và gửi Pull Request
-- Muốn trao đổi thêm? 👉 Liên hệ qua email bên dưới
+- Báo cáo lỗi và đề xuất tính năng mới tại [GitHub Issues](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/issues)
 
-Xem thêm hướng dẫn đóng góp tại [CONTRIBUTING.md](CONTRIBUTING.md).
+Xem thêm hướng dẫn đóng góp tại [CONTRIBUTING.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md)
 
 ---
 
-## 📄 Giấy Phép
+## 👥 Người Hướng Dẫn
 
-Dự án này được phân phối dưới [GNU General Public License v3.0](LICENSE). Xem file `LICENSE` để biết thêm chi tiết.
+| 👨‍🏫 Vai Trò | 📧 Thông Tin          |
+| ---------- | --------------------- |
+| Giảng Viên | Nguyễn Quốc Long      |
+| Email      | quoclongdng@gmail.com |
 
 ## 📞 Liên hệ Team DTU-DZ
 
@@ -172,5 +185,13 @@ Nếu cần trao đổi gì thêm, vui lòng liên hệ:
 - **Nguyễn Ngọc Duy Thái**: kkdn011@gmail.com
 
 ---
+
+## 📜 Changelog
+
+Xem [CHANGELOG.md](CHANGELOG.md) để biết lịch sử thay đổi.
+
+## 📄 Giấy Phép
+
+Dự án này được phân phối dưới [GNU General Public License v3.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/LICENSE). Xem file `LICENSE` để biết thêm chi tiết.
 
 © 2025 CityResQ360 – Code with ❤️ by DTU-DZ Team
