@@ -56,7 +56,7 @@ CityResQ360 ra đời để giải quyết những vấn đề đó, hướng t�
 
 ---
 
-## 🛠️ Công nghệ sử dụng
+## 🗺️ Kiến Trúc Hệ Thống (System Architecture)
 
 ![KienTruc](/static/img/kientruc.png)
 
@@ -110,9 +110,13 @@ Dự án không chỉ dừng lại ở việc phản ánh sự cố mà còn hư
 
 ## ⚖️ Quy Tắc Ứng Xử
 
+Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file [CODE_OF_CONDUCT.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/feat/document/CODE_OF_CONDUCT.md) để biết thêm chi tiết về các quy tắc và hành vi được chấp nhận.
+
 ---
 
 ## 🗂️ Cấu trúc dự án (Project Structure)
+
+Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) để biết thêm chi tiết về các quy tắc và hành vi được chấp nhận.
 
 ```
 CityResQ360-DTUDZ/
@@ -158,7 +162,6 @@ CityResQ360-DTUDZ/
 ```
 
 ---
-## 🗺️ Kiến Trúc Hệ Thống (System Architecture)
 
 ## 🤝 Đóng Góp Cho Dự Án
 
