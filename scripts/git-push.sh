@@ -95,6 +95,13 @@ if [[ "$CONFIRM" =~ ^[Nn]$ ]]; then
     exit 0
 fi
 
+# Ask if merge to develop
+AUTO_MERGE="n"
+if [[ "$CURRENT_BRANCH" != "develop" && "$CURRENT_BRANCH" != "main" && "$CURRENT_BRANCH" != "master" ]]; then
+    echo ""
+    read -p "Auto-merge to develop after push? [y/N]: " AUTO_MERGE
+fi
+
 # Execute git commands
 echo ""
 echo -e "${BLUE}📦 Adding files...${NC}"
@@ -109,3 +116,43 @@ git push origin "$CURRENT_BRANCH"
 echo ""
 echo -e "${GREEN}✅ Successfully pushed to ${CURRENT_BRANCH}!${NC}"
 echo -e "${GREEN}📝 Commit: ${COMMIT_MSG}${NC}"
+
+# Auto merge to develop if requested
+if [[ "$AUTO_MERGE" =~ ^[Yy]$ ]]; then
+    echo ""
+    echo -e "${BLUE}🔀 Merging to develop...${NC}"
+    
+    # Save current branch
+    FEATURE_BRANCH="$CURRENT_BRANCH"
+    
+    # Checkout develop and pull latest
+    git checkout develop
+    git pull origin develop
+    
+    # Merge feature branch
+    echo -e "${BLUE}Merging ${YELLOW}${FEATURE_BRANCH}${NC} into ${YELLOW}develop${NC}..."
+    
+    if git merge "$FEATURE_BRANCH" --no-edit; then
+        echo -e "${GREEN}✅ Merge successful!${NC}"
+        
+        # Push develop
+        echo -e "${BLUE}📤 Pushing develop...${NC}"
+        git push origin develop
+        
+        echo ""
+        echo -e "${GREEN}✅ Successfully merged to develop and pushed!${NC}"
+        echo -e "${YELLOW}Staying on develop branch${NC}"
+    else
+        echo ""
+        echo -e "${RED}❌ Merge conflict detected!${NC}"
+        echo -e "${YELLOW}Please resolve conflicts manually:${NC}"
+        echo "  1. Fix conflicts in the files"
+        echo "  2. git add <resolved-files>"
+        echo "  3. git commit"
+        echo "  4. git push origin develop"
+        echo ""
+        echo -e "${YELLOW}Or abort merge:${NC}"
+        echo "  git merge --abort"
+        echo "  git checkout $FEATURE_BRANCH"
+    fi
+fi
