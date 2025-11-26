@@ -1,0 +1,689 @@
+version: '3.8'
+
+# ============================================
+# CityResQ360 - Production Configuration
+# ============================================
+# Sử dụng file này để deploy lên VPS với domain
+# Chạy: docker-compose -f docker-compose.production.yml up -d
+
+services:
+    # ==========================================
+    # MESSAGE BROKER & IOT
+    # ==========================================
+    rabbitmq:
+        image: rabbitmq:3.13-management-alpine
+        container_name: cityresq-rabbitmq
+        environment:
+            RABBITMQ_DEFAULT_USER: cityresq
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-cityresq_password}
+            RABBITMQ_DEFAULT_VHOST: /
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD", "rabbitmq-diagnostics", "ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    mqtt:
+        image: eclipse-mosquitto:2.0
+        container_name: cityresq-mqtt
+        volumes:
+            - ../mosquitto/config../mosquitto/config
+            - ../mosquitto/data../mosquitto/data
+            - ../mosquitto/log../mosquitto/log
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD-SHELL", "mosquitto_pub -h localhost -t test -m ping || exit 1" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    # ==========================================
+    # DATABASES
+    # ==========================================
+    mysql:
+        image: mysql:8.0
+        container_name: cityresq-mysql
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+            MYSQL_DATABASE: cityresq_db
+            MYSQL_USER: cityresq
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+        volumes:
+            - mysql_data:/var/lib/mysql
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD", "mysqladmin", "ping", "-h", "localhost" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    mongodb:
+        image: mongo:7.0
+        container_name: cityresq-mongodb
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: cityresq
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-cityresq_password}
+        volumes:
+            - mongodb_data:/data/db
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD", "mongosh", "--eval", "db.adminCommand('ping')" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    postgres:
+        image: postgres:16-alpine
+        container_name: cityresq-postgres
+        environment:
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: wallet_db
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+            - ../modules/WalletService/migrations:/docker-entrypoint-initdb.d
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U cityresq" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    timescaledb:
+        image: timescale/timescaledb:latest-pg16
+        container_name: cityresq-timescaledb
+        environment:
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: iot_db
+        volumes:
+            - timescaledb_data:/var/lib/postgresql/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U cityresq" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    postgres-incident:
+        image: postgres:16-alpine
+        container_name: cityresq-postgres-incident
+        environment:
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: incident_db
+        volumes:
+            - postgres_incident_data:/var/lib/postgresql/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U cityresq" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    postgres-aiml:
+        image: pgvector/pgvector:pg16
+        container_name: cityresq-postgres-aiml
+        environment:
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: aiml_db
+        volumes:
+            - postgres_aiml_data:/var/lib/postgresql/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U cityresq" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    postgres-floodeye:
+        image: postgis/postgis:16-3.4-alpine
+        container_name: cityresq-postgres-floodeye
+        environment:
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: floodeye_db
+        volumes:
+            - postgres_floodeye_data:/var/lib/postgresql/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD-SHELL", "pg_isready -U cityresq" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    redis:
+        image: redis:7-alpine
+        container_name: cityresq-redis
+        volumes:
+            - redis_data:/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD", "redis-cli", "ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    minio:
+        image: minio/minio:latest
+        container_name: cityresq-minio
+        environment:
+            MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+            MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+        command: server /data --console-address ":9001"
+        volumes:
+            - minio_data:/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD", "curl", "-f", "http://localhost:9000/minio/health/live" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    opensearch:
+        image: opensearchproject/opensearch:2.11.0
+        container_name: cityresq-opensearch
+        environment:
+            discovery.type: single-node
+            plugins.security.disabled: "true"
+            OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+            bootstrap.memory_lock: "true"
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+            nofile:
+                soft: 65536
+                hard: 65536
+        volumes:
+            - opensearch_data:/usr/share/opensearch/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1" ]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+        restart: unless-stopped
+
+    opensearch-dashboards:
+        image: opensearchproject/opensearch-dashboards:2.11.0
+        container_name: cityresq-opensearch-dashboards
+        environment:
+            OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
+            DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+        depends_on:
+            opensearch:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    clickhouse:
+        image: clickhouse/clickhouse-server:latest
+        container_name: cityresq-clickhouse
+        environment:
+            CLICKHOUSE_DB: analytics_db
+            CLICKHOUSE_USER: cityresq
+            CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cityresq_password}
+        volumes:
+            - clickhouse_data:/var/lib/clickhouse
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: [ "CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8123/ping" ]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    # ==========================================
+    # APPLICATION SERVICES
+    # ==========================================
+    coreapi:
+        build:
+            context: ../modules/CoreAPI
+            dockerfile: Dockerfile
+        container_name: cityresq-coreapi
+        environment:
+            APP_NAME: CityResQ360
+            APP_ENV: production
+            APP_DEBUG: "false"
+            APP_URL: ${APP_URL:-https://api.yourdomain.com}
+            APP_TIMEZONE: Asia/Ho_Chi_Minh
+            APP_LOCALE: vi
+
+            DB_CONNECTION: mysql
+            DB_HOST: mysql
+            DB_PORT: 3306
+            DB_DATABASE: cityresq_db
+            DB_USERNAME: cityresq
+            DB_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+
+            REDIS_HOST: redis
+            REDIS_PORT: 6379
+            REDIS_PASSWORD: null
+            CACHE_STORE: redis
+            SESSION_DRIVER: redis
+
+            QUEUE_CONNECTION: rabbitmq
+            RABBITMQ_HOST: rabbitmq
+            RABBITMQ_PORT: 5672
+            RABBITMQ_USER: cityresq
+            RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-cityresq_password}
+            RABBITMQ_VHOST: /
+
+            FILESYSTEM_DISK: s3
+            AWS_ACCESS_KEY_ID: minioadmin
+            AWS_SECRET_ACCESS_KEY: ${MINIO_ROOT_PASSWORD}
+            AWS_DEFAULT_REGION: us-east-1
+            AWS_BUCKET: cityresq
+            AWS_ENDPOINT: http://minio:9000
+            AWS_USE_PATH_STYLE_ENDPOINT: "true"
+
+            JWT_SECRET: ${JWT_SECRET}
+            JWT_TTL: 60
+
+            MEDIA_SERVICE_URL: ${MEDIA_SERVICE_URL:-http://media-service:8004/api/v1}
+            NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL:-http://notification-service:8006/api/v1}
+            WALLET_SERVICE_URL: ${WALLET_SERVICE_URL:-http://wallet-service:8005/api/v1}
+        ports:
+            - "8000:80"
+        volumes:
+            - coreapi_storage:/var/www/html/storage
+            - ./.env:/var/www/html/.env
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    media-service:
+        build:
+            context: ../modules/MediaService
+            dockerfile: Dockerfile
+        container_name: cityresq-media-service
+        ports:
+            - "8004:8004"
+        environment:
+            NODE_ENV: production
+            PORT: 8004
+            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017/media_db?authSource=admin
+            MINIO_ENDPOINT: minio
+            MINIO_PORT: 9000
+            MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+            MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+            MINIO_BUCKET: cityresq-media
+            MINIO_USE_SSL: "false"
+            CDN_URL: ${CDN_URL:-}
+            UPLOAD_DIR: ./uploads
+            MAX_FILE_SIZE: 10485760
+            ALLOWED_IMAGE_TYPES: image/jpeg,image/png,image/webp
+            ALLOWED_VIDEO_TYPES: video/mp4,video/quicktime
+            THUMBNAIL_WIDTH: 300
+            THUMBNAIL_HEIGHT: 300
+            OPTIMIZED_WIDTH: 1920
+            OPTIMIZED_HEIGHT: 1080
+            JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
+        volumes:
+            - ../modules/MediaService:/app
+            - media_uploads:/app/uploads
+            - /app/node_modules
+        depends_on:
+            mongodb:
+                condition: service_healthy
+            minio:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    notification-service:
+        build:
+            context: ../modules/NotificationService
+            dockerfile: Dockerfile
+        container_name: cityresq-notification-service
+        ports:
+            - "8006:8006"
+        environment:
+            NODE_ENV: production
+            PORT: 8006
+            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017/notification_db?authSource=admin
+            REDIS_URL: redis://redis:6379
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            FCM_PROJECT_ID: ${FCM_PROJECT_ID:-}
+            FCM_CLIENT_EMAIL: ${FCM_CLIENT_EMAIL:-}
+            FCM_PRIVATE_KEY: ${FCM_PRIVATE_KEY:-}
+            SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
+            SMTP_PORT: ${SMTP_PORT:-587}
+            SMTP_USER: ${SMTP_USER:-}
+            SMTP_PASS: ${SMTP_PASS:-}
+            SMTP_FROM: ${SMTP_FROM:-}
+            APP_URL: ${APP_URL:-https://yourdomain.com}
+            JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
+        volumes:
+            - ../modules/NotificationService:/app
+            - /app/node_modules
+        depends_on:
+            mongodb:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    wallet-service:
+        build:
+            context: ../modules/WalletService
+            dockerfile: Dockerfile
+        container_name: cityresq-wallet-service
+        ports:
+            - "8005:8005"
+        environment:
+            PORT: 8005
+            ENV: production
+            POSTGRES_HOST: postgres
+            POSTGRES_PORT: 5432
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: wallet_db
+            REDIS_URL: redis://redis:6379
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
+            EVENT_EXCHANGE: cityresq.wallet
+        depends_on:
+            postgres:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    incident-service:
+        build:
+            context: ../modules/IncidentService
+            dockerfile: Dockerfile
+        container_name: cityresq-incident-service
+        ports:
+            - "8001:8001"
+        environment:
+            PORT: 8001
+            NODE_ENV: production
+            POSTGRES_HOST: postgres-incident
+            POSTGRES_PORT: 5432
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: incident_db
+            REDIS_URL: redis://redis:6379
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            CORE_API_URL: http://coreapi:80/api/v1
+            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
+        volumes:
+            - ../modules/IncidentService:/app
+            - /app/node_modules
+        depends_on:
+            postgres-incident:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+            coreapi:
+                condition: service_started
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    iot-service:
+        build:
+            context: ../modules/IoTService
+            dockerfile: Dockerfile
+        container_name: cityresq-iot-service
+        ports:
+            - "8002:8002"
+        environment:
+            PORT: 8002
+            NODE_ENV: production
+            POSTGRES_HOST: timescaledb
+            POSTGRES_PORT: 5432
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: iot_db
+            MQTT_BROKER: mqtt://mqtt:1883
+            MQTT_WS_URL: ws://mqtt:9001
+            MQTT_TOPIC_PREFIX: cityresq/iot
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
+        volumes:
+            - ../modules/IoTService:/app
+            - /app/node_modules
+        depends_on:
+            timescaledb:
+                condition: service_healthy
+            mqtt:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    aiml-service:
+        build:
+            context: ../modules/AIMLService
+            dockerfile: Dockerfile
+        container_name: cityresq-aiml-service
+        ports:
+            - "8003:8003"
+        environment:
+            PORT: 8003
+            ENV: production
+            POSTGRES_HOST: postgres-aiml
+            POSTGRES_PORT: 5432
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: aiml_db
+            MEDIA_SERVICE_URL: http://media-service:8004/api/v1
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            NLP_MODEL_PATH: /app/models/nlp
+            VISION_MODEL_PATH: /app/models/vision
+        volumes:
+            - ../modules/AIMLService:/app
+            - aiml_models:/app/models
+        depends_on:
+            postgres-aiml:
+                condition: service_healthy
+            media-service:
+                condition: service_started
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    search-service:
+        build:
+            context: ../modules/SearchService
+            dockerfile: Dockerfile
+        container_name: cityresq-search-service
+        ports:
+            - "8007:8007"
+        environment:
+            PORT: 8007
+            ENV: production
+            OPENSEARCH_HOST: opensearch
+            OPENSEARCH_PORT: 9200
+            OPENSEARCH_INDEX_PREFIX: cityresq
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
+        volumes:
+            - ../modules/SearchService:/app
+        depends_on:
+            opensearch:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    floodeye-service:
+        build:
+            context: ../modules/FloodEyeService
+            dockerfile: Dockerfile
+        container_name: cityresq-floodeye-service
+        ports:
+            - "8008:8008"
+        environment:
+            PORT: 8008
+            ENV: production
+            POSTGRES_HOST: postgres-floodeye
+            POSTGRES_PORT: 5432
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: floodeye_db
+            IOT_SERVICE_URL: http://iot-service:8002/api/v1
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            OSM_API_URL: https://nominatim.openstreetmap.org
+        volumes:
+            - ../modules/FloodEyeService:/app
+        depends_on:
+            postgres-floodeye:
+                condition: service_healthy
+            iot-service:
+                condition: service_started
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    analytics-service:
+        build:
+            context: ../modules/AnalyticsService
+            dockerfile: Dockerfile
+        container_name: cityresq-analytics-service
+        ports:
+            - "8009:8009"
+        environment:
+            PORT: 8009
+            ENV: production
+            CLICKHOUSE_HOST: clickhouse
+            CLICKHOUSE_PORT: 9000
+            CLICKHOUSE_HTTP_PORT: 8123
+            CLICKHOUSE_DB: analytics_db
+            CLICKHOUSE_USER: cityresq
+            CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cityresq_password}
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            CORE_API_URL: http://coreapi:80/api/v1
+        volumes:
+            - ../modules/AnalyticsService:/app
+        depends_on:
+            clickhouse:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+            coreapi:
+                condition: service_started
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    context-broker:
+        image: fiware/orion-ld:latest
+        container_name: cityresq-context-broker
+        environment:
+            ORION_DB_HOST: mongodb
+            ORION_DB_PORT: 27017
+            ORION_DB_USER: cityresq
+            ORION_DB_PASSWORD: ${MONGODB_PASSWORD:-cityresq_password}
+            ORION_DB_NAME: context_broker_db
+        depends_on:
+            mongodb:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    app-mobile:
+        build:
+            context: ../modules/AppMobile
+            dockerfile: Dockerfile
+        container_name: cityresq-app-mobile
+        ports:
+            - "3000:3000"
+        environment:
+            NODE_ENV: production
+            PORT: 3000
+            NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-https://api.yourdomain.com/api/v1}
+            API_URL: http://coreapi:80/api/v1
+            DATABASE_URL: postgresql://cityresq:${POSTGRES_PASSWORD:-cityresq_password}@postgres:5432/wallet_db?schema=public
+        volumes:
+            - ../modules/AppMobile:/app
+            - /app/node_modules
+            - /app/.next
+        depends_on:
+            coreapi:
+                condition: service_started
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+volumes:
+    mysql_data:
+    mongodb_data:
+    postgres_data:
+    postgres_incident_data:
+    postgres_aiml_data:
+    postgres_floodeye_data:
+    timescaledb_data:
+    redis_data:
+    minio_data:
+    rabbitmq_data:
+    opensearch_data:
+    clickhouse_data:
+    coreapi_storage:
+    media_uploads:
+    aiml_models:
+
+
+networks:
+    cityresq-network:
+        driver: bridge
