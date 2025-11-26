@@ -127,6 +127,53 @@ Hệ thống **CityResQ360** được phát triển nhằm phục vụ nhiều n
 - API mở để nhà phát triển khai thác dữ liệu.
 
 ---
+
+## 🗂️ Cấu trúc dự án (Project Structure)
+
+```
+CityResQ360-DTUDZ/
+├── .github/                    # GitHub configurations
+│   └── ISSUE_TEMPLATE/        # Issue templates
+├── modules/                    # 🎯 All microservices & apps
+│   ├── CoreAPI/               # Laravel 12 - Core API (Port 8000)
+│   ├── AppMobile/             # Next.js - Mobile App (Port 3000)
+│   ├── AIMLService/           # Python FastAPI - AI/ML (Port 8003)
+│   ├── AnalyticsService/      # Python - Analytics (Port 8009)
+│   ├── ContextBroker/         # N GSI-LD Context Broker (Port 1026)
+│   ├── FloodEyeService/       # Python - Flood Monitoring (Port 8008)
+│   ├── IncidentService/       # Node.js - Incident Management (Port 8001)
+│   ├── IoTService/            # Node.js - IoT Sensors (Port 8002)
+│   ├── MediaService/          # Node.js - Media Storage (Port 8004)
+│   ├── NotificationService/   # Node.js - Notifications (Port 8006)
+│   ├── SearchService/         # Python - Search Engine (Port 8007)
+│   └── WalletService/         # Go - Wallet & CityPoint (Port 8005)
+├── infrastructure/             # ⚙️ Infrastructure configurations
+│   ├── docker/                # Docker Compose files
+│   │   ├── docker-compose.yml              # Development
+│   │   └── docker-compose.production.yml   # Production
+│   ├── nginx/                 # Nginx configuration
+│   └── mosquitto/             # MQTT Broker configuration
+├── collections/                # 📮 API Testing collections
+│   └── postman/               # Postman collections
+├── docs/                       # 📚 Documentation
+│   ├── PROJECT_CONTEXT.md     # Project architecture & context
+│   ├── DEVELOPMENT_WORKFLOW.md # Development guidelines
+│   └── DOCKER.md              # Docker setup guide
+├── scripts/                    # 🛠️ Utility scripts
+│   ├── setup/                 # Setup scripts
+│   ├── deploy/                # Deployment scripts
+│   │   └── deploy.sh          # Main deployment script
+│   └── migration/             # Migration & maintenance scripts
+├── static/                     # 🖼️ Static assets
+│   └── img/                   # Images & diagrams
+├── README.md                   # This file
+├── LICENSE                     # MIT License
+├── CHANGELOG.md               # Version history
+├── CODE_OF_CONDUCT.md         # Code of conduct
+└── CONTRIBUITING.md           # Contribution guidelines
+```
+
+---
 ## 🗺️ Kiến Trúc Hệ Thống (System Architecture)
 
 ![s](/static/img/kientruc.png)

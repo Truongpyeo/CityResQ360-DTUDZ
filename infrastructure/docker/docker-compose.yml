@@ -65,9 +65,9 @@ services:
       - "1883:1883"    # MQTT
       - "9002:9001"    # WebSocket (changed to avoid conflict with MinIO console)
     volumes:
-      - ./mosquitto/config:/mosquitto/config
-      - ./mosquitto/data:/mosquitto/data
-      - ./mosquitto/log:/mosquitto/log
+      - ../mosquitto/config:/mosquitto/config
+      - ../mosquitto/data:/mosquitto/data
+      - ../mosquitto/log:/mosquitto/log
     networks:
       - cityresq-network
     healthcheck:
@@ -94,7 +94,7 @@ services:
       MYSQL_PASSWORD: cityresq_password
     volumes:
       - mysql_data:/var/lib/mysql
-      - ./CoreAPI/DB.sql:/docker-entrypoint-initdb.d/init.sql
+      - ../modules/CoreAPI/DB.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
       - cityresq-network
     healthcheck:
@@ -136,7 +136,7 @@ services:
       POSTGRES_DB: wallet_db
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./WalletService/migrations:/docker-entrypoint-initdb.d
+      - ../modules/WalletService/migrations:/docker-entrypoint-initdb.d
     networks:
       - cityresq-network
     healthcheck:
@@ -344,7 +344,7 @@ services:
   # Core API (Laravel 12)
   coreapi:
     build:
-      context: ./CoreAPI
+      context: ../modules/CoreAPI
       dockerfile: Dockerfile
     container_name: cityresq-coreapi
     ports:
@@ -381,7 +381,7 @@ services:
       NOTIFICATION_SERVICE_URL: http://notification-service:8006/api/v1
       WALLET_SERVICE_URL: http://wallet-service:8005/api/v1
     volumes:
-      - ./CoreAPI:/var/www/html
+      - ../modules/CoreAPI:/var/www/html
       - coreapi_storage:/var/www/html/storage
     depends_on:
       mysql:
@@ -413,7 +413,7 @@ services:
   # Media Service (Node.js)
   media-service:
     build:
-      context: ./MediaService
+      context: ../modules/MediaService
       dockerfile: Dockerfile
     container_name: cityresq-media-service
     ports:
@@ -452,7 +452,7 @@ services:
       # JWT
       JWT_SECRET: your-secret-key-here
     volumes:
-      - ./MediaService:/app
+      - ../modules/MediaService:/app
       - media_uploads:/app/uploads
       - /app/node_modules
     depends_on:
@@ -467,7 +467,7 @@ services:
   # Notification Service (Node.js)
   notification-service:
     build:
-      context: ./NotificationService
+      context: ../modules/NotificationService
       dockerfile: Dockerfile
     container_name: cityresq-notification-service
     ports:
@@ -503,7 +503,7 @@ services:
       # JWT
       JWT_SECRET: your-secret-key-here
     volumes:
-      - ./NotificationService:/app
+      - ../modules/NotificationService:/app
       - /app/node_modules
     depends_on:
       mongodb:
@@ -519,7 +519,7 @@ services:
   # Wallet Service (Go)
   wallet-service:
     build:
-      context: ./WalletService
+      context: ../modules/WalletService
       dockerfile: Dockerfile
     container_name: cityresq-wallet-service
     ports:
@@ -560,7 +560,7 @@ services:
   # Incident Service (Go/Node.js)
   incident-service:
     build:
-      context: ./IncidentService
+      context: ../modules/IncidentService
       dockerfile: Dockerfile
     container_name: cityresq-incident-service
     ports:
@@ -588,7 +588,7 @@ services:
       # JWT
       JWT_SECRET: your-secret-key
     volumes:
-      - ./IncidentService:/app
+      - ../modules/IncidentService:/app
       - /app/node_modules
     depends_on:
       postgres-incident:
@@ -606,7 +606,7 @@ services:
   # IoT Service (Node.js)
   iot-service:
     build:
-      context: ./IoTService
+      context: ../modules/IoTService
       dockerfile: Dockerfile
     container_name: cityresq-iot-service
     ports:
@@ -633,7 +633,7 @@ services:
       # JWT
       JWT_SECRET: your-secret-key
     volumes:
-      - ./IoTService:/app
+      - ../modules/IoTService:/app
       - /app/node_modules
     depends_on:
       timescaledb:
@@ -649,7 +649,7 @@ services:
   # AI/ML Service (Python FastAPI)
   aiml-service:
     build:
-      context: ./AIMLService
+      context: ../modules/AIMLService
       dockerfile: Dockerfile
     container_name: cityresq-aiml-service
     ports:
@@ -675,7 +675,7 @@ services:
       NLP_MODEL_PATH: /app/models/nlp
       VISION_MODEL_PATH: /app/models/vision
     volumes:
-      - ./AIMLService:/app
+      - ../modules/AIMLService:/app
       - aiml_models:/app/models
     depends_on:
       postgres-aiml:
@@ -691,7 +691,7 @@ services:
   # Search Service (Python)
   search-service:
     build:
-      context: ./SearchService
+      context: ../modules/SearchService
       dockerfile: Dockerfile
     container_name: cityresq-search-service
     ports:
@@ -711,7 +711,7 @@ services:
       # JWT
       JWT_SECRET: your-secret-key
     volumes:
-      - ./SearchService:/app
+      - ../modules/SearchService:/app
     depends_on:
       opensearch:
         condition: service_healthy
@@ -724,7 +724,7 @@ services:
   # FloodEye Service (Python)
   floodeye-service:
     build:
-      context: ./FloodEyeService
+      context: ../modules/FloodEyeService
       dockerfile: Dockerfile
     container_name: cityresq-floodeye-service
     ports:
@@ -749,7 +749,7 @@ services:
       # OpenStreetMap
       OSM_API_URL: https://nominatim.openstreetmap.org
     volumes:
-      - ./FloodEyeService:/app
+      - ../modules/FloodEyeService:/app
     depends_on:
       postgres-floodeye:
         condition: service_healthy
@@ -764,7 +764,7 @@ services:
   # Analytics Service (Python)
   analytics-service:
     build:
-      context: ./AnalyticsService
+      context: ../modules/AnalyticsService
       dockerfile: Dockerfile
     container_name: cityresq-analytics-service
     ports:
@@ -787,7 +787,7 @@ services:
       # Core API
       CORE_API_URL: http://coreapi:8000/api/v1
     volumes:
-      - ./AnalyticsService:/app
+      - ../modules/AnalyticsService:/app
     depends_on:
       clickhouse:
         condition: service_healthy
@@ -821,7 +821,7 @@ services:
   # App Mobile (Next.js)
   app-mobile:
     build:
-      context: ./AppMobile
+      context: ../modules/AppMobile
       dockerfile: Dockerfile
     container_name: cityresq-app-mobile
     ports:
@@ -837,7 +837,7 @@ services:
       # Database (Prisma)
       DATABASE_URL: postgresql://cityresq:cityresq_password@postgres:5432/wallet_db?schema=public
     volumes:
-      - ./AppMobile:/app
+      - ../modules/AppMobile:/app
       - /app/node_modules
       - /app/.next
     depends_on:
