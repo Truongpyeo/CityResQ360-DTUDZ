@@ -2,10 +2,12 @@
 .env
 .env.*
 !.env.example
+!.env.local.example
 
 # OS files
 .DS_Store
 Thumbs.db
+*.DS_Store
 
 # IDE
 .vscode/
@@ -13,24 +15,89 @@ Thumbs.db
 *.swp
 *.swo
 *~
+.cursor/
 
-# Dependencies
+# Dependencies - Apply to all modules
+modules/*/node_modules/
+modules/*/vendor/
 node_modules/
 vendor/
 
-# Build outputs
+# Build outputs - Apply to all modules
+modules/*/.next/
+modules/*/dist/
+modules/*/build/
+modules/*/out/
 .next/
 dist/
 build/
+out/
+
+# Laravel specific (CoreAPI)
+modules/CoreAPI/storage/*.key
+modules/CoreAPI/storage/logs/*.log
+modules/CoreAPI/storage/framework/cache/data/*
+modules/CoreAPI/storage/framework/sessions/*
+modules/CoreAPI/storage/framework/views/*
+modules/CoreAPI/.phpunit.result.cache
+modules/CoreAPI/bootstrap/cache/*.php
+!modules/CoreAPI/storage/app/.gitignore
+!modules/CoreAPI/storage/framework/.gitignore
+!modules/CoreAPI/storage/logs/.gitignore
+
+# Go specific (WalletService)
+modules/WalletService/*.exe
+modules/WalletService/*.exe~
+modules/WalletService/*.dll
+modules/WalletService/*.so
+modules/WalletService/*.dylib
+
+# Python specific
+modules/*/__pycache__/
+modules/*/*.py[cod]
+modules/*/*.pyo
+modules/*/*.pyd
+modules/*/.Python
+modules/*/venv/
+modules/*/env/
+modules/*/.venv/
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+.Python
+venv/
+env/
+.venv/
 
 # Logs
 *.log
 logs/
+modules/*/logs/
+infrastructure/mosquitto/log/*
 
 # Docker
 docker-compose.override.yml
+infrastructure/docker/docker-compose.override.yml
 
 # Temporary files
 *.tmp
 *.bak
+.sass-cache/
 
+# Testing
+modules/*/coverage/
+modules/*/.nyc_output/
+coverage/
+.nyc_output/
+
+# Database
+*.sqlite
+*.db
+infrastructure/mosquitto/data/*
+
+# AI/ML Models (large files)
+modules/AIMLService/models/*.pt
+modules/AIMLService/models/*.pth
+modules/AIMLService/models/*.h5
+modules/AIMLService/models/*.pkl
