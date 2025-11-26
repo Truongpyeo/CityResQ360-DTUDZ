@@ -116,8 +116,6 @@ Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file 
 
 ## 🗂️ Cấu trúc dự án (Project Structure)
 
-Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file [CODE_OF_CONDUCT.md](CODE_OF_CONDUCT.md) để biết thêm chi tiết về các quy tắc và hành vi được chấp nhận.
-
 ```
 CityResQ360-DTUDZ/
 ├── .github/                    # GitHub configurations
