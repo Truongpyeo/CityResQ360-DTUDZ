@@ -1,5 +1,3 @@
-version: '3.8'
-
 # ============================================
 # CityResQ360 - Multi-Service Architecture
 # ============================================
@@ -344,11 +342,11 @@ services:
   # Core API (Laravel 12)
   coreapi:
     build:
-      context: ../modules/CoreAPI
+      context: ../../modules/CoreAPI
       dockerfile: Dockerfile
     container_name: cityresq-coreapi
     ports:
-      - "8000:8000"
+      - "8000:80"      # Nginx listens on port 80 inside container
       - "5173:5173"    # Vite dev server
     environment:
       # App
@@ -381,8 +379,12 @@ services:
       NOTIFICATION_SERVICE_URL: http://notification-service:8006/api/v1
       WALLET_SERVICE_URL: http://wallet-service:8005/api/v1
     volumes:
-      - ../modules/CoreAPI:/var/www/html
+      # Source code is built into image - do NOT mount here
+      # Mounting would override vendor/ and node_modules/
       - coreapi_storage:/var/www/html/storage
+      - /var/www/html/vendor
+      - /var/www/html/node_modules
+      - /var/www/html/public/build
     depends_on:
       mysql:
         condition: service_healthy
@@ -393,27 +395,12 @@ services:
     networks:
       - cityresq-network
     restart: unless-stopped
-    command: >
-      sh -c "
-        if [ ! -f /var/www/html/.env ]; then
-          cp /var/www/html/.env.example /var/www/html/.env 2>/dev/null || true
-        fi &&
-        composer install --no-dev --optimize-autoloader &&
-        npm install &&
-        php artisan key:generate --force &&
-        php artisan migrate --force &&
-        php artisan db:seed --force &&
-        php artisan config:cache &&
-        php artisan route:cache &&
-        php artisan view:cache &&
-        npm run dev &
-        php artisan serve --host=0.0.0.0 --port=8000
-      "
+    # Use Dockerfile CMD (entrypoint script with supervisor)
 
   # Media Service (Node.js)
   media-service:
     build:
-      context: ../modules/MediaService
+      context: ../../modules/MediaService
       dockerfile: Dockerfile
     container_name: cityresq-media-service
     ports:
@@ -452,7 +439,7 @@ services:
       # JWT
       JWT_SECRET: your-secret-key-here
     volumes:
-      - ../modules/MediaService:/app
+      # Source code built into image
       - media_uploads:/app/uploads
       - /app/node_modules
     depends_on:
@@ -467,7 +454,7 @@ services:
   # Notification Service (Node.js)
   notification-service:
     build:
-      context: ../modules/NotificationService
+      context: ../../modules/NotificationService
       dockerfile: Dockerfile
     container_name: cityresq-notification-service
     ports:
@@ -503,7 +490,7 @@ services:
       # JWT
       JWT_SECRET: your-secret-key-here
     volumes:
-      - ../modules/NotificationService:/app
+      # Source code built into image
       - /app/node_modules
     depends_on:
       mongodb:
@@ -519,7 +506,7 @@ services:
   # Wallet Service (Go)
   wallet-service:
     build:
-      context: ../modules/WalletService
+      context: ../../modules/WalletService
       dockerfile: Dockerfile
     container_name: cityresq-wallet-service
     ports:
@@ -560,7 +547,7 @@ services:
   # Incident Service (Go/Node.js)
   incident-service:
     build:
-      context: ../modules/IncidentService
+      context: ../../modules/IncidentService
       dockerfile: Dockerfile
     container_name: cityresq-incident-service
     ports:
@@ -588,7 +575,7 @@ services:
       # JWT
       JWT_SECRET: your-secret-key
     volumes:
-      - ../modules/IncidentService:/app
+      # Source built into image
       - /app/node_modules
     depends_on:
       postgres-incident:
@@ -606,7 +593,7 @@ services:
   # IoT Service (Node.js)
   iot-service:
     build:
-      context: ../modules/IoTService
+      context: ../../modules/IoTService
       dockerfile: Dockerfile
     container_name: cityresq-iot-service
     ports:
@@ -649,7 +636,7 @@ services:
   # AI/ML Service (Python FastAPI)
   aiml-service:
     build:
-      context: ../modules/AIMLService
+      context: ../../modules/AIMLService
       dockerfile: Dockerfile
     container_name: cityresq-aiml-service
     ports:
@@ -691,7 +678,7 @@ services:
   # Search Service (Python)
   search-service:
     build:
-      context: ../modules/SearchService
+      context: ../../modules/SearchService
       dockerfile: Dockerfile
     container_name: cityresq-search-service
     ports:
@@ -724,7 +711,7 @@ services:
   # FloodEye Service (Python)
   floodeye-service:
     build:
-      context: ../modules/FloodEyeService
+      context: ../../modules/FloodEyeService
       dockerfile: Dockerfile
     container_name: cityresq-floodeye-service
     ports:
@@ -764,7 +751,7 @@ services:
   # Analytics Service (Python)
   analytics-service:
     build:
-      context: ../modules/AnalyticsService
+      context: ../../modules/AnalyticsService
       dockerfile: Dockerfile
     container_name: cityresq-analytics-service
     ports:
@@ -821,7 +808,7 @@ services:
   # App Mobile (Next.js)
   app-mobile:
     build:
-      context: ../modules/AppMobile
+      context: ../../modules/AppMobile
       dockerfile: Dockerfile
     container_name: cityresq-app-mobile
     ports:

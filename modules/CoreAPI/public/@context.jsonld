@@ -1,0 +1,61 @@
+{
+    "@context": {
+        "@vocab": "https://schema.org/",
+        "ngsi-ld": "https://uri.etsi.org/ngsi-ld/",
+        "geojson": "https://purl.org/geojson/vocab#",
+        "fiware": "https://fiware.github.io/data-models/",
+        "Alert": "https://smartdatamodels.org/dataModel.Alert/Alert",
+        "Incident": "Alert",
+        "category": {
+            "@id": "fiware:category",
+            "@type": "@vocab"
+        },
+        "severity": {
+            "@id": "fiware:severity",
+            "@type": "@vocab"
+        },
+        "alertSource": "fiware:alertSource",
+        "dateIssued": {
+            "@id": "fiware:dateIssued",
+            "@type": "DateTime"
+        },
+        "validFrom": {
+            "@id": "fiware:validFrom",
+            "@type": "DateTime"
+        },
+        "validTo": {
+            "@id": "fiware:validTo",
+            "@type": "DateTime"
+        },
+        "location": {
+            "@id": "ngsi-ld:location",
+            "@type": "ngsi-ld:GeoProperty"
+        },
+        "address": "schema:address",
+        "addressLocality": "schema:addressLocality",
+        "addressCountry": "schema:addressCountry",
+        "streetAddress": "schema:streetAddress",
+        "description": "schema:description",
+        "name": "schema:name",
+        "subCategory": "fiware:subCategory",
+        "status": "fiware:status",
+        "voteCount": {
+            "@id": "https://cityresq360.org/ontology#voteCount",
+            "@type": "xsd:integer"
+        },
+        "viewCount": {
+            "@id": "https://cityresq360.org/ontology#viewCount",
+            "@type": "xsd:integer"
+        },
+        "traffic": "https://smartdatamodels.org/dataModel.Transportation/traffic",
+        "environment": "https://smartdatamodels.org/dataModel.Environment/environment",
+        "infrastructure": "https://smartdatamodels.org/dataModel.UrbanMobility/infrastructure",
+        "publicService": "https://smartdatamodels.org/dataModel.SmartCities/publicService",
+        "safety": "https://smartdatamodels.org/dataModel.Alert/safety",
+        "health": "https://smartdatamodels.org/dataModel.Health/health",
+        "low": "https://smartdatamodels.org/dataModel.Alert/low",
+        "medium": "https://smartdatamodels.org/dataModel.Alert/medium",
+        "high": "https://smartdatamodels.org/dataModel.Alert/high",
+        "critical": "https://smartdatamodels.org/dataModel.Alert/critical"
+    }
+}
