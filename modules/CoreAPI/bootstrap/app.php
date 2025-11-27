@@ -17,6 +17,11 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             Route::middleware('web')
                 ->group(base_path('routes/admin.php'));
+            
+            // NGSI-LD API routes (for OLP 2025 - Linked Open Data requirement)
+            Route::middleware('api')
+                ->prefix('api')
+                ->group(base_path('routes/ngsi-ld.php'));
         },
     )
     ->withMiddleware(function (Middleware $middleware): void {

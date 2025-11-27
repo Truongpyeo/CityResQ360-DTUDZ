@@ -1,4 +1,23 @@
 <?php
+/*
+ * CityResQ360-DTUDZ - Smart City Emergency Response System
+ * Copyright (C) 2025 DTU-DZ Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
+
 
 namespace App\Http\Controllers\Api\V1;
 
@@ -125,6 +144,64 @@ class AuthController extends BaseController
             'ty_le_chinh_xac' => round($accuracyRate, 2),
             'ngay_tham_gia' => $user->created_at,
         ]);
+    }
+
+    /**
+     * Check if user is logged in (verify token and model type)
+     * GET /api/v1/auth/check-login
+     * 
+     * Verifies:
+     * - Token is valid (Sanctum guard)
+     * - Authenticated user is instance of NguoiDung model
+     * - Account is active
+     */
+    public function checkLogin(Request $request)
+    {
+        // Get authenticated user via Sanctum guard
+        $user = auth('sanctum')->user();
+
+        // Check if user exists and is authenticated
+        if (!$user) {
+            return $this->error('Chưa đăng nhập', [
+                'authenticated' => false,
+                'reason' => 'invalid_token'
+            ], 401);
+        }
+
+        // Verify user is instance of NguoiDung model
+        if (!($user instanceof NguoiDung)) {
+            return $this->error('Token không hợp lệ cho người dùng', [
+                'authenticated' => false,
+                'reason' => 'invalid_model',
+                'model_type' => get_class($user)
+            ], 403);
+        }
+
+        // Check if account is active
+        if ($user->trang_thai !== 1) {
+            return $this->error('Tài khoản đã bị khóa', [
+                'authenticated' => false,
+                'reason' => 'account_locked',
+                'status' => $user->trang_thai
+            ], 403);
+        }
+
+        // Return success with basic user info
+        return $this->success([
+            'authenticated' => true,
+            'user' => [
+                'id' => $user->id,
+                'ho_ten' => $user->ho_ten,
+                'email' => $user->email,
+                'vai_tro' => $user->vai_tro,
+                'xac_thuc_danh_tinh' => $user->xac_thuc_danh_tinh,
+            ],
+            'token_info' => [
+                'token_name' => $user->currentAccessToken()?->name,
+                'abilities' => $user->currentAccessToken()?->abilities ?? ['*'],
+                'last_used_at' => $user->currentAccessToken()?->last_used_at,
+            ]
+        ], 'Đã đăng nhập');
     }
 
     /**
