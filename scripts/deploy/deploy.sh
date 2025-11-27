@@ -422,11 +422,19 @@ docker-compose -f docker-compose.production.yml up -d coreapi media-service
 
 echo -e "${GREEN}✅ Docker deployment complete!${NC}"
 
-# Run migrations
+# Run migrations and optimize
 echo -e "${CYAN}Running database migrations...${NC}"
 sleep 10
 docker exec cityresq-coreapi php artisan migrate --force || true
 docker exec cityresq-coreapi php artisan db:seed --force || true
+
+# Ensure APP_KEY is generated and configuration is cached
+echo -e "${CYAN}Optimizing Laravel configuration...${NC}"
+docker exec cityresq-coreapi php artisan key:generate --force || true
+docker exec cityresq-coreapi php artisan config:clear
+docker exec cityresq-coreapi php artisan cache:clear
+docker exec cityresq-coreapi php artisan config:cache
+echo -e "${GREEN}✅ Laravel optimization complete!${NC}"
 
 # ============================================
 # STEP 6: CONFIGURE SSL (Domain mode only)

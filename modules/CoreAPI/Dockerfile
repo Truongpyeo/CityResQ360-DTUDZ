@@ -116,6 +116,12 @@ RUN echo '#!/bin/sh' > /entrypoint.sh && \
     echo 'echo "MySQL is up - running migrations"' >> /entrypoint.sh && \
     echo 'php artisan migrate --force || echo "Migration failed, continuing..."' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
+    echo '# Clear and cache Laravel configuration' >> /entrypoint.sh && \
+    echo 'echo "Optimizing Laravel configuration..."' >> /entrypoint.sh && \
+    echo 'php artisan config:clear' >> /entrypoint.sh && \
+    echo 'php artisan cache:clear' >> /entrypoint.sh && \
+    echo 'php artisan config:cache' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
     echo 'echo "Starting services with supervisor"' >> /entrypoint.sh && \
     echo 'exec /usr/bin/supervisord -c /etc/supervisor.d/supervisord.ini' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
