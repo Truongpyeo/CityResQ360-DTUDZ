@@ -94,8 +94,16 @@ read -p "Is this a BREAKING CHANGE? [y/N]: " IS_BREAKING
 
 BREAKING_CHANGE=""
 if [[ "$IS_BREAKING" =~ ^[Yy]$ ]]; then
-    echo -e "${YELLOW}⚠️  Describe the breaking change:${NC}"
-    read -p "> " BREAKING_DESC
+    echo -e "${YELLOW}⚠️  Describe the breaking change (multi-line, press Enter twice to finish):${NC}"
+    BREAKING_DESC=""
+    while IFS= read -r line; do
+        [[ -z "$line" ]] && break
+        if [[ -z "$BREAKING_DESC" ]]; then
+            BREAKING_DESC="$line"
+        else
+            BREAKING_DESC="${BREAKING_DESC}\n${line}"
+        fi
+    done
     if [[ -n "$BREAKING_DESC" ]]; then
         BREAKING_CHANGE="\n\nBREAKING CHANGE: ${BREAKING_DESC}"
         # Add ! to header for breaking changes

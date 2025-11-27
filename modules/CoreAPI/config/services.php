@@ -40,4 +40,9 @@ return [
         'api_key' => env('MEDIA_SERVICE_API_KEY', ''),
     ],
 
+    'openweather' => [
+        'key' => env('OPENWEATHER_API_KEY', '30de77839a05db1dfe983c341a297838'),
+        'base_url' => 'https://api.openweathermap.org/data/2.5',
+    ],
+
 ];

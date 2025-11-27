@@ -162,5 +162,13 @@ Route::prefix('v1')->group(function () {
             Route::get('categories', [UserController::class, 'categoriesStats']);
             Route::get('timeline', [UserController::class, 'timeline']);
         });
+
+        // ========== Weather Data ==========
+        Route::prefix('weather')->group(function () {
+            Route::get('current', [\App\Http\Controllers\Api\V1\WeatherController::class, 'current']);
+            Route::get('forecast', [\App\Http\Controllers\Api\V1\WeatherController::class, 'forecast']);
+            Route::get('history', [\App\Http\Controllers\Api\V1\WeatherController::class, 'history']);
+            Route::post('sync', [\App\Http\Controllers\Api\V1\WeatherController::class, 'sync']);
+        });
     });
 });

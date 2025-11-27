@@ -104,3 +104,6 @@ modules/AIMLService/models/*.pkl
 
 # OLP Competition tracking (local only)
 OLP_TASKS.md
+
+# Demo Scenarios (local only)
+docs/DEMO_SCENARIO.md

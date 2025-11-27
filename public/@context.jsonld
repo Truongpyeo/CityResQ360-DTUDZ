@@ -1,0 +1,89 @@
+{
+    "@context": {
+        "ngsi-ld": "https://uri.etsi.org/ngsi-ld/",
+        "geojson": "https://purl.org/geojson/vocab#",
+        "schema": "https://schema.org/",
+        "dcterms": "http://purl.org/dc/terms/",
+        "cityresq": "https://cityresq360.io.vn/ns#",
+        "fiware": "https://uri.fiware.org/ns/data-models#",
+        "Alert": "https://smartdatamodels.org/dataModel.Alert/Alert",
+        "WeatherObserved": "https://smartdatamodels.org/dataModel.Weather/WeatherObserved",
+        "UserReport": "cityresq:UserReport",
+        "Agency": "cityresq:Agency",
+        "User": "cityresq:User",
+        "category": {
+            "@id": "cityresq:category",
+            "@type": "@id"
+        },
+        "alertSource": {
+            "@id": "cityresq:alertSource",
+            "@type": "xsd:string"
+        },
+        "severity": {
+            "@id": "cityresq:severity",
+            "@type": "xsd:string"
+        },
+        "subCategory": {
+            "@id": "cityresq:subCategory",
+            "@type": "xsd:string"
+        },
+        "description": {
+            "@id": "schema:description",
+            "@type": "xsd:string"
+        },
+        "dateIssued": {
+            "@id": "schema:dateIssued",
+            "@type": "xsd:dateTime"
+        },
+        "validFrom": {
+            "@id": "schema:validFrom",
+            "@type": "xsd:dateTime"
+        },
+        "validTo": {
+            "@id": "schema:validTo",
+            "@type": "xsd:dateTime"
+        },
+        "location": {
+            "@id": "ngsi-ld:location",
+            "@type": "ngsi-ld:GeoProperty"
+        },
+        "address": {
+            "@id": "schema:address",
+            "@type": "schema:PostalAddress"
+        },
+        "reportedBy": {
+            "@id": "cityresq:reportedBy",
+            "@type": "@id"
+        },
+        "assignedTo": {
+            "@id": "cityresq:assignedTo",
+            "@type": "@id"
+        },
+        "status": {
+            "@id": "cityresq:status",
+            "@type": "xsd:string"
+        },
+        "priority": {
+            "@id": "cityresq:priority",
+            "@type": "xsd:string"
+        },
+        "voteCount": {
+            "@id": "cityresq:voteCount",
+            "@type": "xsd:integer"
+        },
+        "viewCount": {
+            "@id": "cityresq:viewCount",
+            "@type": "xsd:integer"
+        },
+        "mediaUrls": {
+            "@id": "cityresq:mediaUrls",
+            "@type": "@id",
+            "@container": "@list"
+        },
+        "tags": {
+            "@id": "schema:keywords",
+            "@type": "xsd:string",
+            "@container": "@set"
+        }
+    }
+}
