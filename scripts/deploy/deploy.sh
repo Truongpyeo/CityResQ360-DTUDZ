@@ -140,6 +140,74 @@ if [ "$USE_DOMAIN" = true ]; then
     else
         echo -e "${GREEN}✅ Certbot already installed${NC}"
     fi
+
+    # Create Nginx config for subdomains
+    echo -e "${YELLOW}[Step 4b/8] Configuring Nginx for subdomains...${NC}"
+    cat > /etc/nginx/sites-available/cityresq360 << EOF
+# CoreAPI & Admin
+server {
+    listen 80;
+    server_name api.$DOMAIN;
+    
+    location / {
+        proxy_pass http://localhost:8000;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+
+# MediaService
+server {
+    listen 80;
+    server_name media.$DOMAIN;
+    
+    location / {
+        proxy_pass http://localhost:8004;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+
+# NotificationService
+server {
+    listen 80;
+    server_name notification.$DOMAIN;
+    
+    location / {
+        proxy_pass http://localhost:8006;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+
+# WalletService
+server {
+    listen 80;
+    server_name wallet.$DOMAIN;
+    
+    location / {
+        proxy_pass http://localhost:8005;
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+    }
+}
+EOF
+
+    # Enable site
+    ln -sf /etc/nginx/sites-available/cityresq360 /etc/nginx/sites-enabled/
+    rm -f /etc/nginx/sites-enabled/default
+    
+    # Test and reload
+    nginx -t && systemctl reload nginx
+    echo -e "${GREEN}✅ Nginx configured for $DOMAIN${NC}"
 else
     echo -e "${YELLOW}[Step 3/8] Skipping Nginx (IP mode)${NC}"
     echo -e "${YELLOW}[Step 4/8] Skipping Certbot (IP mode)${NC}"
@@ -154,7 +222,7 @@ if [ -d "$PROJECT_DIR/.git" ]; then
     echo -e "${CYAN}Updating existing repository...${NC}"
     cd "$PROJECT_DIR"
     git stash || true
-    git pull origin main
+    git pull origin master
     echo -e "${GREEN}✅ Repository updated${NC}"
 else
     echo -e "${CYAN}Cloning repository...${NC}"
@@ -189,6 +257,19 @@ if [ ! -f "$ENV_FILE" ]; then
     JWT_SECRET=$(openssl rand -base64 64)
     APP_KEY="base64:$(openssl rand -base64 32)"
     
+    # Calculate URLs based on mode
+    if [ "$USE_DOMAIN" = true ]; then
+        FINAL_APP_URL="https://$API_URL"
+        FINAL_API_URL="https://$API_URL/api/v1"
+        FINAL_MEDIA_URL="https://$MEDIA_URL"
+        MAIL_FROM_DOMAIN="$DOMAIN"
+    else
+        FINAL_APP_URL="$API_URL"
+        FINAL_API_URL="$API_URL/api/v1"
+        FINAL_MEDIA_URL="$MEDIA_URL"
+        MAIL_FROM_DOMAIN="cityresq360.com"
+    fi
+
     # Create .env
     cat > "$ENV_FILE" << EOF
 # CityResQ360 Production Environment
@@ -203,7 +284,7 @@ APP_ENV=production
 APP_KEY=${APP_KEY}
 APP_DEBUG=false
 APP_TIMEZONE=Asia/Ho_Chi_Minh
-APP_URL=$([ "$USE_DOMAIN" = true ] && echo "https://$API_URL" || echo "$API_URL")
+APP_URL=${FINAL_APP_URL}
 APP_LOCALE=vi
 
 # ============================================
@@ -274,15 +355,8 @@ ANALYTICS_SERVICE_URL=http://analytics-service:8009/api/v1
 # ============================================
 # Public URLs (for clients)
 # ============================================
-$([ "$USE_DOMAIN" = true ] && cat << DOMAIN_URLS
-NEXT_PUBLIC_API_URL=https://$API_URL/api/v1
-NEXT_PUBLIC_MEDIA_URL=https://$MEDIA_URL
-DOMAIN_URLS
-|| cat << IP_URLS
-NEXT_PUBLIC_API_URL=$API_URL/api/v1
-NEXT_PUBLIC_MEDIA_URL=$MEDIA_URL
-IP_URLS
-)
+NEXT_PUBLIC_API_URL=${FINAL_API_URL}
+NEXT_PUBLIC_MEDIA_URL=${FINAL_MEDIA_URL}
 
 # ============================================
 # SMTP (Optional - configure if needed)
@@ -293,7 +367,7 @@ MAIL_PORT=587
 MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@$([ "$USE_DOMAIN" = true ] && echo "$DOMAIN" || echo "cityresq360.com")
+MAIL_FROM_ADDRESS=noreply@${MAIL_FROM_DOMAIN}
 
 # ============================================
 # FCM (Optional - configure if needed)
