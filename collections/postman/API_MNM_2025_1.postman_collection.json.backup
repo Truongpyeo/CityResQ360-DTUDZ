@@ -45,15 +45,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/register",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"register"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "register"]
 						},
 						"description": "Đăng ký tài khoản mới"
 					},
@@ -96,15 +89,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/login",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"login"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "login"]
 						},
 						"description": "Đăng nhập và nhận Bearer Token"
 					},
@@ -130,15 +116,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/forgot-password",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"forgot-password"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "forgot-password"]
 						},
 						"description": "Gửi link đặt lại mật khẩu"
 					},
@@ -164,15 +143,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/reset-password",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"reset-password"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "reset-password"]
 						},
 						"description": "Đặt lại mật khẩu với token"
 					},
@@ -200,15 +172,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/me",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"me"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "me"]
 						},
 						"description": "Lấy thông tin user hiện tại"
 					},
@@ -231,15 +196,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/logout",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"logout"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "logout"]
 						},
 						"description": "Đăng xuất và revoke token"
 					},
@@ -262,15 +220,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/refresh",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"refresh"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "refresh"]
 						},
 						"description": "Làm mới token"
 					},
@@ -301,15 +252,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/profile",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"profile"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "profile"]
 						},
 						"description": "Cập nhật thông tin profile"
 					},
@@ -340,15 +284,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/change-password",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"change-password"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "change-password"]
 						},
 						"description": "Đổi mật khẩu"
 					},
@@ -379,15 +316,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/verify-email",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"verify-email"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "verify-email"]
 						},
 						"description": "Xác thực email với mã code"
 					},
@@ -418,15 +348,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/verify-phone",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"verify-phone"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "verify-phone"]
 						},
 						"description": "Xác thực số điện thoại với mã code"
 					},
@@ -457,15 +380,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/auth/update-fcm-token",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"auth",
-								"update-fcm-token"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "auth", "update-fcm-token"]
 						},
 						"description": "Cập nhật FCM token cho push notifications"
 					},
@@ -493,14 +409,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports?page=1&per_page=20&danh_muc=&trang_thai=&sort_by=created_at&sort_order=desc",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports"
-							],
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports"],
 							"query": [
 								{
 									"key": "page",
@@ -564,14 +474,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports"]
 						},
 						"description": "Tạo phản ánh mới\n\n**Lưu ý:**\n- Upload ảnh trước qua Media API để lấy media IDs\n- Dùng media_ids (array) để gắn ảnh vào report\n- dia_chi (không phải dia_chi_chi_tiet)\n- danh_muc: 0=traffic, 1=environment, 2=fire, 3=waste, 4=flood, 5=other\n- uu_tien: 1=normal, 2=high, 3=urgent (optional, default: 1)\n- la_cong_khai: true/false (optional, default: true)\n- the_tags: array of strings (optional)"
 					},
@@ -594,15 +498,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/my?page=1&per_page=20",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"my"
-							],
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "my"],
 							"query": [
 								{
 									"key": "page",
@@ -635,15 +532,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/nearby?vi_do=10.7769&kinh_do=106.7009&radius=5000",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"nearby"
-							],
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "nearby"],
 							"query": [
 								{
 									"key": "vi_do",
@@ -681,15 +571,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/trending?limit=10",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"trending"
-							],
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "trending"],
 							"query": [
 								{
 									"key": "limit",
@@ -718,15 +601,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"1"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1"]
 						},
 						"description": "Lấy chi tiết phản ánh"
 					},
@@ -757,15 +633,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"1"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1"]
 						},
 						"description": "Cập nhật phản ánh (chỉ owner)"
 					},
@@ -788,15 +657,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"1"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1"]
 						},
 						"description": "Xóa phản ánh (chỉ owner)"
 					},
@@ -827,16 +689,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/1/vote",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"1",
-								"vote"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1", "vote"]
 						},
 						"description": "Vote phản ánh (ung_ho hoặc khong_ung_ho)"
 					},
@@ -859,16 +713,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/1/view",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"1",
-								"view"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1", "view"]
 						},
 						"description": "Tăng lượt xem"
 					},
@@ -899,16 +745,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/1/rate",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"1",
-								"rate"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1", "rate"]
 						},
 						"description": "Đánh giá phản ánh (1-5 sao)"
 					},
@@ -936,16 +774,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/1/comments?page=1&sort_by=created_at&sort_order=desc",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"1",
-								"comments"
-							],
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1", "comments"],
 							"query": [
 								{
 									"key": "page",
@@ -990,16 +820,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/reports/1/comments",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"reports",
-								"1",
-								"comments"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "reports", "1", "comments"]
 						},
 						"description": "Tạo bình luận mới"
 					},
@@ -1030,15 +852,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/comments/1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"comments",
-								"1"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "comments", "1"]
 						},
 						"description": "Cập nhật bình luận (chỉ author)"
 					},
@@ -1061,15 +876,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/comments/1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"comments",
-								"1"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "comments", "1"]
 						},
 						"description": "Xóa bình luận (chỉ author hoặc admin)"
 					},
@@ -1092,16 +900,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/comments/1/like",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"comments",
-								"1",
-								"like"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "comments", "1", "like"]
 						},
 						"description": "Like bình luận"
 					},
@@ -1124,16 +924,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/comments/1/like",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"comments",
-								"1",
-								"like"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "comments", "1", "like"]
 						},
 						"description": "Unlike bình luận"
 					},
@@ -1217,15 +1009,8 @@
 						},
 						"url": {
 							"raw": "{{base_url}}/api/v1/media/upload",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"media",
-								"upload"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "media", "upload"]
 						},
 						"description": "Upload media (image/video)\n\n**Hướng dẫn:**\n1. Chọn tab 'Body'\n2. Chọn 'form-data'\n3. Click vào field 'file' → chọn 'File' từ dropdown\n4. Click 'Select Files' và chọn ảnh từ máy\n5. Điền các thông tin khác\n6. Send request\n7. Lấy media ID từ response để dùng trong Create Report\n\n**Response:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"id\": 123,  // ← Dùng ID này trong media_ids\n    \"url\": \"...\",\n    \"thumbnail_url\": \"...\"\n  }\n}\n```"
 					},
@@ -1248,15 +1033,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/media/my?page=1&type=image",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"media",
-								"my"
-							],
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "media", "my"],
 							"query": [
 								{
 									"key": "page",
@@ -1290,15 +1068,8 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/media/1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"media",
-								"1"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "media", "1"]
 						},
 						"description": "Lấy chi tiết media"
 					},
@@ -1321,921 +1092,10 @@
 						],
 						"url": {
 							"raw": "{{base_url}}/api/v1/media/1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"media",
-								"1"
-							]
+							"host": ["{{base_url}}"],
+							"path": ["api", "v1", "media", "1"]
 						},
 						"description": "Xóa media (chỉ owner)"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Map & Location",
-			"item": [
-				{
-					"name": "Get Reports on Map",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/map/reports?bounds=10.7,106.6,10.8,106.8",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"map",
-								"reports"
-							],
-							"query": [
-								{
-									"key": "bounds",
-									"value": "10.7,106.6,10.8,106.8",
-									"description": "SW_lat,SW_lng,NE_lat,NE_lng"
-								}
-							]
-						},
-						"description": "Lấy danh sách phản ánh trên bản đồ theo vùng bounds"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Heatmap Data",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/map/heatmap?days=7",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"map",
-								"heatmap"
-							],
-							"query": [
-								{
-									"key": "days",
-									"value": "7",
-									"description": "Number of days"
-								}
-							]
-						},
-						"description": "Lấy dữ liệu heatmap cho bản đồ"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Map Clusters",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/map/clusters?zoom=12",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"map",
-								"clusters"
-							],
-							"query": [
-								{
-									"key": "zoom",
-									"value": "12",
-									"description": "Map zoom level"
-								}
-							]
-						},
-						"description": "Lấy cluster markers cho bản đồ"
-					},
-					"response": []
-				},
-				{
-					"name": "Get GTFS Routes",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/map/routes",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"map",
-								"routes"
-							]
-						},
-						"description": "Lấy thông tin tuyến GTFS (placeholder)"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Agencies",
-			"item": [
-				{
-					"name": "List Agencies",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/agencies",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"agencies"
-							]
-						},
-						"description": "Lấy danh sách cơ quan chức năng (public)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Agency Detail",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/agencies/1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"agencies",
-								"1"
-							]
-						},
-						"description": "Lấy chi tiết cơ quan (public)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Agency Reports",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/agencies/1/reports?page=1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"agencies",
-								"1",
-								"reports"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								}
-							]
-						},
-						"description": "Lấy danh sách phản ánh do cơ quan xử lý (public)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Agency Stats",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/agencies/1/stats",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"agencies",
-								"1",
-								"stats"
-							]
-						},
-						"description": "Lấy thống kê của cơ quan (public)"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "User Profile & Stats",
-			"item": [
-				{
-					"name": "Get User Profile",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/users/1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"users",
-								"1"
-							]
-						},
-						"description": "Xem profile công khai của user (public)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get User Reports",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/users/1/reports?page=1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"users",
-								"1",
-								"reports"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								}
-							]
-						},
-						"description": "Xem phản ánh của user (public)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get User Stats",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/users/1/stats",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"users",
-								"1",
-								"stats"
-							]
-						},
-						"description": "Xem thống kê của user (public)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get My Overview Stats",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/stats/overview",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"stats",
-								"overview"
-							]
-						},
-						"description": "Tổng quan thống kê cá nhân"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Categories Stats",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/stats/categories",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"stats",
-								"categories"
-							]
-						},
-						"description": "Thống kê theo danh mục"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Timeline Stats",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/stats/timeline?period=7d",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"stats",
-								"timeline"
-							],
-							"query": [
-								{
-									"key": "period",
-									"value": "7d",
-									"description": "7d, 30d, 90d, 1y"
-								}
-							]
-						},
-						"description": "Thống kê theo thời gian"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Leaderboard",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/stats/leaderboard?limit=10",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"stats",
-								"leaderboard"
-							],
-							"query": [
-								{
-									"key": "limit",
-									"value": "10"
-								}
-							]
-						},
-						"description": "Bảng xếp hạng người dùng (public)"
-					},
-					"response": []
-				},
-				{
-					"name": "Get City Stats",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/stats/city",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"stats",
-								"city"
-							]
-						},
-						"description": "Thống kê toàn thành phố (public)"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Wallet & CityPoints",
-			"item": [
-				{
-					"name": "Get Wallet Balance",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/wallet",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"wallet"
-							]
-						},
-						"description": "Xem số dư ví CityPoints"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Transactions History",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/wallet/transactions?page=1&type=all",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"wallet",
-								"transactions"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								},
-								{
-									"key": "type",
-									"value": "all",
-									"description": "all, earn, spend"
-								}
-							]
-						},
-						"description": "Lịch sử giao dịch"
-					},
-					"response": []
-				},
-				{
-					"name": "Redeem Reward",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\\n  \\\"reward_id\\\": 1,\\n  \\\"quantity\\\": 1\\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/v1/wallet/redeem",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"wallet",
-								"redeem"
-							]
-						},
-						"description": "Đổi phần thưởng bằng CityPoints"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Available Rewards",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/wallet/rewards?page=1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"wallet",
-								"rewards"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								}
-							]
-						},
-						"description": "Danh sách phần thưởng có thể đổi"
-					},
-					"response": []
-				}
-			]
-		},
-		{
-			"name": "Notifications",
-			"item": [
-				{
-					"name": "Get Notifications",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/notifications?page=1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"notifications"
-							],
-							"query": [
-								{
-									"key": "page",
-									"value": "1"
-								}
-							]
-						},
-						"description": "Lấy danh sách thông báo"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Unread Notifications",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/notifications/unread",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"notifications",
-								"unread"
-							]
-						},
-						"description": "Lấy thông báo chưa đọc"
-					},
-					"response": []
-				},
-				{
-					"name": "Get Unread Count",
-					"request": {
-						"method": "GET",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/notifications/unread-count",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"notifications",
-								"unread-count"
-							]
-						},
-						"description": "Đếm số thông báo chưa đọc"
-					},
-					"response": []
-				},
-				{
-					"name": "Mark as Read",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/notifications/1/read",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"notifications",
-								"1",
-								"read"
-							]
-						},
-						"description": "Đánh dấu thông báo đã đọc"
-					},
-					"response": []
-				},
-				{
-					"name": "Mark All as Read",
-					"request": {
-						"method": "POST",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/notifications/read-all",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"notifications",
-								"read-all"
-							]
-						},
-						"description": "Đánh dấu tất cả đã đọc"
-					},
-					"response": []
-				},
-				{
-					"name": "Delete Notification",
-					"request": {
-						"method": "DELETE",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"url": {
-							"raw": "{{base_url}}/api/v1/notifications/1",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"notifications",
-								"1"
-							]
-						},
-						"description": "Xóa thông báo"
-					},
-					"response": []
-				},
-				{
-					"name": "Update Notification Settings",
-					"request": {
-						"method": "PUT",
-						"header": [
-							{
-								"key": "Authorization",
-								"value": "Bearer {{auth_token}}",
-								"type": "text"
-							},
-							{
-								"key": "Content-Type",
-								"value": "application/json"
-							},
-							{
-								"key": "Accept",
-								"value": "application/json"
-							}
-						],
-						"body": {
-							"mode": "raw",
-							"raw": "{\\n  \\\"push_enabled\\\": true,\\n  \\\"email_enabled\\\": false,\\n  \\\"report_updates\\\": true,\\n  \\\"comment_replies\\\": true\\n}"
-						},
-						"url": {
-							"raw": "{{base_url}}/api/v1/notifications/settings",
-							"host": [
-								"{{base_url}}"
-							],
-							"path": [
-								"api",
-								"v1",
-								"notifications",
-								"settings"
-							]
-						},
-						"description": "Cập nhật cài đặt thông báo"
 					},
 					"response": []
 				}
@@ -2245,13 +1105,13 @@
 	"variable": [
 		{
 			"key": "base_url",
-			"value": "https://api.cityresq360.io.vn",
+			"value": "https://api.midstack.io.vn",
 			"type": "string",
 			"description": "API Base URL - Change to local_url for local testing"
 		},
 		{
 			"key": "production_url",
-			"value": "https://api.cityresq360.io.vn",
+			"value": "https://api.midstack.io.vn",
 			"type": "string",
 			"description": "Production server URL"
 		},
@@ -2269,3 +1129,4 @@
 		}
 	]
 }
+
