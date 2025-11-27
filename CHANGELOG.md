@@ -5,6 +5,11 @@
 * feat(api)!: Hoàn thiện API client cho React Native Mobile ([2b92a48](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/2b92a483731eb56b6d0703d7c8b3837f1ffef25c))
 
 
+### Bug Fixes
+
+* **deploy:** syntax error in NC variable assignment ([eb075da](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/eb075dad631e28e08a93170c9b6565b057056061))
+
+
 ### Features
 
 * Update Root Repo ([252715c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/252715cd078188cdeb49eb551d9815cd9e0812ab))
