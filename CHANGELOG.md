@@ -1,119 +1,40 @@
-# Changelog
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.0...v) (2025-11-27)
 
-All notable changes to CityResQ360-DTUDZ will be documented in this file.
 
-The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.0.0/),
-and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
+* feat(api)!: Hoàn thiện API client cho React Native Mobile ([2b92a48](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/2b92a483731eb56b6d0703d7c8b3837f1ffef25c))
 
-## [Unreleased]
 
-### Added
-- GPL v3 license headers to all source files ([#PR])
-- Documentation for building without Docker ([docs/BUILD_WITHOUT_DOCKER.md](docs/BUILD_WITHOUT_DOCKER.md))
-- Script for automatic license header insertion ([scripts/add-license-headers.sh](scripts/add-license-headers.sh))
+### Features
 
-### Changed
-- Improved CHANGELOG format to follow Keep a Changelog standard
+* Update Root Repo ([252715c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/252715cd078188cdeb49eb551d9815cd9e0812ab))
 
----
 
-## [1.0.0] - 2025-11-26
+### BREAKING CHANGES
 
-### Added
-- **Core Features**
-  - AI-powered incident detection and classification
-  - Real-time incident mapping with PostGIS
-  - Mobile app (React Native) for citizen reporting
-  - Web dashboard (VueJS) for government agencies
-  - Microservices architecture with 11 services
-  - CityPoint reward system for community engagement
+* Hoàn thiện API client cho React Native Mobile
 
-- **Infrastructure**
-  - Docker Compose deployment setup
-  - PostgreSQL with PostGIS extension
-  - Redis caching layer
-  - MongoDB for IoT data
-  - Apache Kafka message broker
-  - MQTT support (Mosquitto/EMQX)
 
-- **Services**
-  - CoreAPI (Laravel 12) - Main API backend
-  - AIMLService (FastAPI) - AI/ML processing
-  - IoTService (Node.js) - IoT data collection
-  - MediaService (Node.js) - Image/video storage
-  - NotificationService (Node.js) - Push notifications
-  - WalletService (Go) - CityPoint management
-  - IncidentService (Node.js) - Incident processing
-  - SearchService (Python) - Full-text search
-  - AnalyticsService (Python) - Data analytics
-  - FloodEyeService (Python) - Flood monitoring
-  - ContextBroker - NGSI-LD support (planned)
 
-- **Documentation**
-  - Comprehensive README with architecture diagrams
-  - Project context and development workflow guides
-  - Docker deployment documentation
-  - Contributing guidelines
-  - Code of conduct
+# [1.0.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/a9585e5d3e275aa0ee68923e0cdf25ae943a8d6b...v1.0.0) (2025-11-25)
 
-### Changed
-- Repository restructured into modular architecture
-  - `modules/` - All microservices
-  - `infrastructure/` - Deployment configs
-  - `docs/` - Documentation
-  - `scripts/` - Utility scripts
-  - `collections/` - API test collections
 
-### Fixed
-- **CoreAPI**
-  - PHP Redis extension added to Dockerfile ([e9a3109])
-  - TrustProxies and intl extension configured ([4549d60])
-  
-- **Deployment**
-  - APP_KEY generation with proper base64 format ([667b15c])
-  - JWT_SECRET handling for special characters ([c7903eb])
-  - MySQL password reuse to prevent access denied errors ([0ae0ca3])
-  - Docker exec -it compatibility in deployment scripts ([77a9f68])
-  - rsync replaced with cp for Ubuntu compatibility ([74586ab])
+### Bug Fixes
 
-- **Docker**
-  - Environment variables properly configured ([44f2766])
-  - Duplicate volumes key removed from YAML ([668bf83])
-  - MySQL 8.0 syntax compatibility ([fb31d5e])
+* **coreapi:** Thêm PHP Redis extension vào Dockerfile ([e9a3109](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e9a31096dea6f70c052140ad4b37b3efbe2b04aa))
+* **coreapi:** Thêm trustProxies và intl extension ([4549d60](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/4549d6083fc2ff7de876a64369add3e3acc1bb0d))
+* **deploy:** Dùng php artisan key:generate trong container ([804bff9](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/804bff910d04ff37546dc163f7cbdd10701b6634))
+* **deploy:** generate APP_KEY before starting containers to prevent missing key error ([7c3d218](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/7c3d218c2ded1132ebcf659a543842a737304bb4))
+* **deploy:** Generate APP_KEY theo chuẩn Laravel base64 format ([667b15c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/667b15cf6b0ee8b03e55587f404d995cee6b7779))
+* **deploy:** reuse passwords from existing .env to prevent MySQL access denied ([0ae0ca3](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/0ae0ca3b6c910f54cb963a6dc94ba30f9725a527))
+* **deploy:** Sửa APP_KEY generation giữ base64 hợp lệ ([d4dbac0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/d4dbac0871d0a6c2d977b3616e816910ed7aa849))
+* **deploy:** Sửa lỗi JWT_SECRET xuống dòng và ký tự đặc biệt ([c7903eb](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/c7903eb2ffa48ce5a145e3f9a9801137f85bd7a5))
+* **deploy:** Sửa lỗi rsync và docker exec -it trong script tự động ([77a9f68](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/77a9f6896389cb36659d6a4c0e9ee981b8173d4e))
+* **deploy:** Thay rsync bằng cp để tương thích Ubuntu ([74586ab](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/74586ab5dd4295ff5fa1d1ffbcaab550f9008213))
+* **docker:** Bỏ mount .env file, dùng environment variables ([44f2766](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/44f2766d8c27d0cd134a3fc7356fa908c0f4a578))
+* **docker:** Mount .env file và thêm APP_KEY cho CoreAPI container ([79dcf3f](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/79dcf3f54a1febcb21d2c90a207067a3ef648754))
+* **docker:** Xóa duplicate volumes key gây lỗi YAML parse ([668bf83](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/668bf8307ee3d8e197198d32820909909c9b692a))
+* **mysql:** Bỏ init.sql mount vì syntax không tương thích MySQL 8.0 ([fb31d5e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/fb31d5ece3ac016bd68fcb5fd033ec4953101dd3))
+* readme ([a9585e5](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a9585e5d3e275aa0ee68923e0cdf25ae943a8d6b))
 
-### Security
-- Secure environment variable handling
-- Database credentials isolation
-- API authentication with Laravel Sanctum
 
----
 
-## Historical Releases
-
-### Pre-1.0.0 - Development Phase
-
-Initial development and prototyping of CityResQ360 system.
-
----
-
-## Links
-
-- [Repository](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ)
-- [Issues](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/issues)
-- [Pull Requests](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/pulls)
-
----
-
-[Unreleased]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.0...HEAD
-[1.0.0]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/releases/tag/v1.0.0
-
-[e9a3109]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e9a3109
-[4549d60]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/4549d60
-[667b15c]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/667b15c
-[c7903eb]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/c7903eb
-[0ae0ca3]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/0ae0ca3
-[77a9f68]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/77a9f68
-[74586ab]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/74586ab
-[44f2766]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/44f2766
-[668bf83]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/668bf83
-[fb31d5e]: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/fb31d5e
