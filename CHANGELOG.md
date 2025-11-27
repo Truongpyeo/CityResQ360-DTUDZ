@@ -1,6 +1,7 @@
 # [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.1...v) (2025-11-27)
 
 
+* build(deloy)!: Cập nhật Deloy.sh ([8fca540](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8fca5405562e302259521635b4f27fa5f712b96f))
 * fix(docker)!: fix ([e5617d6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e5617d65b76d54b9ce91a9fd460bf7f862d15967))
 * build(docker)!: Thay đổi Docker ([de9b2b0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/de9b2b06057af348a2574105e56a96cfcb88fc69))
 * feat(api)!: Hoàn thiện API client cho React Native Mobile ([2b92a48](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/2b92a483731eb56b6d0703d7c8b3837f1ffef25c))
@@ -19,6 +20,7 @@
 
 ### BREAKING CHANGES
 
+* Thay đổi deloy.sh để đưa lên VPS
 * Fix Deloy.sh
 * Thay đổi cấu hình Nginx, Viết lại DockerFile, Viết lại Deloy.sh để auto Deloy
 * Hoàn thiện API client cho React Native Mobile
