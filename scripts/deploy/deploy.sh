@@ -14,9 +14,7 @@ GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 CYAN='\033[0;36m'
-NC
-
-='\033[0m'
+NC='\033[0m'
 
 echo -e "${BLUE}================================================${NC}"
 echo -e "${BLUE}🚀 CityResQ360 Production Deployment v2.0${NC}"
