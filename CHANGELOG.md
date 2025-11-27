@@ -1,6 +1,7 @@
 # [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.1...v) (2025-11-27)
 
 
+* perf(postman)!: Cập nhật Postman Collection đầy đủ các API ([eae50e6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/eae50e6a41b38b51f6e7c82641b5c57dc5a53a9a))
 * build(docker)!: Chỉnh Sửa DockerFile trong CoreAPI ([7794e54](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/7794e545657940f0b16d3edc40ec86c9a85ab609))
 * build(deloy)!: Cập nhật Deloy.sh ([8fca540](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8fca5405562e302259521635b4f27fa5f712b96f))
 * fix(docker)!: fix ([e5617d6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e5617d65b76d54b9ce91a9fd460bf7f862d15967))
@@ -21,6 +22,7 @@
 
 ### BREAKING CHANGES
 
+* Đã thêm 5 groups mới:
 * Thực hiện fix và chỉnh sửa dockerfile trong CoreAPI và deloy.sh
 * Thay đổi deloy.sh để đưa lên VPS
 * Fix Deloy.sh
