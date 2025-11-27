@@ -249,12 +249,12 @@ ENV_FILE="${DOCKER_DIR}/.env"
 if [ ! -f "$ENV_FILE" ]; then
     echo -e "${CYAN}Generating secure passwords...${NC}"
     
-    MYSQL_PASS=$(openssl rand -base64 32)
-    MONGO_PASS=$(openssl rand -base64 32)
-    POSTGRES_PASS=$(openssl rand -base64 32)
-    RABBITMQ_PASS=$(openssl rand -base64 32)
-    MINIO_PASS=$(openssl rand -base64 32)
-    JWT_SECRET=$(openssl rand -base64 64)
+    MYSQL_PASS=$(openssl rand -hex 32)
+    MONGO_PASS=$(openssl rand -hex 32)
+    POSTGRES_PASS=$(openssl rand -hex 32)
+    RABBITMQ_PASS=$(openssl rand -hex 32)
+    MINIO_PASS=$(openssl rand -hex 32)
+    JWT_SECRET=$(openssl rand -hex 64)
     APP_KEY="base64:$(openssl rand -base64 32)"
     
     # Calculate URLs based on mode
