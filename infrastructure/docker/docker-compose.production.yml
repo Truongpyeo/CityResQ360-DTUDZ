@@ -32,9 +32,9 @@ services:
         image: eclipse-mosquitto:2.0
         container_name: cityresq-mqtt
         volumes:
-            - ../mosquitto/config../mosquitto/config
-            - ../mosquitto/data../mosquitto/data
-            - ../mosquitto/log../mosquitto/log
+            - mosquitto_config:/mosquitto/config
+            - mosquitto_data:/mosquitto/data
+            - mosquitto_log:/mosquitto/log
         networks:
             - cityresq-network
         healthcheck:
@@ -681,6 +681,9 @@ volumes:
     coreapi_storage:
     media_uploads:
     aiml_models:
+    mosquitto_config:
+    mosquitto_data:
+    mosquitto_log:
 
 
 networks:
