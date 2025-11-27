@@ -1,7 +1,9 @@
 #!/bin/bash
 
 # ============================================
-# Script Deploy CityResQ360 lên VPS
+# CityResQ360 Production Deployment Script v2.0
+# Supports: Domain-based (with SSL subdomains) or IP-only
+# Architecture: Microservices with dedicated subdomains
 # ============================================
 
 set -e
@@ -10,301 +12,256 @@ set -e
 RED='\033[0;31m'
 GREEN='\033[0;32m'
 YELLOW='\033[1;33m'
-NC='\033[0m' # No Color
+BLUE='\033[0;34m'
+CYAN='\033[0;36m'
+NC
 
-# Variables - THAY ĐỔI CÁC GIÁ TRỊ NÀY
-DOMAIN="midstack.io.vn"
-EMAIL="thanhtruong23111999@gmail.com"  # Email để nhận thông báo từ Let's Encrypt
+='\033[0m'
 
-echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}CityResQ360 - Production Deployment${NC}"
-echo -e "${GREEN}========================================${NC}"
+echo -e "${BLUE}================================================${NC}"
+echo -e "${BLUE}🚀 CityResQ360 Production Deployment v2.0${NC}"
+echo -e "${BLUE}================================================${NC}"
+echo ""
 
-# Kiểm tra quyền root
+# Check root
 if [ "$EUID" -ne 0 ]; then 
-    echo -e "${RED}Vui lòng chạy script với quyền root (sudo)${NC}"
+    echo -e "${RED}❌ Please run as root: sudo ./deploy.sh${NC}"
     exit 1
 fi
 
-# Cập nhật hệ thống
-echo -e "${YELLOW}[1/8] Cập nhật hệ thống...${NC}"
-apt-get update
-apt-get upgrade -y
+# Configuration
+PROJECT_DIR="/opt/CityResQ360"
+DOCKER_DIR="${PROJECT_DIR}/infrastructure/docker"
+BACKUP_DIR="/opt/backups/cityresq360"
 
-# Cài đặt Docker và Docker Compose
-echo -e "${YELLOW}[2/8] Cài đặt Docker và Docker Compose...${NC}"
+# ============================================
+# STEP 1: DEPLOYMENT MODE SELECTION
+# ============================================
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${CYAN}Select deployment mode:${NC}"
+echo "1) 🌐 Domain-based (with SSL for each microservice)"
+echo "   Example: api.yoursite.com, media.yoursite.com"
+echo "   Recommended for: Production, API ecosystem"
+echo ""
+echo "2) 🖥️  IP-only (direct access via IP:PORT)"
+echo "   Example: 34.85.44.142:8000"
+echo "   Recommended for: Testing, development"
+echo ""
+read -p "Enter choice [1-2]: " DEPLOY_MODE
+
+if [ "$DEPLOY_MODE" = "1" ]; then
+    USE_DOMAIN=true
+    echo ""
+    echo -e "${YELLOW}📝 Domain-based deployment selected${NC}"
+    read -p "Enter your domain (e.g., cityresq360.com): " DOMAIN
+    read -p "Enter your email for SSL certificates: " EMAIL
+    
+    if [ -z "$DOMAIN" ] || [ -z "$EMAIL" ]; then
+        echo -e "${RED}❌ Domain and email are required!${NC}"
+        exit 1
+    fi
+    
+    echo -e "${GREEN}✅ Domain: $DOMAIN${NC}"
+    echo -e "${GREEN}✅ Email: $EMAIL${NC}"
+    
+    # Subdomains for microservices
+    API_URL="api.$DOMAIN"
+    MEDIA_URL="media.$DOMAIN"
+    NOTIFICATION_URL="notification.$DOMAIN"
+    WALLET_URL="wallet.$DOMAIN"
+    INCIDENT_URL="incident.$DOMAIN"
+    IOT_URL="iot.$DOMAIN"
+    AIML_URL="aiml.$DOMAIN"
+    SEARCH_URL="search.$DOMAIN"
+    FLOODEYE_URL="floodeye.$DOMAIN"
+    ANALYTICS_URL="analytics.$DOMAIN"
+else
+    USE_DOMAIN=false
+    SERVER_IP=$(curl -s ifconfig.me || echo "localhost")
+    echo ""
+    echo -e "${YELLOW}🖥️  IP-only deployment selected${NC}"
+    echo -e "${GREEN}✅ Server IP: $SERVER_IP${NC}"
+    
+    # IP-based URLs
+    API_URL="http://$SERVER_IP:8000"
+    MEDIA_URL="http://$SERVER_IP:8004"
+    NOTIFICATION_URL="http://$SERVER_IP:8006"
+    WALLET_URL="http://$SERVER_IP:8005"
+    INCIDENT_URL="http://$SERVER_IP:8001"
+    IOT_URL="http://$SERVER_IP:8002"
+    AIML_URL="http://$SERVER_IP:8003"
+    SEARCH_URL="http://$SERVER_IP:8007"
+    FLOODEYE_URL="http://$SERVER_IP:8008"
+    ANALYTICS_URL="http://$SERVER_IP:8009"
+fi
+
+echo ""
+
+# ============================================
+# STEP 2: INSTALL DEPENDENCIES
+# ============================================
+echo -e "${YELLOW}[Step 1/8] System Update${NC}"
+apt-get update -qq
+apt-get upgrade -y -qq
+
+echo -e "${YELLOW}[Step 2/8] Installing Docker${NC}"
 if ! command -v docker &> /dev/null; then
-    curl -fsSL https://get.docker.com -o get-docker.sh
-    sh get-docker.sh
-    rm get-docker.sh
+    curl -fsSL https://get.docker.com | sh
     systemctl enable docker
     systemctl start docker
+    usermod -aG docker root
+    echo -e "${GREEN}✅ Docker installed${NC}"
+else
+    echo -e "${GREEN}✅ Docker already installed${NC}"
 fi
 
 if ! command -v docker-compose &> /dev/null; then
-    curl -L "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
+    curl -sL "https://github.com/docker/compose/releases/latest/download/docker-compose-$(uname -s)-$(uname -m)" -o /usr/local/bin/docker-compose
     chmod +x /usr/local/bin/docker-compose
-fi
-
-# Cài đặt Nginx
-echo -e "${YELLOW}[3/8] Cài đặt Nginx...${NC}"
-if ! command -v nginx &> /dev/null; then
-    apt-get install -y nginx
-    systemctl enable nginx
-    systemctl start nginx
-fi
-
-# Cài đặt Certbot (Let's Encrypt)
-echo -e "${YELLOW}[4/8] Cài đặt Certbot...${NC}"
-if ! command -v certbot &> /dev/null; then
-    apt-get install -y certbot python3-certbot-nginx
-fi
-
-# Tạo thư mục project
-PROJECT_DIR="/opt/cityresq360"
-echo -e "${YELLOW}[5/8] Tạo thư mục project tại $PROJECT_DIR...${NC}"
-mkdir -p $PROJECT_DIR
-
-# Copy file nginx config
-echo -e "${YELLOW}[6/8] Cấu hình Nginx...${NC}"
-if [ -f "./nginx/nginx.conf" ]; then
-    # Thay thế yourdomain.com trong file nginx config
-    sed "s/yourdomain.com/$DOMAIN/g" ./nginx/nginx.conf > /etc/nginx/sites-available/cityresq360
-    
-    # Tạo symlink
-    ln -sf /etc/nginx/sites-available/cityresq360 /etc/nginx/sites-enabled/
-    
-    # Xóa default config
-    rm -f /etc/nginx/sites-enabled/default
-    
-    # Test nginx config
-    nginx -t
-    
-    # Reload nginx
-    systemctl reload nginx
+    echo -e "${GREEN}✅ Docker Compose installed${NC}"
 else
-    echo -e "${RED}Không tìm thấy file nginx/nginx.conf${NC}"
-    exit 1
+    echo -e "${GREEN}✅ Docker Compose already installed${NC}"
 fi
 
-# File .env sẽ được tạo sau khi copy files
-echo -e "${YELLOW}[7/8] Chuẩn bị deploy...${NC}"
-
-# Hướng dẫn cấu hình DNS
-echo -e "${YELLOW}[8/8] Hướng dẫn cấu hình DNS...${NC}"
-echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}Cấu hình DNS records:${NC}"
-echo -e "${GREEN}========================================${NC}"
-echo "A     @              -> $(curl -s ifconfig.me)"
-echo "A     www            -> $(curl -s ifconfig.me)"
-echo "A     api            -> $(curl -s ifconfig.me)"
-echo "A     media          -> $(curl -s ifconfig.me)"
-echo "A     notification   -> $(curl -s ifconfig.me)"
-echo "A     wallet         -> $(curl -s ifconfig.me)"
-echo "A     incident       -> $(curl -s ifconfig.me)"
-echo "A     iot            -> $(curl -s ifconfig.me)"
-echo "A     aiml           -> $(curl -s ifconfig.me)"
-echo "A     search         -> $(curl -s ifconfig.me)"
-echo "A     floodeye       -> $(curl -s ifconfig.me)"
-echo "A     analytics      -> $(curl -s ifconfig.me)"
-echo -e "${GREEN}========================================${NC}"
-
-echo -e "${YELLOW}Chờ DNS propagate (có thể mất vài phút đến vài giờ)...${NC}"
-read -p "Nhấn Enter khi đã cấu hình DNS xong..."
-
-# Cấp SSL certificate cho tất cả subdomains
-echo -e "${YELLOW}Cấp SSL certificates...${NC}"
-
-# Main domain
-certbot --nginx -d $DOMAIN -d www.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# API domain
-certbot --nginx -d api.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Media domain
-certbot --nginx -d media.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Notification domain
-certbot --nginx -d notification.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Wallet domain
-certbot --nginx -d wallet.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Incident domain
-certbot --nginx -d incident.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# IoT domain
-certbot --nginx -d iot.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# AI/ML domain
-certbot --nginx -d aiml.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Search domain
-certbot --nginx -d search.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# FloodEye domain
-certbot --nginx -d floodeye.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Analytics domain
-certbot --nginx -d analytics.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect
-
-# Cập nhật nginx config với SSL paths
-echo -e "${YELLOW}Cập nhật nginx config với SSL paths...${NC}"
-# Certbot đã tự động cập nhật, chỉ cần reload
-systemctl reload nginx
-
-# Copy project files
-echo -e "${YELLOW}Copy project files...${NC}"
-# Copy toàn bộ project
-mkdir -p $PROJECT_DIR
-cp -r . $PROJECT_DIR/
-
-# Xóa các thư mục không cần thiết
-echo -e "${YELLOW}Dọn dẹp thư mục không cần thiết...${NC}"
-rm -rf $PROJECT_DIR/.git
-find $PROJECT_DIR -type d -name "node_modules" -exec rm -rf {} + 2>/dev/null || true
-find $PROJECT_DIR -type d -name "vendor" -exec rm -rf {} + 2>/dev/null || true
-find $PROJECT_DIR -type d -name ".next" -exec rm -rf {} + 2>/dev/null || true
-
-# Di chuyển vào thư mục project
-cd $PROJECT_DIR
-
-# Kiểm tra và tạo file .env với passwords
-echo -e "${YELLOW}Kiểm tra file .env...${NC}"
-if [ -f "$PROJECT_DIR/.env" ]; then
-    echo -e "${GREEN}.env đã tồn tại, sử dụng lại passwords cũ...${NC}"
-    # Load passwords từ .env cũ
-    MYSQL_ROOT_PASSWORD=$(grep "^MYSQL_ROOT_PASSWORD=" .env | cut -d '=' -f2)
-    MYSQL_PASSWORD=$(grep "^MYSQL_PASSWORD=" .env | cut -d '=' -f2 | head -1)
-    MONGODB_PASSWORD=$(grep "^MONGODB_PASSWORD=" .env | cut -d '=' -f2)
-    POSTGRES_PASSWORD=$(grep "^POSTGRES_PASSWORD=" .env | cut -d '=' -f2)
-    CLICKHOUSE_PASSWORD=$(grep "^CLICKHOUSE_PASSWORD=" .env | cut -d '=' -f2)
-    RABBITMQ_PASSWORD=$(grep "^RABBITMQ_PASSWORD=" .env | cut -d '=' -f2)
-    MINIO_ROOT_PASSWORD=$(grep "^MINIO_ROOT_PASSWORD=" .env | cut -d '=' -f2)
-    JWT_SECRET=$(grep "^JWT_SECRET=" .env | cut -d '=' -f2)
-    APP_KEY=$(grep "^APP_KEY=" .env | cut -d '=' -f2)
-    
-    # Kiểm tra nếu không load được thì generate mới
-    if [ -z "$MYSQL_PASSWORD" ] || [ -z "$MONGODB_PASSWORD" ]; then
-        echo -e "${YELLOW}.env cũ không đầy đủ, generate passwords mới...${NC}"
-        MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-        MYSQL_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-        MONGODB_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-        POSTGRES_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-        CLICKHOUSE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-        RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-        MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-        JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
+# Install Nginx and Certbot (only for domain mode)
+if [ "$USE_DOMAIN" = true ]; then
+    echo -e "${YELLOW}[Step 3/8] Installing Nginx${NC}"
+    if ! command -v nginx &> /dev/null; then
+        apt-get install -y nginx
+        systemctl enable nginx
+        systemctl start nginx
+        echo -e "${GREEN}✅ Nginx installed${NC}"
+    else
+        echo -e "${GREEN}✅ Nginx already installed${NC}"
     fi
     
-    # Generate APP_KEY nếu chưa có
-    if [ -z "$APP_KEY" ]; then
-        echo -e "${YELLOW}Generate APP_KEY mới...${NC}"
-        APP_KEY="base64:$(openssl rand -base64 32 | tr -d '\n')"
+    echo -e "${YELLOW}[Step 4/8] Installing Certbot${NC}"
+    if ! command -v certbot &> /dev/null; then
+        apt-get install -y certbot python3-certbot-nginx
+        echo -e "${GREEN}✅ Certbot installed${NC}"
+    else
+        echo -e "${GREEN}✅ Certbot already installed${NC}"
     fi
 else
-    echo -e "${YELLOW}.env chưa tồn tại, generate passwords mới...${NC}"
-    # Generate random passwords
-    MYSQL_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-    MYSQL_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-    MONGODB_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-    POSTGRES_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-    CLICKHOUSE_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-    RABBITMQ_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-    MINIO_ROOT_PASSWORD=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 32)
-    JWT_SECRET=$(head /dev/urandom | tr -dc A-Za-z0-9 | head -c 64)
-    
-    # Generate APP_KEY theo chuẩn Laravel
-    echo -e "${YELLOW}Generate APP_KEY...${NC}"
-    APP_KEY="base64:$(openssl rand -base64 32 | tr -d '\n')"
+    echo -e "${YELLOW}[Step 3/8] Skipping Nginx (IP mode)${NC}"
+    echo -e "${YELLOW}[Step 4/8] Skipping Certbot (IP mode)${NC}"
 fi
 
-# Tạo/Cập nhật file .env
-echo -e "${YELLOW}Tạo file .env...${NC}"
-cat > .env << EOF
 # ============================================
-# Laravel Application Config
+# STEP 3: CLONE/UPDATE REPOSITORY
+# ============================================
+echo -e "${YELLOW}[Step 5/8] Repository Setup${NC}"
+
+if [ -d "$PROJECT_DIR/.git" ]; then
+    echo -e "${CYAN}Updating existing repository...${NC}"
+    cd "$PROJECT_DIR"
+    git stash || true
+    git pull origin main
+    echo -e "${GREEN}✅ Repository updated${NC}"
+else
+    echo -e "${CYAN}Cloning repository...${NC}"
+    read -p "Enter Git repository URL: " REPO_URL
+    
+    if [ -z "$REPO_URL" ]; then
+        echo -e "${RED}❌ Repository URL required!${NC}"
+        exit 1
+    fi
+    
+    git clone "$REPO_URL" "$PROJECT_DIR"
+    cd "$PROJECT_DIR"
+    echo -e "${GREEN}✅ Repository cloned${NC}"
+fi
+
+# ============================================
+# STEP 4: CONFIGURE ENVIRONMENT
+# ============================================
+echo -e "${YELLOW}[Step 6/8] Environment Configuration${NC}"
+
+ENV_FILE="${DOCKER_DIR}/.env"
+
+# Generate passwords
+if [ ! -f "$ENV_FILE" ]; then
+    echo -e "${CYAN}Generating secure passwords...${NC}"
+    
+    MYSQL_PASS=$(openssl rand -base64 32)
+    MONGO_PASS=$(openssl rand -base64 32)
+    POSTGRES_PASS=$(openssl rand -base64 32)
+    RABBITMQ_PASS=$(openssl rand -base64 32)
+    MINIO_PASS=$(openssl rand -base64 32)
+    JWT_SECRET=$(openssl rand -base64 64)
+    APP_KEY="base64:$(openssl rand -base64 32)"
+    
+    # Create .env
+    cat > "$ENV_FILE" << EOF
+# CityResQ360 Production Environment
+# Generated: $(date)
+# Deployment Mode: $([ "$USE_DOMAIN" = true ] && echo "Domain-based" || echo "IP-only")
+
+# ============================================
+# Laravel Application
 # ============================================
 APP_NAME=CityResQ360
 APP_ENV=production
 APP_KEY=${APP_KEY}
 APP_DEBUG=false
 APP_TIMEZONE=Asia/Ho_Chi_Minh
-APP_URL=https://api.$DOMAIN
+APP_URL=$([ "$USE_DOMAIN" = true ] && echo "https://$API_URL" || echo "$API_URL")
 APP_LOCALE=vi
-APP_FALLBACK_LOCALE=vi
 
 # ============================================
-# Laravel Database (MySQL)
+# Database Passwords
+# ============================================
+MYSQL_ROOT_PASSWORD=${MYSQL_PASS}
+MYSQL_PASSWORD=${MYSQL_PASS}
+MONGODB_PASSWORD=${MONGO_PASS}
+POSTGRES_PASSWORD=${POSTGRES_PASS}
+RABBITMQ_PASSWORD=${RABBITMQ_PASS}
+CLICKHOUSE_PASSWORD=${MYSQL_PASS}
+
+# ============================================
+# MySQL (Laravel)
 # ============================================
 DB_CONNECTION=mysql
 DB_HOST=mysql
 DB_PORT=3306
 DB_DATABASE=cityresq_db
 DB_USERNAME=cityresq
-DB_PASSWORD=${MYSQL_PASSWORD}
+DB_PASSWORD=${MYSQL_PASS}
 
 # ============================================
-# Database Passwords (Docker)
-# ============================================
-MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}
-MYSQL_PASSWORD=${MYSQL_PASSWORD}
-MONGODB_PASSWORD=${MONGODB_PASSWORD}
-POSTGRES_PASSWORD=${POSTGRES_PASSWORD}
-CLICKHOUSE_PASSWORD=${CLICKHOUSE_PASSWORD}
-
-# ============================================
-# Redis Cache
+# Redis
 # ============================================
 REDIS_HOST=redis
-REDIS_PASSWORD=null
 REDIS_PORT=6379
-REDIS_DB=0
-REDIS_CACHE_DB=1
+REDIS_PASSWORD=null
 
 # ============================================
-# Queue & Broadcasting
+# RabbitMQ
 # ============================================
 QUEUE_CONNECTION=rabbitmq
-BROADCAST_CONNECTION=rabbitmq
 RABBITMQ_HOST=rabbitmq
 RABBITMQ_PORT=5672
 RABBITMQ_USER=cityresq
-RABBITMQ_PASSWORD=${RABBITMQ_PASSWORD}
-RABBITMQ_VHOST=/
-RABBITMQ_QUEUE=default
+RABBITMQ_PASSWORD=${RABBITMQ_PASS}
 
 # ============================================
-# Session & Cache
+# MinIO (S3-compatible storage)
 # ============================================
-SESSION_DRIVER=redis
-SESSION_LIFETIME=120
-CACHE_STORE=redis
-
-# ============================================
-# File Storage (MinIO S3-compatible)
-# ============================================
-FILESYSTEM_DISK=s3
-AWS_ACCESS_KEY_ID=minioadmin
-AWS_SECRET_ACCESS_KEY=${MINIO_ROOT_PASSWORD}
-AWS_DEFAULT_REGION=us-east-1
-AWS_BUCKET=cityresq
+MINIO_ROOT_USER=admin
+MINIO_ROOT_PASSWORD=${MINIO_PASS}
+AWS_ACCESS_KEY_ID=admin
+AWS_SECRET_ACCESS_KEY=${MINIO_PASS}
+AWS_BUCKET=cityresq-media
 AWS_ENDPOINT=http://minio:9000
-AWS_USE_PATH_STYLE_ENDPOINT=true
-AWS_URL=https://media.$DOMAIN
-
-MINIO_ROOT_USER=minioadmin
-MINIO_ROOT_PASSWORD=${MINIO_ROOT_PASSWORD}
 
 # ============================================
-# JWT Authentication
+# JWT
 # ============================================
 JWT_SECRET=${JWT_SECRET}
 JWT_TTL=60
-JWT_REFRESH_TTL=20160
 
 # ============================================
-# Microservices URLs (Internal Docker)
+# Microservices URLs (Internal)
 # ============================================
 MEDIA_SERVICE_URL=http://media-service:8004/api/v1
 NOTIFICATION_SERVICE_URL=http://notification-service:8006/api/v1
@@ -317,31 +274,20 @@ FLOODEYE_SERVICE_URL=http://floodeye-service:8008/api/v1
 ANALYTICS_SERVICE_URL=http://analytics-service:8009/api/v1
 
 # ============================================
-# Public URLs (cho Frontend/Client)
+# Public URLs (for clients)
 # ============================================
-NEXT_PUBLIC_API_URL=https://api.$DOMAIN/api/v1
-NEXT_PUBLIC_MEDIA_URL=https://media.$DOMAIN
-NEXT_PUBLIC_WS_URL=wss://api.$DOMAIN
+$([ "$USE_DOMAIN" = true ] && cat << DOMAIN_URLS
+NEXT_PUBLIC_API_URL=https://$API_URL/api/v1
+NEXT_PUBLIC_MEDIA_URL=https://$MEDIA_URL
+DOMAIN_URLS
+|| cat << IP_URLS
+NEXT_PUBLIC_API_URL=$API_URL/api/v1
+NEXT_PUBLIC_MEDIA_URL=$MEDIA_URL
+IP_URLS
+)
 
 # ============================================
-# MQTT
-# ============================================
-MQTT_HOST=mqtt
-MQTT_PORT=1883
-MQTT_USERNAME=
-MQTT_PASSWORD=
-
-# ============================================
-# MongoDB (cho Media Service)
-# ============================================
-MONGODB_HOST=mongodb
-MONGODB_PORT=27017
-MONGODB_USERNAME=cityresq
-MONGODB_PASSWORD=${MONGODB_PASSWORD}
-MONGODB_DATABASE=media_db
-
-# ============================================
-# Mail Configuration (optional - update if needed)
+# SMTP (Optional - configure if needed)
 # ============================================
 MAIL_MAILER=smtp
 MAIL_HOST=smtp.gmail.com
@@ -349,104 +295,140 @@ MAIL_PORT=587
 MAIL_USERNAME=
 MAIL_PASSWORD=
 MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@$DOMAIN
-MAIL_FROM_NAME="\${APP_NAME}"
+MAIL_FROM_ADDRESS=noreply@$([ "$USE_DOMAIN" = true ] && echo "$DOMAIN" || echo "cityresq360.com")
 
 # ============================================
-# Logging
-# ============================================
-LOG_CHANNEL=daily
-LOG_LEVEL=info
-LOG_DEPRECATIONS_CHANNEL=null
-
-# ============================================
-# Services Config (optional)
+# FCM (Optional - configure if needed)
 # ============================================
 # FCM_PROJECT_ID=
 # FCM_CLIENT_EMAIL=
 # FCM_PRIVATE_KEY=
 EOF
 
-echo -e "${GREEN}File .env đã được tạo/cập nhật${NC}"
-
-# Đảm bảo file .env có trong thư mục CoreAPI (Laravel cần)
-echo -e "${YELLOW}Tạo symlink .env cho CoreAPI...${NC}"
-ln -sf $PROJECT_DIR/.env $PROJECT_DIR/CoreAPI/.env
-
-# Ensure go.sum exists for wallet-service to avoid Docker build issues
-if [ ! -f "WalletService/go.sum" ]; then
-    echo -e "${YELLOW}WalletService: tạo placeholder go.sum...${NC}"
-    touch WalletService/go.sum
+    chmod 600 "$ENV_FILE"
+    echo -e "${GREEN}✅ Environment configured${NC}"
+    echo -e "${YELLOW}📝 Passwords saved to: ${ENV_FILE}${NC}"
+else
+    echo -e "${YELLOW}⚠️  .env file exists, keeping current configuration${NC}"
 fi
 
-# Build và start Docker containers
-echo -e "${YELLOW}Build và khởi động Docker containers...${NC}"
+# ============================================
+# STEP 5: DEPLOY WITH DOCKER
+# ============================================
+echo -e "${YELLOW}[Step 7/8] Docker Deployment${NC}"
 
-# Kiểm tra xem có containers đang chạy không
-if docker ps -a --format '{{.Names}}' | grep -q 'cityresq-'; then
-    echo -e "${YELLOW}Phát hiện containers cũ đang chạy...${NC}"
-    read -p "Bạn có muốn down containers cũ trước khi rebuild? (y/N): " -n 1 -r
-    echo
-    if [[ $REPLY =~ ^[Yy]$ ]]; then
-        echo -e "${YELLOW}Down containers cũ...${NC}"
-        read -p "Có muốn XÓA VOLUMES (XÓA HẾT DATABASE DATA)? (y/N): " -n 1 -r
-        echo
-        if [[ $REPLY =~ ^[Yy]$ ]]; then
-            echo -e "${RED}⚠️  Xóa containers và volumes (XÓA HẾT DATABASE DATA)...${NC}"
-            docker-compose -f docker-compose.production.yml down -v
-            # Xóa .env để force generate passwords mới cho lần deploy sau
-            rm -f .env
-            echo -e "${YELLOW}Đã xóa .env, sẽ generate passwords mới ở lần deploy tiếp theo${NC}"
-            echo -e "${RED}LƯU Ý: Bạn cần chạy lại script deploy.sh để tạo .env mới!${NC}"
-            exit 0
-        else
-            echo -e "${YELLOW}Dừng và xóa containers cũ (giữ nguyên volumes & passwords)...${NC}"
-            docker-compose -f docker-compose.production.yml down
-        fi
-    fi
+cd "$DOCKER_DIR"
+
+# Backup existing deployment
+if docker ps -q --filter name=cityresq- | grep -q .; then
+    echo -e "${CYAN}Backing up current deployment...${NC}"
+    mkdir -p "$BACKUP_DIR"
+    BACKUP_NAME="backup_$(date +%Y%m%d_%H%M%S)"
+    
+    # Backup MySQL
+    docker exec cityresq-mysql mysqldump -u root -p${MYSQL_PASSWORD} --all-databases > "${BACKUP_DIR}/${BACKUP_NAME}_mysql.sql" 2>/dev/null || true
+    
+    echo -e "${GREEN}✅ Backup created${NC}"
+    
+    # Stop containers
+    echo -e "${CYAN}Stopping current containers...${NC}"
+    docker-compose -f docker-compose.production.yml down
 fi
 
-docker-compose -f docker-compose.production.yml --env-file .env up -d --build
+# Build and start
+echo -e "${CYAN}Building services...${NC}"
+docker-compose -f docker-compose.production.yml build --no-cache
 
-# Chờ các database services khởi động trước
-echo -e "${YELLOW}Chờ database services khởi động...${NC}"
-sleep 20
+echo -e "${CYAN}Starting infrastructure...${NC}"
+docker-compose -f docker-compose.production.yml up -d mysql mongodb postgres redis rabbitmq minio
 
-# Chạy Laravel migrations
-echo -e "${YELLOW}Chạy Laravel migrations...${NC}"
-docker exec cityresq-coreapi php artisan migrate --force
+echo -e "${YELLOW}⏳ Waiting for databases (30s)...${NC}"
+sleep 30
 
-# Chạy Laravel seeders (nếu cần)
-echo -e "${YELLOW}Chạy Laravel seeders...${NC}"
+echo -e "${CYAN}Starting application services...${NC}"
+docker-compose -f docker-compose.production.yml up -d coreapi media-service
+
+echo -e "${GREEN}✅ Docker deployment complete!${NC}"
+
+# Run migrations
+echo -e "${CYAN}Running database migrations...${NC}"
+sleep 10
+docker exec cityresq-coreapi php artisan migrate --force || true
 docker exec cityresq-coreapi php artisan db:seed --force || true
 
-# Tối ưu Laravel
-echo -e "${YELLOW}Tối ưu Laravel cache...${NC}"
-docker exec cityresq-coreapi php artisan config:cache
-docker exec cityresq-coreapi php artisan route:cache
-docker exec cityresq-coreapi php artisan view:cache
+# ============================================
+# STEP 6: CONFIGURE SSL (Domain mode only)
+# ============================================
+if [ "$USE_DOMAIN" = true ]; then
+    echo -e "${YELLOW}[Step 8/8] SSL Configuration${NC}"
+    
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}DNS Configuration Required:${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo "$(curl -s ifconfig.me)"
+    echo "A     api            → $(curl -s ifconfig.me)"
+    echo "A     media          → $(curl -s ifconfig.me)"
+    echo "A     notification   → $(curl -s ifconfig.me)"
+   echo "A     wallet         → $(curl -s ifconfig.me)"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo ""
+    
+    read -p "Press Enter after DNS is configured..."
+    
+    # Generate SSL certificates
+    echo -e "${CYAN}Generating SSL certificates...${NC}"
+    
+    certbot --nginx -d api.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect || true
+    certbot --nginx -d media.$DOMAIN --non-interactive --agree-tos --email $EMAIL --redirect || true
+    
+    # Auto-renew
+    (crontab -l 2>/dev/null; echo "0 0 * * * certbot renew --quiet") | crontab -
+    
+    echo -e "${GREEN}✅ SSL certificates configured${NC}"
+else
+    echo -e "${YELLOW}[Step 8/8] Skipping SSL (IP mode)${NC}"
+fi
 
-# Chờ các services còn lại khởi động
-echo -e "${YELLOW}Chờ các services còn lại khởi động...${NC}"
-sleep 20
+# ============================================
+# DEPLOYMENT SUMMARY
+# ============================================
+echo ""
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${BLUE}🎉 Deployment Complete!${NC}"
+echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo ""
+echo -e "${GREEN}📊 Service URLs:${NC}"
 
-# Kiểm tra status
-echo -e "${YELLOW}Kiểm tra trạng thái services...${NC}"
-docker-compose -f docker-compose.production.yml ps
+if [ "$USE_DOMAIN" = true ]; then
+    echo -e "  CoreAPI:       https://$API_URL"
+    echo -e "  Admin Panel:   https://$API_URL/admin"
+    echo -e "  MediaService:  https://$MEDIA_URL"
+else
+    echo -e "  CoreAPI:       $API_URL"
+    echo -e "  Admin Panel:   $API_URL/admin"
+    echo -e "  MediaService:  $MEDIA_URL"
+    echo -e "  RabbitMQ:      http://$SERVER_IP:15672"
+    echo -e "  MinIO:         http://$SERVER_IP:9001"
+fi
 
-echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}Deployment hoàn tất!${NC}"
-echo -e "${GREEN}========================================${NC}"
-echo -e "${GREEN}URLs:${NC}"
-echo -e "  Main App:     https://$DOMAIN"
-echo -e "  API:          https://api.$DOMAIN"
-echo -e "  Admin Panel:  https://api.$DOMAIN/admin"
-echo -e "  Media:        https://media.$DOMAIN"
-echo -e "${GREEN}========================================${NC}"
+echo ""
+echo -e "${GREEN}📁 Important Paths:${NC}"
+echo -e "  Project:       $PROJECT_DIR"
+echo -e "  Docker:        $DOCKER_DIR"
+echo -e "  Environment:   $ENV_FILE"
+echo -e "  Backups:       $BACKUP_DIR"
+echo ""
+echo -e "${CYAN}🔧 Useful Commands:${NC}"
+echo -e "  View logs:     docker-compose -f $DOCKER_DIR/docker-compose.production.yml logs -f"
+echo -e "  Restart:       docker-compose -f $DOCKER_DIR/docker-compose.production.yml restart coreapi"
+echo -e "  Stop all:      docker-compose -f $DOCKER_DIR/docker-compose.production.yml down"
+echo ""
+echo -e "${YELLOW}⚠️  Next Steps:${NC}"
+echo -e "  1. Save passwords from: $ENV_FILE"
 
-# Auto-renew SSL certificates
-echo -e "${YELLOW}Thiết lập auto-renew SSL...${NC}"
-(crontab -l 2>/dev/null; echo "0 0 * * * certbot renew --quiet --post-hook 'systemctl reload nginx'") | crontab -
+if [ "$USE_DOMAIN" = false ]; then
+    echo -e "  2. Configure firewall: ufw allow 8000,8004,9001,15672/tcp"
+fi
 
-echo -e "${GREEN}Hoàn tất!${NC}"
-
+echo ""
+echo -e "${GREEN}✅ CityResQ360 is now running!${NC}"
