@@ -48,7 +48,9 @@ RUN npm install
 RUN npm run build
 
 # Set permissions
-RUN chown -R www-data:www-data /var/www/html/storage /var/www/html/bootstrap/cache
+RUN chown -R www-data:www-data /var/www/html && \
+    chmod -R 755 /var/www/html && \
+    chmod -R 775 /var/www/html/storage /var/www/html/bootstrap/cache
 
 # Copy Nginx configuration
 COPY ./nginx/default.conf /etc/nginx/http.d/default.conf
@@ -86,9 +88,28 @@ EXPOSE 80
 RUN echo '#!/bin/sh' > /entrypoint.sh && \
     echo 'set -e' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
+    echo 'cd /var/www/html' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Ensure dependencies exist (for dev mode with volumes)' >> /entrypoint.sh && \
+    echo 'if [ ! -d "vendor" ] || [ ! "$(ls -A vendor)" ]; then' >> /entrypoint.sh && \
+    echo '    echo "Installing Composer dependencies..."' >> /entrypoint.sh && \
+    echo '    composer install --no-dev --optimize-autoloader --no-interaction' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo 'if [ ! -d "node_modules" ] || [ ! "$(ls -A node_modules)" ]; then' >> /entrypoint.sh && \
+    echo '    echo "Installing NPM dependencies..."' >> /entrypoint.sh && \
+    echo '    npm install --production' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Ensure .env exists' >> /entrypoint.sh && \
+    echo 'if [ ! -f ".env" ]; then' >> /entrypoint.sh && \
+    echo '    cp .env.example .env 2>/dev/null || true' >> /entrypoint.sh && \
+    echo '    php artisan key:generate --force' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
     echo 'echo "Waiting for MySQL to be ready..."' >> /entrypoint.sh && \
     echo 'until php artisan db:show 2>/dev/null; do' >> /entrypoint.sh && \
-    echo '    echo "MySQL is unavailable - sleeping"' >> /entrypoint.sh && \
+    echo '    echo "MySQL unavailable - sleeping"' >> /entrypoint.sh && \
     echo '    sleep 2' >> /entrypoint.sh && \
     echo 'done' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \

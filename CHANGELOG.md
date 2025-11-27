@@ -1,9 +1,17 @@
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.1...v) (2025-11-26)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.1...v) (2025-11-27)
+
+
+* feat(api)!: Hoàn thiện API client cho React Native Mobile ([2b92a48](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/2b92a483731eb56b6d0703d7c8b3837f1ffef25c))
 
 
 ### Features
 
 * Update Root Repo ([252715c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/252715cd078188cdeb49eb551d9815cd9e0812ab))
+
+
+### BREAKING CHANGES
+
+* Hoàn thiện API client cho React Native Mobile
 
 
 

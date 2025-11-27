@@ -21,6 +21,9 @@ Homestead.yaml
 npm-debug.log
 yarn-error.log
 /auth.json
+
+# Progress tracking (local only)
+TIEN_DO_CLIENT.md
 /.fleet
 /.idea
 /.nova

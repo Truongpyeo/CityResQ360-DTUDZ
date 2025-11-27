@@ -268,7 +268,7 @@ services:
     # ==========================================
     coreapi:
         build:
-            context: ../modules/CoreAPI
+            context: ../../modules/CoreAPI
             dockerfile: Dockerfile
         container_name: cityresq-coreapi
         environment:
@@ -309,12 +309,11 @@ services:
 
             JWT_SECRET: ${JWT_SECRET}
             JWT_TTL: 60
-
             MEDIA_SERVICE_URL: ${MEDIA_SERVICE_URL:-http://media-service:8004/api/v1}
             NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL:-http://notification-service:8006/api/v1}
             WALLET_SERVICE_URL: ${WALLET_SERVICE_URL:-http://wallet-service:8005/api/v1}
         ports:
-            - "8000:80"
+            - "8000:80"      # Nginx listens on port 80 inside container
         volumes:
             - coreapi_storage:/var/www/html/storage
             - ./.env:/var/www/html/.env
@@ -331,7 +330,7 @@ services:
 
     media-service:
         build:
-            context: ../modules/MediaService
+            context: ../../modules/MediaService
             dockerfile: Dockerfile
         container_name: cityresq-media-service
         ports:
@@ -371,7 +370,7 @@ services:
 
     notification-service:
         build:
-            context: ../modules/NotificationService
+            context: ../../modules/NotificationService
             dockerfile: Dockerfile
         container_name: cityresq-notification-service
         ports:
@@ -408,7 +407,7 @@ services:
 
     wallet-service:
         build:
-            context: ../modules/WalletService
+            context: ../../modules/WalletService
             dockerfile: Dockerfile
         container_name: cityresq-wallet-service
         ports:
@@ -438,7 +437,7 @@ services:
 
     incident-service:
         build:
-            context: ../modules/IncidentService
+            context: ../../modules/IncidentService
             dockerfile: Dockerfile
         container_name: cityresq-incident-service
         ports:
@@ -473,7 +472,7 @@ services:
 
     iot-service:
         build:
-            context: ../modules/IoTService
+            context: ../../modules/IoTService
             dockerfile: Dockerfile
         container_name: cityresq-iot-service
         ports:
@@ -507,7 +506,7 @@ services:
 
     aiml-service:
         build:
-            context: ../modules/AIMLService
+            context: ../../modules/AIMLService
             dockerfile: Dockerfile
         container_name: cityresq-aiml-service
         ports:
@@ -540,7 +539,7 @@ services:
 
     search-service:
         build:
-            context: ../modules/SearchService
+            context: ../../modules/SearchService
             dockerfile: Dockerfile
         container_name: cityresq-search-service
         ports:
@@ -566,7 +565,7 @@ services:
 
     floodeye-service:
         build:
-            context: ../modules/FloodEyeService
+            context: ../../modules/FloodEyeService
             dockerfile: Dockerfile
         container_name: cityresq-floodeye-service
         ports:
@@ -597,7 +596,7 @@ services:
 
     analytics-service:
         build:
-            context: ../modules/AnalyticsService
+            context: ../../modules/AnalyticsService
             dockerfile: Dockerfile
         container_name: cityresq-analytics-service
         ports:
@@ -644,7 +643,7 @@ services:
 
     app-mobile:
         build:
-            context: ../modules/AppMobile
+            context: ../../modules/AppMobile
             dockerfile: Dockerfile
         container_name: cityresq-app-mobile
         ports:

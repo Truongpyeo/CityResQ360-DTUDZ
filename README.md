@@ -75,14 +75,40 @@ Hệ thống được thiết kế theo kiến trúc Microservices hiện đại
 
 ---
 
-## 🚀 Cách hoạt động
+## 🔗 Linked Open Data - NGSI-LD
 
-Quy trình đơn giản như sau:
+**Yêu cầu kỹ thuật OLP 2025:** CityResQ360 tuân thủ chuẩn **NGSI-LD** (Next Generation Service Interfaces - Linked Data) do ETSI ban hành để chia sẻ dữ liệu mở về thành phố thông minh.
 
-1. **Người dân** thấy sự cố 📸 -> Chụp ảnh & Gửi qua App.
-2. **Hệ thống** nhận tin 🤖 -> AI phân tích ảnh & nội dung -> Đẩy về trung tâm.
-3. **Cơ quan chức năng** 👮 -> Nhận tin -> Xử lý -> Cập nhật kết quả.
-4. **Người dân** nhận thông báo "Đã xong" ✅ -> Nhận điểm thưởng CityPoint.
+### Tại sao NGSI-LD?
+
+- **Chuẩn quốc tế:** ETSI GS CIM 009 - Được sử dụng bởi FiWARE và các thành phố thông minh trên thế giới
+- **Interoperability:** Dữ liệu có thể tích hợp với các hệ thống khác
+- **Linked Data:** JSON-LD format hỗ trợ liên kết ngữ nghĩa giữa các nguồn dữ liệu
+- **Open Data:** API công khai để nghiên cứu và phát triển ứng dụng bên thứ 3
+
+### API Endpoints
+
+```bash
+# Lấy danh sách sự cố (Alert entities)
+GET /api/ngsi-ld/v1/entities?type=Alert
+
+# Lấy chi tiết một sự cố
+GET /api/ngsi-ld/v1/entities/urn:ngsi-ld:Alert:123
+
+# Tạo sự cố mới (JSON-LD format)
+POST /api/ngsi-ld/v1/entities
+Content-Type: application/ld+json
+```
+
+### Smart Data Models
+
+Sử dụng **FiWARE Smart Data Models** - Alert:
+- **category:** traffic, environment, infrastructure, publicService, safety, health
+- **severity:** low, medium, high, critical
+- **location:** GeoProperty (GeoJSON Point)
+- **status:** pending, active, resolved, closed
+
+📚 **Documentation:** See [docs/NGSI-LD.md](docs/NGSI-LD.md) for detailed API guide
 
 ---
 

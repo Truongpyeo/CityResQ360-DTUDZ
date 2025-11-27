@@ -1,10 +1,34 @@
 <?php
+/*
+ * CityResQ360-DTUDZ - Smart City Emergency Response System
+ * Copyright (C) 2025 DTU-DZ Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
+
+
+use App\Http\Controllers\Api\V1\AgencyController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CommentController;
+use App\Http\Controllers\Api\V1\MapController;
 use App\Http\Controllers\Api\V1\MediaController;
+use App\Http\Controllers\Api\V1\NotificationController;
 use App\Http\Controllers\Api\V1\ReportController;
+use App\Http\Controllers\Api\V1\UserController;
 use App\Http\Controllers\Api\V1\VoteController;
+use App\Http\Controllers\Api\V1\WalletController;
 use Illuminate\Support\Facades\Route;
 
 /*
@@ -34,22 +58,22 @@ Route::prefix('v1')->group(function () {
 
     // Public agencies (read-only)
     Route::prefix('agencies')->group(function () {
-        // TODO: Route::get('/', [AgencyController::class, 'index']);
-        // TODO: Route::get('{id}', [AgencyController::class, 'show']);
-        // TODO: Route::get('{id}/reports', [AgencyController::class, 'reports']);
-        // TODO: Route::get('{id}/stats', [AgencyController::class, 'stats']);
+        Route::get('/', [AgencyController::class, 'index']);
+        Route::get('{id}', [AgencyController::class, 'show']);
+        Route::get('{id}/reports', [AgencyController::class, 'reports']);
+        Route::get('{id}/stats', [AgencyController::class, 'stats']);
     });
 
     // Public user profiles
     Route::prefix('users')->group(function () {
-        // TODO: Route::get('{id}', [UserController::class, 'show']);
-        // TODO: Route::get('{id}/reports', [UserController::class, 'reports']);
-        // TODO: Route::get('{id}/stats', [UserController::class, 'stats']);
+        Route::get('{id}', [UserController::class, 'show']);
+        Route::get('{id}/reports', [UserController::class, 'reports']);
+        Route::get('{id}/stats', [UserController::class, 'stats']);
     });
 
     // Public statistics
-    // TODO: Route::get('stats/city', [StatsController::class, 'cityStats']);
-    // TODO: Route::get('stats/leaderboard', [StatsController::class, 'leaderboard']);
+    Route::get('stats/city', [UserController::class, 'cityStats']);
+    Route::get('stats/leaderboard', [UserController::class, 'leaderboard']);
 
     // ==========================================
     // PROTECTED ROUTES (Authentication Required)
@@ -60,6 +84,7 @@ Route::prefix('v1')->group(function () {
         // ========== Authentication Management ==========
         Route::prefix('auth')->group(function () {
             Route::get('me', [AuthController::class, 'me']);
+            Route::get('check-login', [AuthController::class, 'checkLogin']);
             Route::post('logout', [AuthController::class, 'logout']);
             Route::post('refresh', [AuthController::class, 'refresh']);
             Route::put('profile', [AuthController::class, 'updateProfile']);
@@ -106,36 +131,36 @@ Route::prefix('v1')->group(function () {
 
         // ========== Map & Location Services ==========
         Route::prefix('map')->group(function () {
-            // TODO: Route::get('reports', [MapController::class, 'reports']);
-            // TODO: Route::get('heatmap', [MapController::class, 'heatmap']);
-            // TODO: Route::get('clusters', [MapController::class, 'clusters']);
-            // TODO: Route::get('routes', [MapController::class, 'gtfsRoutes']);
+            Route::get('reports', [MapController::class, 'reports']);
+            Route::get('heatmap', [MapController::class, 'heatmap']);
+            Route::get('clusters', [MapController::class, 'clusters']);
+            Route::get('routes', [MapController::class, 'gtfsRoutes']);
         });
 
         // ========== Wallet & CityPoints ==========
         Route::prefix('wallet')->group(function () {
-            // TODO: Route::get('/', [WalletController::class, 'balance']);
-            // TODO: Route::get('transactions', [WalletController::class, 'transactions']);
-            // TODO: Route::post('redeem', [WalletController::class, 'redeem']);
-            // TODO: Route::get('rewards', [WalletController::class, 'rewards']);
+            Route::get('/', [WalletController::class, 'balance']);
+            Route::get('transactions', [WalletController::class, 'transactions']);
+            Route::post('redeem', [WalletController::class, 'redeem']);
+            Route::get('rewards', [WalletController::class, 'rewards']);
         });
 
         // ========== Notifications ==========
         Route::prefix('notifications')->group(function () {
-            // TODO: Route::get('/', [NotificationController::class, 'index']);
-            // TODO: Route::get('unread', [NotificationController::class, 'unread']);
-            // TODO: Route::get('unread-count', [NotificationController::class, 'unreadCount']);
-            // TODO: Route::post('{id}/read', [NotificationController::class, 'markAsRead']);
-            // TODO: Route::post('read-all', [NotificationController::class, 'markAllAsRead']);
-            // TODO: Route::delete('{id}', [NotificationController::class, 'destroy']);
-            // TODO: Route::put('settings', [NotificationController::class, 'updateSettings']);
+            Route::get('/', [NotificationController::class, 'index']);
+            Route::get('unread', [NotificationController::class, 'unread']);
+            Route::get('unread-count', [NotificationController::class, 'unreadCount']);
+            Route::post('{id}/read', [NotificationController::class, 'markAsRead']);
+            Route::post('read-all', [NotificationController::class, 'markAllAsRead']);
+            Route::delete('{id}', [NotificationController::class, 'destroy']);
+            Route::put('settings', [NotificationController::class, 'updateSettings']);
         });
 
         // ========== User Statistics ==========
         Route::prefix('stats')->group(function () {
-            // TODO: Route::get('overview', [StatsController::class, 'overview']);
-            // TODO: Route::get('categories', [StatsController::class, 'categoriesStats']);
-            // TODO: Route::get('timeline', [StatsController::class, 'timeline']);
+            Route::get('overview', [UserController::class, 'overview']);
+            Route::get('categories', [UserController::class, 'categoriesStats']);
+            Route::get('timeline', [UserController::class, 'timeline']);
         });
     });
 });

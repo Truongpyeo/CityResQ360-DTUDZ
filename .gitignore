@@ -101,3 +101,6 @@ modules/AIMLService/models/*.pt
 modules/AIMLService/models/*.pth
 modules/AIMLService/models/*.h5
 modules/AIMLService/models/*.pkl
+
+# OLP Competition tracking (local only)
+OLP_TASKS.md
