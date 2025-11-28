@@ -25,6 +25,7 @@ use App\Models\PhanAnh;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Validator;
+use Illuminate\Support\Facades\Log;
 
 /**
  * NGSI-LD API Controller
@@ -64,7 +65,7 @@ class NgsiLdController extends BaseController
             // Base query
             $query = PhanAnh::query()
                 ->where('trang_thai', '!=', 4) // Exclude rejected
-                ->with(['nguoiDung', 'coQuanXuLy', 'hinhAnhs'])
+                ->with(['nguoiDung', 'coQuanXuLy'])
                 ->orderBy('created_at', 'desc');
             
             // Apply type filter
@@ -122,6 +123,7 @@ class NgsiLdController extends BaseController
             ]);
             
         } catch (\Exception $e) {
+            Log::error('NGSI-LD Get Entities Error: ' . $e->getMessage());
             return response()->json([
                 'type' => 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
                 'title' => 'Internal server error',
@@ -255,7 +257,7 @@ class NgsiLdController extends BaseController
             // urn:ngsi-ld:Alert:123 -> 123
             $numericId = $this->extractIdFromUrn($id);
             
-            $incident = PhanAnh::with(['nguoiDung', 'coQuanXuLy', 'hinhAnhs'])->find($numericId);
+            $incident = PhanAnh::with(['nguoiDung', 'coQuanXuLy'])->find($numericId);
             
             if (!$incident) {
                 return response()->json([
@@ -292,30 +294,42 @@ class NgsiLdController extends BaseController
      */
     public function createEntity(Request $request)
     {
-        $data = $request->all();
-        
-        // Validate NGSI-LD format
-        if (!isset($data['type']) || !isset($data['@context'])) {
+        Log::info('NGSI-LD Create Entity Request: ', $request->all());
+        try {
+            $data = $request->all();
+            
+            // Validate NGSI-LD format
+            if (!isset($data['type']) || !isset($data['@context'])) {
+                return response()->json([
+                    'type' => 'https://uri.etsi.org/ngsi-ld/errors/BadRequestData',
+                    'title' => 'Invalid NGSI-LD entity',
+                    'detail' => 'Entity must have type and @context'
+                ], 400);
+            }
+            
+            // Transform NGSI-LD to internal format
+            $incidentData = $this->transformFromNgsiLd($data);
+            
+            // Create incident
+            $incident = PhanAnh::create($incidentData);
+            
+            $entityId = $this->generateUrn($incident->id);
+            
             return response()->json([
-                'type' => 'https://uri.etsi.org/ngsi-ld/errors/BadRequestData',
-                'title' => 'Invalid NGSI-LD entity',
-                'detail' => 'Entity must have type and @context'
-            ], 400);
+                'id' => $entityId
+            ], 201, [
+                'Location' => "/ngsi-ld/v1/entities/$entityId"
+            ]);
+        } catch (\Exception $e) {
+            Log::error('NGSI-LD Create Entity Error: ' . $e->getMessage());
+            Log::error($e->getTraceAsString());
+            
+            return response()->json([
+                'type' => 'https://uri.etsi.org/ngsi-ld/errors/InternalError',
+                'title' => 'Internal server error',
+                'detail' => $e->getMessage()
+            ], 500);
         }
-        
-        // Transform NGSI-LD to internal format
-        $incidentData = $this->transformFromNgsiLd($data);
-        
-        // Create incident
-        $incident = PhanAnh::create($incidentData);
-        
-        $entityId = $this->generateUrn($incident->id);
-        
-        return response()->json([
-            'id' => $entityId
-        ], 201, [
-            'Location' => "/ngsi-ld/v1/entities/$entityId"
-        ]);
     }
     
     /**
@@ -491,14 +505,14 @@ class NgsiLdController extends BaseController
     private function transformFromNgsiLd($entity)
     {
         return [
-            'tieu_de' => $entity['description']['value'] ?? 'Alert',
-            'mo_ta' => $entity['description']['value'] ?? '',
-            'danh_muc_id' => $this->mapCategoryReverse($entity['category']['value'] ?? 'other'),
-            'muc_uu_tien_id' => $this->mapSeverityReverse($entity['severity']['value'] ?? 'medium'),
-            'vi_do' => $entity['location']['value']['coordinates'][1] ?? 0,
-            'kinh_do' => $entity['location']['value']['coordinates'][0] ?? 0,
-            'dia_chi' => $entity['address']['value']['streetAddress'] ?? '',
-            'trang_thai' => $entity['status']['value'] ?? 'pending',
+            'tieu_de' => data_get($entity, 'description.value', 'Alert'),
+            'mo_ta' => data_get($entity, 'description.value', ''),
+            'danh_muc_id' => $this->mapCategoryReverse(data_get($entity, 'category.value', 'other')),
+            'uu_tien_id' => $this->mapSeverityReverse(data_get($entity, 'severity.value', 'medium')),
+            'vi_do' => data_get($entity, 'location.value.coordinates.1', 0),
+            'kinh_do' => data_get($entity, 'location.value.coordinates.0', 0),
+            'dia_chi' => data_get($entity, 'address.value.streetAddress', ''),
+            'trang_thai' => $this->mapStatusReverse(data_get($entity, 'status.value', 'pending')),
             'nguoi_dung_id' => auth()->id() ?? 1, // Default or from auth
         ];
     }
@@ -590,6 +604,22 @@ class NgsiLdController extends BaseController
         return $map[$severity] ?? 2;
     }
     
+    /**
+     * Map status string to internal integer
+     */
+    private function mapStatusReverse($status)
+    {
+        $map = [
+            'pending' => 0,
+            'verified' => 1,
+            'in_progress' => 2,
+            'resolved' => 3,
+            'rejected' => 4,
+        ];
+        
+        return $map[$status] ?? 0;
+    }
+
     /**
      * Map severity string to priority ID
      */

@@ -20,7 +20,6 @@ return Application::configure(basePath: dirname(__DIR__))
             
             // NGSI-LD API routes (for OLP 2025 - Linked Open Data requirement)
             Route::middleware('api')
-                ->prefix('api')
                 ->group(base_path('routes/ngsi-ld.php'));
         },
     )
@@ -47,3 +46,4 @@ return Application::configure(basePath: dirname(__DIR__))
     ->withExceptions(function (Exceptions $exceptions): void {
         //
     })->create();
+

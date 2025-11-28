@@ -35,8 +35,13 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
+Route::get('/explicit-test', function() { return 'Explicit OK'; });
+
 Route::prefix('ngsi-ld/v1')->group(function () {
     
+    // Test route
+    Route::get('/test', function() { return 'OK'; });
+
     // Entities management
     Route::get('/entities', [NgsiLdController::class, 'getEntities']);
     Route::get('/entities/{id}', [NgsiLdController::class, 'getEntity']);
