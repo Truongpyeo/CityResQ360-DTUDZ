@@ -94,8 +94,22 @@ docker compose -f $DOCKER_COMPOSE_FILE up -d $SERVICES_TO_REBUILD
 
 # Post-deployment tasks (specific to CoreAPI)
 if [[ "$SERVICES_TO_REBUILD" == *"coreapi"* ]]; then
-    echo -e "${CYAN}Clearing CoreAPI cache...${NC}"
-    docker exec cityresq-coreapi php artisan optimize:clear
+    echo -e "${CYAN}Running CoreAPI post-deployment tasks...${NC}"
+    
+    # Check if APP_KEY exists, generate if missing
+    echo -e "${CYAN}Checking APP_KEY...${NC}"
+    docker exec cityresq-coreapi php artisan key:generate --show > /dev/null 2>&1
+    if [ $? -ne 0 ]; then
+        echo -e "${YELLOW}Generating APP_KEY...${NC}"
+        docker exec cityresq-coreapi php artisan key:generate --force
+    fi
+    
+    # Clear all caches
+    echo -e "${CYAN}Clearing caches...${NC}"
+    docker exec cityresq-coreapi php artisan config:clear
+    docker exec cityresq-coreapi php artisan cache:clear
+    docker exec cityresq-coreapi php artisan view:clear
+    docker exec cityresq-coreapi php artisan route:clear
 fi
 
 echo -e "${GREEN}✅ Smart deployment complete!${NC}"
