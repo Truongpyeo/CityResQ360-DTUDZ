@@ -1,6 +1,7 @@
 # [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.1...v) (2025-11-28)
 
 
+* fix(api)!: fix bộ lọc /api/v1/reports ([a6fcf3b](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a6fcf3be06eb1df96a6aaa1141a4e206de66f7c6))
 * feat(ngsi-ld)!: trien khai NGSI-LD API va tich hop OpenWeatherMap ([b496ea6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b496ea61645c6631e9fdafe0d3098175f9451475))
 * perf(postman)!: Cập nhật Postman Collection đầy đủ các API ([eae50e6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/eae50e6a41b38b51f6e7c82641b5c57dc5a53a9a))
 * build(docker)!: Chỉnh Sửa DockerFile trong CoreAPI ([7794e54](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/7794e545657940f0b16d3edc40ec86c9a85ab609))
@@ -30,6 +31,7 @@
 
 ### BREAKING CHANGES
 
+* Sửa lỗi bộ lọc bị trả về null
 * - Triển khai các API endpoints chuẩn ETSI NGSI-LD tại /ngsi-ld/v1/ cho Alert và WeatherObserved.
 - Tích hợp OpenWeatherMap API để lấy và lưu trữ dữ liệu thời tiết.
 - Thêm hỗ trợ geo-query (near, within) và lọc theo thuộc tính.
