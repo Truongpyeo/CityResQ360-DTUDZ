@@ -34,25 +34,44 @@ CityResQ360 ra đời để giải quyết những vấn đề đó, hướng t�
 
 ---
 
-## 👥 Dự án này dành cho ai?
+## 👥 Đối tượng hướng đến
 
 ![DoiTuong](/static/img/doituong.png)
 
 1. **Người dân:** Gửi phản ánh cực nhanh (kèm ảnh, vị trí), nhận cảnh báo nguy hiểm, và tích điểm **CityPoint** đổi quà.
 2. **Cơ quan chức năng:** Có công cụ quản lý trực quan, nắm bắt ngay các điểm nóng để điều phối xử lý.
 3. **Tình nguyện viên / NGO:** Dễ dàng tiếp cận thông tin để hỗ trợ cộng đồng.
-4. **Cộng đồng Developer:** Một sân chơi thú vị để tìm hiểu và ứng dụng công nghệ mới (AI, IoT, Big Data...).
 
 ---
 
-## ✨ Chức năng
+## ✨ Các Module Chính
 
-![ChucNang](/static/img/chucnang.png)
+### 1. 📱 Module tương tác người dân
 
-- **AI thông minh:** Tự động phân tích hình ảnh để phân loại sự cố (cháy, ngập, tai nạn...) giúp giảm tải cho con người.
-- **Bản đồ Realtime:** Sự cố hiển thị ngay lập tức trên bản đồ, trực quan sinh động.
-- **CityPoint:** Cơ chế điểm thưởng để khuyến khích mọi người cùng đóng góp.
-- **Đa nền tảng:** App mobile cho người dân, Web dashboard chuyên nghiệp cho quản lý.
+- ⚠️ Gửi phản ánh (ảnh + GPS + mô tả)
+- 👁️‍🗨️ Theo dõi tiến trình xử lý realtime
+- 📢 Nhận cảnh báo nguy hiểm
+
+### 2. 🤖 Module phân tích và phân loại
+
+- 📸 AI Vision: nhận diện cháy, tai nạn, ngập, rác, kẹt xe
+- 📝 AI NLP: phân loại mô tả tiếng Việt
+- ⭐ Đánh giá mức độ khẩn cấp tự động
+- 📃 Hợp nhất dữ liệu ảnh – text – vị trí
+
+### 3. 🚨 Module Quản lý sự cố & Nguồn lực
+
+- 📝 Tiếp nhận – phân công – xử lý tự động
+- 🗺️ Bản đồ realtime hiển thị sự cố
+- 🚓 Quản lý nhiệm vụ, phương tiện, lực lượng
+- ⚠️ Cảnh báo và gộp sự cố trùng lặp
+
+### 4. 📊 Module Quản trị hệ thống
+
+- 📉 Dashboard tổng quan cho cơ quan
+- 📂 Báo cáo KPI và thống kê
+- ⚙️ Phân quyền và quản lý người dùng
+- 📊 Cấu hình API, giám sát hệ thống
 
 ---
 
@@ -62,16 +81,15 @@ CityResQ360 ra đời để giải quyết những vấn đề đó, hướng t�
 
 Hệ thống được thiết kế theo kiến trúc Microservices hiện đại, đảm bảo khả năng mở rộng và xử lý dữ liệu lớn:
 
-| Thành phần         | Công nghệ sử dụng                                                   |
-| :----------------- | :------------------------------------------------------------------ |
-| **Mobile App**     | `React Native` (iOS & Android)                                      |
-| **Web**            | `VueJS`                                                             |
-| **Backend Core**   | `Laravel` (PHP), `Redis` (Cache)                                    |
-| **AI Services**    | `FastAPI` (Python) cho NLP & Computer Vision                        |
-| **API Gateway**    | `Authenticator`                                                     |
-| **Message Broker** | `Apache Kafka`, `MQTT` (EMQX/Mosquitto)                             |
-| **Realtime**       | `Reverb` (WebSocket)                                                |
-| **Database**       | `PostgreSQL` + `PostGIS` (GeoData), `MinIO` (Storage), `OpenSearch` |
+| Thành phần         | Công nghệ sử dụng                                                                      |
+| :----------------- | :------------------------------------------------------------------------------------- |
+| **Mobile App**     | `React Native` (IOS & Android)                                                         |
+| **Web**            | `VueJS`                                                                                |
+| **Backend Core**   | `Laravel` (PHP), `Redis` (Cache) ,`Laravel Sanctum` (API Auth)                         |
+| **AI Services**    | `FastAPI` (Python) cho NLP & Computer Vision                                           |
+| **Message Broker** | `RabbitMQ`, `MQTT` (EMQX/Mosquitto)                                                    |
+| **Realtime**       | `Reverb` (WebSocket)                                                                   |
+| **Database**       | `PostgreSQL` + `PostGIS` (GeoData), `MinIO` (Storage), `OpenSearch`,`MongoDB`, `MySQL` |
 
 ---
 
@@ -240,7 +258,7 @@ git push -u origin feat/<new-feature>
 
 - Báo cáo lỗi và đề xuất tính năng mới tại [GitHub Issues](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/issues)
 
-Xem thêm hướng dẫn đóng góp tại [CONTRIBUTING.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md)
+- Xem thêm hướng dẫn đóng góp tại [CONTRIBUTING.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md)
 
 ---
 
@@ -263,7 +281,7 @@ Nếu cần trao đổi gì thêm, vui lòng liên hệ:
 
 ## 📜 Changelog
 
-Xem [CHANGELOG.md](CHANGELOG.md) để biết lịch sử thay đổi.
+Xem [CHANGELOG.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CHANGELOG.md) để biết lịch sử thay đổi.
 
 ## 📄 Giấy Phép
 
