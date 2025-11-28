@@ -319,11 +319,10 @@ class UserController extends BaseController
         
         $resolutionRate = $total > 0 ? round(($resolved / $total) * 100, 2) : 0;
 
-        // Average resolution time (hours)
+        // Average resolution time (hours) - thoi_gian_giai_quyet is already in hours
         $avgResolutionTime = PhanAnh::where('trang_thai', 3)
-            ->whereNotNull('ngay_giai_quyet')
-            ->select(DB::raw('AVG(TIMESTAMPDIFF(HOUR, created_at, ngay_giai_quyet)) as avg_time'))
-            ->value('avg_time');
+            ->whereNotNull('thoi_gian_giai_quyet')
+            ->avg('thoi_gian_giai_quyet');
 
         // Top categories
         $topCategories = PhanAnh::select('danh_muc_id', DB::raw('COUNT(*) as total'))
