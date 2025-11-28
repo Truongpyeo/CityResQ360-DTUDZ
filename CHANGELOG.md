@@ -23,6 +23,7 @@
 
 ### Features
 
+* **services:** hoàn thiện code 4 services còn lại (Search, Analytics, Incident, FloodEye) ([765bb3f](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/765bb3f25de66f05822ed954d69dadeb5164236a))
 * Update Root Repo ([252715c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/252715cd078188cdeb49eb551d9815cd9e0812ab))
 
 
