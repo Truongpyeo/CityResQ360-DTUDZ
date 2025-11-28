@@ -1,9 +1,20 @@
 # 🌆 CityResQ360 — Chung tay vì một đô thị thông minh & an toàn
 
+<div align="center">
+
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
 
 [🤝 Đóng Góp](CONTRIBUTING.md) •
 [📜 Changelog](CHANGELOG.md)
+
+  <a href="">
+    <img src="https://img.shields.io/badge/🚀_Demo-CityResQ360-00C853?style=for-the-badge" alt="Demo System"/>
+  </a>
+  <a href="https://nguyenthai11103.github.io/DTU-CityResQ360-documents/intro">
+    <img src="https://img.shields.io/badge/📚_Docs-CityResQ360-1976D2?style=for-the-badge" alt="Documentation"/>
+  </a>
+
+</div>
 
 ![Banner](/static/img/Banner.png)
 
@@ -22,18 +33,6 @@ Dự án tập trung vào việc xây dựng một nền tảng toàn diện, k�
 
 ---
 
-## 🤔 Tại sao lại có dự án này?
-
-Chúng ta đều thấy thành phố ngày càng đông đúc, và các vấn đề như kẹt xe, ngập nước hay tai nạn xảy ra thường xuyên hơn. Tuy nhiên:
-
-- Việc báo tin đôi khi còn thủ công, chậm trễ.
-- Thông tin đến cơ quan chức năng nhiều khi không đầy đủ hoặc bị trôi.
-- Thiếu một cái nhìn tổng quan, thời gian thực về những gì đang diễn ra.
-
-CityResQ360 ra đời để giải quyết những vấn đề đó, hướng tới một quy trình xử lý nhanh hơn, minh bạch hơn và thông minh hơn.
-
----
-
 ## 👥 Đối tượng hướng đến
 
 ![DoiTuong](/static/img/doituong.png)
@@ -44,7 +43,7 @@ CityResQ360 ra đời để giải quyết những vấn đề đó, hướng t�
 
 ---
 
-## ✨ Các Module Chính
+## ✨ Modules chính của CityResQ360
 
 ### 1. 📱 Module tương tác người dân
 
@@ -75,7 +74,7 @@ CityResQ360 ra đời để giải quyết những vấn đề đó, hướng t�
 
 ---
 
-## 🗺️ Kiến Trúc Hệ Thống (System Architecture)
+## 🗺️ Kiến Trúc Hệ Thống
 
 ![KienTruc](/static/img/kientruc.png)
 
@@ -121,6 +120,7 @@ Content-Type: application/ld+json
 ### Smart Data Models
 
 Sử dụng **FiWARE Smart Data Models** - Alert:
+
 - **category:** traffic, environment, infrastructure, publicService, safety, health
 - **severity:** low, medium, high, critical
 - **location:** GeoProperty (GeoJSON Point)
@@ -164,7 +164,7 @@ Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file 
 CityResQ360-DTUDZ/
 ├── .github/                    # GitHub configurations
 │   └── ISSUE_TEMPLATE/        # Issue templates
-├── modules/                    # 🎯 All microservices & apps
+├── modules/                    #  All microservices & apps
 │   ├── CoreAPI/               # Laravel 12 - Core API (Port 8000)
 │   ├── AppMobile/             # Next.js - Mobile App (Port 3000)
 │   ├── AIMLService/           # Python FastAPI - AI/ML (Port 8003)
@@ -177,27 +177,27 @@ CityResQ360-DTUDZ/
 │   ├── NotificationService/   # Node.js - Notifications (Port 8006)
 │   ├── SearchService/         # Python - Search Engine (Port 8007)
 │   └── WalletService/         # Go - Wallet & CityPoint (Port 8005)
-├── infrastructure/             # ⚙️ Infrastructure configurations
+├── infrastructure/             #  Infrastructure configurations
 │   ├── docker/                # Docker Compose files
 │   │   ├── docker-compose.yml              # Development
 │   │   └── docker-compose.production.yml   # Production
 │   ├── nginx/                 # Nginx configuration
 │   └── mosquitto/             # MQTT Broker configuration
-├── collections/                # 📮 API Testing collections
+├── collections/                #  API Testing collections
 │   └── postman/               # Postman collections
-├── docs/                       # 📚 Documentation
+├── docs/                       #  Documentation
 │   ├── PROJECT_CONTEXT.md     # Project architecture & context
 │   ├── DEVELOPMENT_WORKFLOW.md # Development guidelines
 │   └── DOCKER.md              # Docker setup guide
-├── scripts/                    # 🛠️ Utility scripts
+├── scripts/                    #  Utility scripts
 │   ├── setup/                 # Setup scripts
 │   ├── deploy/                # Deployment scripts
 │   │   └── deploy.sh          # Main deployment script
 │   └── migration/             # Migration & maintenance scripts
-├── static/                     # 🖼️ Static assets
+├── static/                     #  Static assets
 │   └── img/                   # Images & diagrams
 ├── README.md                   # This file
-├── LICENSE                     # MIT License
+├── LICENSE                     # GNU General Public License v3.0
 ├── CHANGELOG.md               # Version history
 ├── CODE_OF_CONDUCT.md         # Code of conduct
 └── CONTRIBUITING.md           # Contribution guidelines
@@ -207,7 +207,7 @@ CityResQ360-DTUDZ/
 
 ## 🤝 Đóng Góp Cho Dự Án
 
-Dự án này là **Open Source**, nên rất hoan nghênh cộng đồng tham gia đóng góp!
+Dự án này là mã nguồn mở, được phát triển bởi đội DTU_DZ1 đến từ Đại học Duy Tân để tham gia cuộc thi Olympic Tin học Sinh viên - Mã nguồn mở năm 2025 nên rất hoan nghênh cộng đồng tham gia đóng góp!
 
 ### 🌱 Quy Trình Đóng Góp
 
