@@ -16,8 +16,8 @@ class CategoryController extends Controller
      */
     public function index(): JsonResponse
     {
-        $categories = DanhMucPhanAnh::select('id', 'ten', 'icon', 'mau_sac', 'thu_tu_hien_thi', 'mo_ta')
-            ->where('is_active', true)
+        $categories = DanhMucPhanAnh::select('id', 'ten_danh_muc', 'icon', 'mau_sac', 'thu_tu_hien_thi', 'mo_ta')
+            ->where('trang_thai', true)
             ->orderBy('thu_tu_hien_thi')
             ->get();
 
@@ -34,7 +34,8 @@ class CategoryController extends Controller
      */
     public function priorities(): JsonResponse
     {
-        $priorities = MucUuTien::select('id', 'ten', 'cap_do', 'mau_sac', 'mo_ta')
+        $priorities = MucUuTien::select('id', 'ten_muc', 'cap_do', 'mau_sac', 'mo_ta')
+            ->where('trang_thai', true)
             ->orderBy('cap_do')
             ->get();
 
