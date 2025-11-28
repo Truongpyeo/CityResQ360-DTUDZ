@@ -1,8 +1,32 @@
-import express from 'express';
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+require('dotenv').config();
+
+const { sequelize, testConnection } = require('./config/database');
+const { Incident, WorkflowLog } = require('./models/Incident');
+const incidentRoutes = require('./routes/incidentRoutes');
 
 const app = express();
-const port = process.env.PORT || process.env.SERVICE_PORT || 8001;
+const port = process.env.PORT || 8001;
 
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
+// Test Database Connection
+testConnection();
+
+// Sync Database
+sequelize.sync({ alter: false }).then(() => {
+  console.log('Database synced');
+});
+
+// Routes
+app.use('/api/v1/incidents', incidentRoutes);
+
+// Health Check
 app.get('/health', (_req, res) => {
   res.json({
     service: 'IncidentService',
@@ -11,8 +35,7 @@ app.get('/health', (_req, res) => {
   });
 });
 
+// Start Server
 app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`IncidentService placeholder listening on port ${port}`);
+  console.log(`IncidentService listening on port ${port}`);
 });
-
