@@ -83,9 +83,18 @@ fi
 echo ""
 echo -e "${CYAN}📄 Commit body (optional, multi-line. Press Enter twice to finish):${NC}"
 BODY=""
+EMPTY_COUNT=0
 while IFS= read -r line; do
-    [[ -z "$line" ]] && break
-    BODY="${BODY}${line}\n"
+    if [[ -z "$line" ]]; then
+        ((EMPTY_COUNT++))
+        if [[ $EMPTY_COUNT -ge 2 ]]; then
+            break
+        fi
+        BODY="${BODY}\n"
+    else
+        EMPTY_COUNT=0
+        BODY="${BODY}${line}\n"
+    fi
 done
 
 # Breaking change check
@@ -96,12 +105,21 @@ BREAKING_CHANGE=""
 if [[ "$IS_BREAKING" =~ ^[Yy]$ ]]; then
     echo -e "${YELLOW}⚠️  Describe the breaking change (multi-line, press Enter twice to finish):${NC}"
     BREAKING_DESC=""
+    EMPTY_COUNT=0
     while IFS= read -r line; do
-        [[ -z "$line" ]] && break
-        if [[ -z "$BREAKING_DESC" ]]; then
-            BREAKING_DESC="$line"
+        if [[ -z "$line" ]]; then
+            ((EMPTY_COUNT++))
+            if [[ $EMPTY_COUNT -ge 2 ]]; then
+                break
+            fi
+            BREAKING_DESC="${BREAKING_DESC}\n"
         else
-            BREAKING_DESC="${BREAKING_DESC}\n${line}"
+            EMPTY_COUNT=0
+            if [[ -z "$BREAKING_DESC" ]]; then
+                BREAKING_DESC="$line"
+            else
+                BREAKING_DESC="${BREAKING_DESC}\n${line}"
+            fi
         fi
     done
     if [[ -n "$BREAKING_DESC" ]]; then
