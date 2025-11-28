@@ -15,6 +15,7 @@
 
 * **deploy:** syntax error in NC variable assignment ([eb075da](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/eb075dad631e28e08a93170c9b6565b057056061))
 * **docker:** resolve invalid mqtt volume mount syntax ([8d62ebf](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8d62ebf6bd2cd621fdbc79106e7f83fc05031a5b))
+* **docker:** Sửa đường dẫn trong docker-compose.production.yml ([e08ff4c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e08ff4cff947d22f2d1abd1692e51f7d8ae9a1df))
 * **Scope:** Sửa lỗi 500 NGSI-LD API và cập nhật cấu hình Docker ([b2a60d2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b2a60d208860094d714fdd21c10cc8c4eaf6c205))
 * **sh:** Sửa smart-deploy.sh ([17970d6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/17970d614a119392a6872d0cb2dacba140a2ced1))
 
