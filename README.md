@@ -134,17 +134,17 @@ CityResQ360-DTUDZ/
 │   └── ISSUE_TEMPLATE/        # Issue templates
 ├── modules/                    # 🎯 All microservices & apps
 │   ├── CoreAPI/               # Laravel 12 - Core API (Port 8000)
-│   ├── AppMobile/             # Next.js - Mobile App (Port 3000)
-│   ├── AIMLService/           # Python FastAPI - AI/ML (Port 8003)
-│   ├── AnalyticsService/      # Python - Analytics (Port 8009)
-│   ├── ContextBroker/         # N GSI-LD Context Broker (Port 1026)
-│   ├── FloodEyeService/       # Python - Flood Monitoring (Port 8008)
-│   ├── IncidentService/       # Node.js - Incident Management (Port 8001)
-│   ├── IoTService/            # Node.js - IoT Sensors (Port 8002)
-│   ├── MediaService/          # Node.js - Media Storage (Port 8004)
-│   ├── NotificationService/   # Node.js - Notifications (Port 8006)
-│   ├── SearchService/         # Python - Search Engine (Port 8007)
-│   └── WalletService/         # Go - Wallet & CityPoint (Port 8005)
+│   ├── AppMobile/             # Mobile App (React Native)
+│   ├── CoreAPI/               # Core Laravel API (Port 8000)
+│   ├── WalletService/         # Go Service - CityPoints Management (Port 8003)
+│   ├── MediaService/          # Node.js - Media upload & processing (Port 8004)
+│   ├── NotificationService/   # Node.js - Push notifications (Port 8005)
+│   ├── IncidentService/       # Node.js - Incident tracking (Port 8006)
+│   ├── IoTService/            # Node.js - IoT device management (Port 8007)
+│   ├── AIMLService/           # Python - AI/ML models (Port 8008)
+│   ├── SearchService/         # Python FastAPI - OpenSearch (Port 8009)
+│   ├── FloodEyeService/       # Python - Flood prediction (Port 8010)
+│   └── AnalyticsService/      # Python - Data analytics (Port 8011)
 ├── infrastructure/             # ⚙️ Infrastructure configurations
 │   ├── docker/                # Docker Compose files
 │   │   ├── docker-compose.yml              # Development

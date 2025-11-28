@@ -11,8 +11,8 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::table('hinh_anh_phan_anhs', function (Blueprint $table) {
-            $table->foreignId('phan_anh_id')->nullable()->after('id')->constrained('phan_anhs')->onDelete('cascade');
+        Schema::table('binh_luan_phan_anhs', function (Blueprint $table) {
+            $table->integer('luot_thich')->default(0)->after('noi_dung');
         });
     }
 
@@ -21,9 +21,8 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::table('hinh_anh_phan_anhs', function (Blueprint $table) {
-            $table->dropForeign(['phan_anh_id']);
-            $table->dropColumn('phan_anh_id');
+        Schema::table('binh_luan_phan_anhs', function (Blueprint $table) {
+            $table->dropColumn('luot_thich');
         });
     }
 };

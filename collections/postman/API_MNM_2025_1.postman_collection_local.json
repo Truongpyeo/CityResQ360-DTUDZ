@@ -1,7 +1,7 @@
 {
     "info": {
-        "_postman_id": "api-mnm-2025-1",
-        "name": "API_MNM_2025_1",
+        "_postman_id": "api-mnm-2025-1-local",
+        "name": "API_MNM_2025_1_LOCAL",
         "description": "CityResQ360 Client API Collection - Version 1\n\n**Base URL:** {{base_url}}/api/v1\n**Authentication:** Bearer Token (Laravel Sanctum)\n\n**Setup:**\n1. Set base_url variable:\n   - Local: http://localhost:8000\n   - Production: https://api.cityresq360.io.vn\n2. Login to get token\n3. Token will be automatically saved to 'auth_token' variable\n\n**Quick Start:**\n1. Import collection v\u00e0o Postman\n2. Set base_url:\n   - Local Development: http://localhost:8000\n   - Production Server: https://api.cityresq360.io.vn\n3. Ch\u1ea1y \"Login\" request \u0111\u1ec3 l\u1ea5y token\n4. Token s\u1ebd t\u1ef1 \u0111\u1ed9ng \u0111\u01b0\u1ee3c l\u01b0u v\u00e0o bi\u1ebfn auth_token\n5. T\u1ea5t c\u1ea3 protected requests s\u1ebd t\u1ef1 \u0111\u1ed9ng d\u00f9ng token n\u00e0y\n\n**Environments:**\n\n**Local Development:**\n- Base URL: http://localhost:8000\n- \u0110\u1ea3m b\u1ea3o Docker containers \u0111ang ch\u1ea1y: docker-compose ps\n- Ho\u1eb7c ch\u1ea1y: php artisan serve\n\n**Production:**\n- Base URL: https://api.cityresq360.io.vn\n- Server: VPS 34.85.44.142\n- SSL: Enabled (Let's Encrypt)\n\n**Available Endpoints:**\n- API: https://api.cityresq360.io.vn\n- Admin Panel: https://api.cityresq360.io.vn/admin\n- Media: https://media.cityresq360.io.vn\n- Notification: https://notification.cityresq360.io.vn\n- Wallet: https://wallet.cityresq360.io.vn",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
@@ -2820,9 +2820,9 @@
     "variable": [
         {
             "key": "base_url",
-            "value": "https://api.cityresq360.io.vn",
+            "value": "http://localhost:8000",
             "type": "string",
-            "description": "API Base URL - Production"
+            "description": "API Base URL - Change to local_url for local testing"
         },
         {
             "key": "production_url",

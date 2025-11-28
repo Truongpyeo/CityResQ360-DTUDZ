@@ -54,7 +54,6 @@ graph TB
     
     subgraph "IoT/Data Services"
         IoT[IoT Service<br/>Node.js]
-        ContextBroker[Context Broker<br/>NGSI-LD]
     end
     
     subgraph "Message Brokers"
@@ -80,14 +79,12 @@ graph TB
     CoreAPI-->Media
     CoreAPI-->Notification
     CoreAPI-->Wallet
-    CoreAPI-->ContextBroker
     
     Incident-->AIML
     Incident-->Kafka
     
     IoT-->MQTT
     IoT-->MongoDB
-    IoT-->ContextBroker
     
     AIML-->Analytics
     CoreAPI-->Search
@@ -240,17 +237,7 @@ graph TB
 
 ---
 
-### 11. Context Broker (NGSI-LD)
-**Port:** 9090 (planned)  
-**Standard:** ETSI NGSI-LD
 
-**Responsibilities:**
-- Linked Open Data management
-- Entity relationship handling
-- Subscription/notification
-- Integration with FiWARE ecosystem
-
----
 
 ## Technology Stack
 
@@ -340,13 +327,11 @@ sequenceDiagram
     participant M as MQTT Broker
     participant I as IoT Service
     participant DB as MongoDB
-    participant CB as Context Broker
     
     S->>M: Publish sensor data
     M->>I: Message received
     I->>DB: Store raw data
-    I->>CB: Convert to NGSI-LD entity
-    CB->>CB: Store in context
+    I->>I: Process and analyze
 ```
 
 ---
@@ -436,8 +421,7 @@ Object Storage
 ## Future Roadmap
 
 ### Phase 2 (Post-Competition)
-- [ ] Full NGSI-LD Context Broker implementation
-- [ ] SOSA/SSN ontology for IoT data
+- [ ] Enhanced NGSI-LD API support
 - [ ] Kubernetes deployment
 - [ ] Multi-city support (multi-tenancy)
 - [ ] Mobile app v2 with offline support

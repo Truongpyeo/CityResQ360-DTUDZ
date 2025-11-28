@@ -141,7 +141,13 @@ class NotificationController extends BaseController
             return $this->notFound('Không tìm thấy thông báo');
         }
         
-        return $this->success(null, 'Đánh dấu đã đọc thành công');
+        // Get the notification to return
+        $notification = ThongBao::find($id);
+        
+        return $this->success([
+            'id' => $notification->id,
+            'da_doc' => true,
+        ], 'Đánh dấu đã đọc thành công');
     }
 
     /**
@@ -175,7 +181,10 @@ class NotificationController extends BaseController
             return $this->notFound('Không tìm thấy thông báo');
         }
         
-        return $this->success(null, 'Xóa thông báo thành công');
+        return $this->success([
+            'id' => $id,
+            'deleted' => true,
+        ], 'Xóa thông báo thành công');
     }
 
     /**

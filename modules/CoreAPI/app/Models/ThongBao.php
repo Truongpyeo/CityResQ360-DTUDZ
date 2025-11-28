@@ -24,6 +24,15 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class ThongBao extends Model
 {
+    // Constants for 'loai'
+    const LOAI_BAO_CAO = 'bao_cao';
+    const LOAI_DIEM_THUONG = 'diem_thuong';
+    const LOAI_BINH_LUAN = 'binh_luan';
+    const LOAI_HUY_HIEU = 'huy_hieu';
+    const LOAI_KHEN_THUONG = 'khen_thuong';
+    const LOAI_HE_THONG = 'he_thong';
+    const LOAI_PHAN_THUONG = 'phan_thuong';
+
     protected $fillable = [
         'nguoi_dung_id',
         'tieu_de',

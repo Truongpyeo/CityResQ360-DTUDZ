@@ -359,6 +359,8 @@ class AuthController extends BaseController
             'fcm_token' => $request->fcm_token,
         ]);
 
-        return $this->success(null, 'Cập nhật FCM token thành công');
+        return $this->success([
+            'fcm_token' => $user->fcm_token,
+        ], 'Cập nhật FCM token thành công');
     }
 }

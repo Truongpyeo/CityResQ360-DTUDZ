@@ -174,7 +174,10 @@ class CommentController extends BaseController
 
         $comment->delete();
 
-        return $this->success(null, 'Xóa bình luận thành công');
+        return $this->success([
+            'id' => $id,
+            'deleted' => true,
+        ], 'Xóa bình luận thành công');
     }
 
     /**
