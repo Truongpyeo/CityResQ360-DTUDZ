@@ -133,7 +133,7 @@ class AgencyController extends BaseController
 
         $query = PhanAnh::query()
             ->with(['nguoiDung:id,ho_ten,anh_dai_dien', 'danhMuc:id,ten_danh_muc'])
-            ->where('co_quan_xu_ly_id', $id)
+            ->where('co_quan_phu_trach_id', $id)
             ->where('la_cong_khai', true);
 
         // Filter by status
@@ -189,25 +189,25 @@ class AgencyController extends BaseController
             return $this->notFound('Không tìm thấy cơ quan');
         }
 
-        $total = PhanAnh::where('co_quan_xu_ly_id', $id)->count();
-        $resolved = PhanAnh::where('co_quan_xu_ly_id', $id)->where('trang_thai', 3)->count();
-        $processing = PhanAnh::where('co_quan_xu_ly_id', $id)->where('trang_thai', 2)->count();
+        $total = PhanAnh::where('co_quan_phu_trach_id', $id)->count();
+        $resolved = PhanAnh::where('co_quan_phu_trach_id', $id)->where('trang_thai', 3)->count();
+        $processing = PhanAnh::where('co_quan_phu_trach_id', $id)->where('trang_thai', 2)->count();
 
         // Calculate resolution rate
         $resolutionRate = $total > 0 ? round(($resolved / $total) * 100, 2) : 0;
 
         // Calculate average response time (in minutes)
-        $avgResponseTime = PhanAnh::where('co_quan_xu_ly_id', $id)
-            ->whereNotNull('ngay_tiep_nhan')
-            ->select(DB::raw('AVG(TIMESTAMPDIFF(MINUTE, created_at, ngay_tiep_nhan)) as avg_time'))
-            ->value('avg_time');
+        $avgResponseTime = PhanAnh::where('co_quan_phu_trach_id', $id)
+            ->whereNotNull('thoi_gian_phan_hoi_thuc_te')
+            ->avg('thoi_gian_phan_hoi_thuc_te');
 
         // Calculate average resolution time (in hours)
-        $avgResolutionTime = PhanAnh::where('co_quan_xu_ly_id', $id)
+        $avgResolutionTimeMinutes = PhanAnh::where('co_quan_phu_trach_id', $id)
             ->where('trang_thai', 3)
-            ->whereNotNull('ngay_giai_quyet')
-            ->select(DB::raw('AVG(TIMESTAMPDIFF(HOUR, created_at, ngay_giai_quyet)) as avg_time'))
-            ->value('avg_time');
+            ->whereNotNull('thoi_gian_giai_quyet')
+            ->avg('thoi_gian_giai_quyet');
+            
+        $avgResolutionTime = $avgResolutionTimeMinutes ? ($avgResolutionTimeMinutes / 60) : 0;
 
         $stats = [
             'tong_phan_anh' => $total,

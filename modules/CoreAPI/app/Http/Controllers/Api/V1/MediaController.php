@@ -230,7 +230,10 @@ class MediaController extends BaseController
             // Delete from database
             $media->delete();
 
-            return $this->success(null, 'Xóa file thành công');
+            return $this->success([
+                'id' => $id,
+                'deleted' => true,
+            ], 'Xóa file thành công');
 
         } catch (\Exception $e) {
             return $this->serverError('Lỗi khi xóa file: '.$e->getMessage());

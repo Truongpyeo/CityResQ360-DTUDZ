@@ -32,6 +32,7 @@ class HinhAnhPhanAnh extends Model
     protected $table = 'hinh_anh_phan_anhs';
 
     protected $fillable = [
+        'phan_anh_id',
         'nguoi_dung_id',
         'duong_dan_hinh_anh',
         'duong_dan_thumbnail',
@@ -58,5 +59,13 @@ class HinhAnhPhanAnh extends Model
     public function nguoiDung(): BelongsTo
     {
         return $this->belongsTo(NguoiDung::class, 'nguoi_dung_id');
+    }
+
+    /**
+     * Relationship with PhanAnh
+     */
+    public function phanAnh(): BelongsTo
+    {
+        return $this->belongsTo(PhanAnh::class, 'phan_anh_id');
     }
 }

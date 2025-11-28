@@ -301,16 +301,16 @@ class ReportSeeder extends Seeder
      */
     private function addCommentsAndVotes($report, $users): void
     {
-        // Add 1-3 comments
-        $commentCount = rand(1, 3);
-        for ($i = 0; $i < $commentCount; $i++) {
-            BinhLuanPhanAnh::create([
-                'phan_anh_id' => $report->id,
-                'nguoi_dung_id' => $users->random()->id,
-                'noi_dung' => $this->randomComment(),
-                'created_at' => $report->created_at->copy()->addHours(rand(1, 24)),
-            ]);
-        }
+        // Add 1-3 comments - DISABLED to avoid conflict with BinhLuanSeeder
+        // $commentCount = rand(1, 3);
+        // for ($i = 0; $i < $commentCount; $i++) {
+        //     BinhLuanPhanAnh::create([
+        //         'phan_anh_id' => $report->id,
+        //         'nguoi_dung_id' => $users->random()->id,
+        //         'noi_dung' => $this->randomComment(),
+        //         'created_at' => $report->created_at->copy()->addHours(rand(1, 24)),
+        //     ]);
+        // }
 
         // Add 2-5 votes
         $voteCount = rand(2, 5);

@@ -24,6 +24,14 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 
 class GiaoDichDiem extends Model
 {
+    // Constants for 'loai_giao_dich'
+    const LOAI_CONG_DIEM = 0;
+    const LOAI_TRU_DIEM = 1;
+    const LOAI_DIEU_CHINH = 2;
+    
+    // Constants for 'trang_thai' (not in DB but used in logic/seeder)
+    const TRANG_THAI_THANH_CONG = 1;
+
     protected $fillable = [
         'nguoi_dung_id',
         'loai_giao_dich',

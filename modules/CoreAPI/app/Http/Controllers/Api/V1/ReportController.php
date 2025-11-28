@@ -283,6 +283,21 @@ class ReportController extends BaseController
     {
         $report = PhanAnh::find($id);
 
+        if (! $report) {
+            return $this->notFound('Không tìm thấy phản ánh');
+        }
+
+        // Check ownership
+        if ($report->nguoi_dung_id !== $request->user()->id) {
+            return $this->forbidden('Bạn không có quyền chỉnh sửa phản ánh này');
+        }
+
+        $report->update([
+            'tieu_de' => $request->tieu_de ?? $report->tieu_de,
+            'mo_ta' => $request->mo_ta ?? $report->mo_ta,
+            'uu_tien_id' => $request->uu_tien_id ?? $report->uu_tien_id,
+        ]);
+
         return $this->success([
             'id' => $report->id,
             'tieu_de' => $report->tieu_de,
@@ -320,7 +335,10 @@ class ReportController extends BaseController
 
         $report->delete();
 
-        return $this->success(null, 'Xóa phản ánh thành công');
+        return $this->success([
+            'id' => $id,
+            'deleted' => true,
+        ], 'Xóa phản ánh thành công');
     }
 
     /**

@@ -63,14 +63,23 @@ return new class extends Migration
             $table->index(['location_lat', 'location_lng', 'observed_at'], 'location_time_idx');
         });
         
-        // Create view for latest weather
-        DB::statement('
+        // Create view for latest weather (MySQL compatible)
+        // Using GROUP BY with MAX to get latest record per location
+        DB::statement("
             CREATE OR REPLACE VIEW latest_weather AS
-            SELECT DISTINCT ON (location_lat, location_lng)
-                *
-            FROM weather_observations
-            ORDER BY location_lat, location_lng, observed_at DESC
-        ');
+            SELECT wo.*
+            FROM weather_observations wo
+            INNER JOIN (
+                SELECT 
+                    location_lat, 
+                    location_lng, 
+                    MAX(observed_at) as max_observed_at
+                FROM weather_observations
+                GROUP BY location_lat, location_lng
+            ) latest ON wo.location_lat = latest.location_lat 
+                AND wo.location_lng = latest.location_lng 
+                AND wo.observed_at = latest.max_observed_at
+        ");
     }
 
     /**

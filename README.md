@@ -1,9 +1,20 @@
 # 🌆 CityResQ360 — Chung tay vì một đô thị thông minh & an toàn
 
+<div align="center">
+
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
 
 [🤝 Đóng Góp](CONTRIBUTING.md) •
 [📜 Changelog](CHANGELOG.md)
+
+  <a href="">
+    <img src="https://img.shields.io/badge/🚀_Demo-CityResQ360-00C853?style=for-the-badge" alt="Demo System"/>
+  </a>
+  <a href="https://nguyenthai11103.github.io/DTU-CityResQ360-documents/intro">
+    <img src="https://img.shields.io/badge/📚_Docs-CityResQ360-1976D2?style=for-the-badge" alt="Documentation"/>
+  </a>
+
+</div>
 
 ![Banner](/static/img/Banner.png)
 
@@ -22,56 +33,62 @@ Dự án tập trung vào việc xây dựng một nền tảng toàn diện, k�
 
 ---
 
-## 🤔 Tại sao lại có dự án này?
-
-Chúng ta đều thấy thành phố ngày càng đông đúc, và các vấn đề như kẹt xe, ngập nước hay tai nạn xảy ra thường xuyên hơn. Tuy nhiên:
-
-- Việc báo tin đôi khi còn thủ công, chậm trễ.
-- Thông tin đến cơ quan chức năng nhiều khi không đầy đủ hoặc bị trôi.
-- Thiếu một cái nhìn tổng quan, thời gian thực về những gì đang diễn ra.
-
-CityResQ360 ra đời để giải quyết những vấn đề đó, hướng tới một quy trình xử lý nhanh hơn, minh bạch hơn và thông minh hơn.
-
----
-
-## 👥 Dự án này dành cho ai?
+## 👥 Đối tượng hướng đến
 
 ![DoiTuong](/static/img/doituong.png)
 
 1. **Người dân:** Gửi phản ánh cực nhanh (kèm ảnh, vị trí), nhận cảnh báo nguy hiểm, và tích điểm **CityPoint** đổi quà.
 2. **Cơ quan chức năng:** Có công cụ quản lý trực quan, nắm bắt ngay các điểm nóng để điều phối xử lý.
 3. **Tình nguyện viên / NGO:** Dễ dàng tiếp cận thông tin để hỗ trợ cộng đồng.
-4. **Cộng đồng Developer:** Một sân chơi thú vị để tìm hiểu và ứng dụng công nghệ mới (AI, IoT, Big Data...).
 
 ---
 
-## ✨ Chức năng
+## ✨ Modules chính của CityResQ360
 
-![ChucNang](/static/img/chucnang.png)
+### 1. 📱 Module tương tác người dân
 
-- **AI thông minh:** Tự động phân tích hình ảnh để phân loại sự cố (cháy, ngập, tai nạn...) giúp giảm tải cho con người.
-- **Bản đồ Realtime:** Sự cố hiển thị ngay lập tức trên bản đồ, trực quan sinh động.
-- **CityPoint:** Cơ chế điểm thưởng để khuyến khích mọi người cùng đóng góp.
-- **Đa nền tảng:** App mobile cho người dân, Web dashboard chuyên nghiệp cho quản lý.
+- ⚠️ Gửi phản ánh (ảnh + GPS + mô tả)
+- 👁️‍🗨️ Theo dõi tiến trình xử lý realtime
+- 📢 Nhận cảnh báo nguy hiểm
+
+### 2. 🤖 Module phân tích và phân loại
+
+- 📸 AI Vision: nhận diện cháy, tai nạn, ngập, rác, kẹt xe
+- 📝 AI NLP: phân loại mô tả tiếng Việt
+- ⭐ Đánh giá mức độ khẩn cấp tự động
+- 📃 Hợp nhất dữ liệu ảnh – text – vị trí
+
+### 3. 🚨 Module Quản lý sự cố & Nguồn lực
+
+- 📝 Tiếp nhận – phân công – xử lý tự động
+- 🗺️ Bản đồ realtime hiển thị sự cố
+- 🚓 Quản lý nhiệm vụ, phương tiện, lực lượng
+- ⚠️ Cảnh báo và gộp sự cố trùng lặp
+
+### 4. 📊 Module Quản trị hệ thống
+
+- 📉 Dashboard tổng quan cho cơ quan
+- 📂 Báo cáo KPI và thống kê
+- ⚙️ Phân quyền và quản lý người dùng
+- 📊 Cấu hình API, giám sát hệ thống
 
 ---
 
-## 🗺️ Kiến Trúc Hệ Thống (System Architecture)
+## 🗺️ Kiến Trúc Hệ Thống
 
 ![KienTruc](/static/img/kientruc.png)
 
 Hệ thống được thiết kế theo kiến trúc Microservices hiện đại, đảm bảo khả năng mở rộng và xử lý dữ liệu lớn:
 
-| Thành phần         | Công nghệ sử dụng                                                   |
-| :----------------- | :------------------------------------------------------------------ |
-| **Mobile App**     | `React Native` (iOS & Android)                                      |
-| **Web**            | `VueJS`                                                             |
-| **Backend Core**   | `Laravel` (PHP), `Redis` (Cache)                                    |
-| **AI Services**    | `FastAPI` (Python) cho NLP & Computer Vision                        |
-| **API Gateway**    | `Authenticator`                                                     |
-| **Message Broker** | `Apache Kafka`, `MQTT` (EMQX/Mosquitto)                             |
-| **Realtime**       | `Reverb` (WebSocket)                                                |
-| **Database**       | `PostgreSQL` + `PostGIS` (GeoData), `MinIO` (Storage), `OpenSearch` |
+| Thành phần         | Công nghệ sử dụng                                                                      |
+| :----------------- | :------------------------------------------------------------------------------------- |
+| **Mobile App**     | `React Native` (IOS & Android)                                                         |
+| **Web**            | `VueJS`                                                                                |
+| **Backend Core**   | `Laravel` (PHP), `Redis` (Cache) ,`Laravel Sanctum` (API Auth)                         |
+| **AI Services**    | `FastAPI` (Python) cho NLP & Computer Vision                                           |
+| **Message Broker** | `RabbitMQ`, `MQTT` (EMQX/Mosquitto)                                                    |
+| **Realtime**       | `Reverb` (WebSocket)                                                                   |
+| **Database**       | `PostgreSQL` + `PostGIS` (GeoData), `MinIO` (Storage), `OpenSearch`,`MongoDB`, `MySQL` |
 
 ---
 
@@ -103,6 +120,7 @@ Content-Type: application/ld+json
 ### Smart Data Models
 
 Sử dụng **FiWARE Smart Data Models** - Alert:
+
 - **category:** traffic, environment, infrastructure, publicService, safety, health
 - **severity:** low, medium, high, critical
 - **location:** GeoProperty (GeoJSON Point)
@@ -146,40 +164,40 @@ Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file 
 CityResQ360-DTUDZ/
 ├── .github/                    # GitHub configurations
 │   └── ISSUE_TEMPLATE/        # Issue templates
-├── modules/                    # 🎯 All microservices & apps
+├── modules/                    #  All microservices & apps
 │   ├── CoreAPI/               # Laravel 12 - Core API (Port 8000)
-│   ├── AppMobile/             # Next.js - Mobile App (Port 3000)
-│   ├── AIMLService/           # Python FastAPI - AI/ML (Port 8003)
-│   ├── AnalyticsService/      # Python - Analytics (Port 8009)
-│   ├── ContextBroker/         # N GSI-LD Context Broker (Port 1026)
-│   ├── FloodEyeService/       # Python - Flood Monitoring (Port 8008)
-│   ├── IncidentService/       # Node.js - Incident Management (Port 8001)
-│   ├── IoTService/            # Node.js - IoT Sensors (Port 8002)
-│   ├── MediaService/          # Node.js - Media Storage (Port 8004)
-│   ├── NotificationService/   # Node.js - Notifications (Port 8006)
-│   ├── SearchService/         # Python - Search Engine (Port 8007)
-│   └── WalletService/         # Go - Wallet & CityPoint (Port 8005)
+│   ├── AppMobile/             # Mobile App (React Native)
+│   ├── CoreAPI/               # Core Laravel API (Port 8000)
+│   ├── WalletService/         # Go Service - CityPoints Management (Port 8003)
+│   ├── MediaService/          # Node.js - Media upload & processing (Port 8004)
+│   ├── NotificationService/   # Node.js - Push notifications (Port 8005)
+│   ├── IncidentService/       # Node.js - Incident tracking (Port 8006)
+│   ├── IoTService/            # Node.js - IoT device management (Port 8007)
+│   ├── AIMLService/           # Python - AI/ML models (Port 8008)
+│   ├── SearchService/         # Python FastAPI - OpenSearch (Port 8009)
+│   ├── FloodEyeService/       # Python - Flood prediction (Port 8010)
+│   └── AnalyticsService/      # Python - Data analytics (Port 8011)
 ├── infrastructure/             # ⚙️ Infrastructure configurations
 │   ├── docker/                # Docker Compose files
 │   │   ├── docker-compose.yml              # Development
 │   │   └── docker-compose.production.yml   # Production
 │   ├── nginx/                 # Nginx configuration
 │   └── mosquitto/             # MQTT Broker configuration
-├── collections/                # 📮 API Testing collections
+├── collections/                #  API Testing collections
 │   └── postman/               # Postman collections
-├── docs/                       # 📚 Documentation
+├── docs/                       #  Documentation
 │   ├── PROJECT_CONTEXT.md     # Project architecture & context
 │   ├── DEVELOPMENT_WORKFLOW.md # Development guidelines
 │   └── DOCKER.md              # Docker setup guide
-├── scripts/                    # 🛠️ Utility scripts
+├── scripts/                    #  Utility scripts
 │   ├── setup/                 # Setup scripts
 │   ├── deploy/                # Deployment scripts
 │   │   └── deploy.sh          # Main deployment script
 │   └── migration/             # Migration & maintenance scripts
-├── static/                     # 🖼️ Static assets
+├── static/                     #  Static assets
 │   └── img/                   # Images & diagrams
 ├── README.md                   # This file
-├── LICENSE                     # MIT License
+├── LICENSE                     # GNU General Public License v3.0
 ├── CHANGELOG.md               # Version history
 ├── CODE_OF_CONDUCT.md         # Code of conduct
 └── CONTRIBUITING.md           # Contribution guidelines
@@ -189,7 +207,7 @@ CityResQ360-DTUDZ/
 
 ## 🤝 Đóng Góp Cho Dự Án
 
-Dự án này là **Open Source**, nên rất hoan nghênh cộng đồng tham gia đóng góp!
+Dự án này là mã nguồn mở, được phát triển bởi đội DTU_DZ1 đến từ Đại học Duy Tân để tham gia cuộc thi Olympic Tin học Sinh viên - Mã nguồn mở năm 2025 nên rất hoan nghênh cộng đồng tham gia đóng góp!
 
 ### 🌱 Quy Trình Đóng Góp
 
@@ -240,7 +258,7 @@ git push -u origin feat/<new-feature>
 
 - Báo cáo lỗi và đề xuất tính năng mới tại [GitHub Issues](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/issues)
 
-Xem thêm hướng dẫn đóng góp tại [CONTRIBUTING.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md)
+- Xem thêm hướng dẫn đóng góp tại [CONTRIBUTING.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md)
 
 ---
 
@@ -263,7 +281,7 @@ Nếu cần trao đổi gì thêm, vui lòng liên hệ:
 
 ## 📜 Changelog
 
-Xem [CHANGELOG.md](CHANGELOG.md) để biết lịch sử thay đổi.
+Xem [CHANGELOG.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CHANGELOG.md) để biết lịch sử thay đổi.
 
 ## 📄 Giấy Phép
 

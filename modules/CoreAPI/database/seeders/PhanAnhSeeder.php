@@ -145,6 +145,52 @@ class PhanAnhSeeder extends Seeder
                 'danh_gia_hai_long' => 5,
                 'the_tags' => ['chay_no', 'khan_cap'],
             ],
+            // Report 12: For Postman Tests (User 1)
+            [
+                'id' => 12,
+                'nguoi_dung_id' => 1,
+                'tieu_de' => 'Test Report for Postman',
+                'mo_ta' => 'This is a test report created specifically for Postman API testing.',
+                'danh_muc_id' => $trafficCat->id,
+                'trang_thai' => PhanAnh::TRANG_THAI_PENDING,
+                'uu_tien_id' => $highPriority->id,
+                'vi_do' => 10.7769,
+                'kinh_do' => 106.7009,
+                'dia_chi' => 'Test Address, District 1, HCMC',
+                'nhan_ai' => ['test'],
+                'do_tin_cay' => 1.0,
+                'co_quan_phu_trach_id' => $agencies->first()->id,
+                'la_cong_khai' => true,
+                'luot_ung_ho' => 10,
+                'luot_khong_ung_ho' => 0,
+                'luot_xem' => 100,
+                'han_phan_hoi' => now()->addDays(3),
+                'the_tags' => ['test', 'postman'],
+            ],
+            // Report 13: Resolved Report for Rating (User 1)
+            [
+                'id' => 13,
+                'nguoi_dung_id' => 1,
+                'tieu_de' => 'Resolved Report for Rating',
+                'mo_ta' => 'This report is resolved and ready to be rated.',
+                'danh_muc_id' => $environmentCat->id,
+                'trang_thai' => PhanAnh::TRANG_THAI_RESOLVED,
+                'uu_tien_id' => $urgentPriority->id,
+                'vi_do' => 10.7722,
+                'kinh_do' => 106.6979,
+                'dia_chi' => 'Resolved Address, District 1, HCMC',
+                'nhan_ai' => ['resolved'],
+                'do_tin_cay' => 1.0,
+                'co_quan_phu_trach_id' => $agencies->first()->id,
+                'la_cong_khai' => true,
+                'luot_ung_ho' => 5,
+                'luot_khong_ung_ho' => 0,
+                'luot_xem' => 50,
+                'thoi_gian_giai_quyet' => 12,
+                'danh_gia_hai_long' => null, // Ready for rating
+                'the_tags' => ['resolved', 'rating'],
+            ],
+
         ];
 
         foreach ($reports as $reportData) {

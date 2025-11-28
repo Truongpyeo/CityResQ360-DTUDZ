@@ -15,6 +15,7 @@
 
 ### Bug Fixes
 
+* **api:** khắc phục phản hồi null và tối ưu hóa bộ kiểm thử (tỷ lệ đạt 97%) ([e39a7f7](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e39a7f7760d577a6eb93f0f6a73aaedd2e9ca934))
 * **deploy:** syntax error in NC variable assignment ([eb075da](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/eb075dad631e28e08a93170c9b6565b057056061))
 * **docker:** resolve invalid mqtt volume mount syntax ([8d62ebf](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8d62ebf6bd2cd621fdbc79106e7f83fc05031a5b))
 * **docker:** Sửa đường dẫn trong docker-compose.production.yml ([e08ff4c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e08ff4cff947d22f2d1abd1692e51f7d8ae9a1df))
