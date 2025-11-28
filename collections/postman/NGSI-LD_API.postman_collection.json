@@ -1,0 +1,458 @@
+{
+    "info": {
+        "_postman_id": "e6b6ef03-f4ab-4be2-b651-6ccc967a7790",
+        "name": "CityResQ360 NGSI-LD API",
+        "description": "NGSI-LD API Collection for OLP 2025\nIncludes Alert and WeatherObserved entities, Geo-queries, and Weather integration.",
+        "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+    },
+    "item": [
+        {
+            "name": "Entities Management",
+            "item": [
+                {
+                    "name": "List All Entities",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/ngsi-ld/v1/entities",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "ngsi-ld",
+                                "v1",
+                                "entities"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "Alert",
+                                    "description": "Entity type (Alert, WeatherObserved)"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "20",
+                                    "description": "Pagination limit"
+                                },
+                                {
+                                    "key": "offset",
+                                    "value": "0",
+                                    "description": "Pagination offset"
+                                }
+                            ]
+                        },
+                        "description": "Retrieve a list of all entities."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Create Alert Entity",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/ngsi-ld/v1/entities",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "ngsi-ld",
+                                "v1",
+                                "entities"
+                            ],
+                            "query": []
+                        },
+                        "description": "Create a new NGSI-LD entity.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"id\": \"urn:ngsi-ld:Alert:demo-001\",\n    \"type\": \"Alert\",\n    \"@context\": \"{{base_url}}/@context.jsonld\",\n    \"category\": {\n        \"type\": \"Property\",\n        \"value\": \"traffic\"\n    },\n    \"severity\": {\n        \"type\": \"Property\",\n        \"value\": \"medium\"\n    },\n    \"description\": {\n        \"type\": \"Property\",\n        \"value\": \"Demo alert from Postman\"\n    },\n    \"location\": {\n        \"type\": \"GeoProperty\",\n        \"value\": {\n            \"type\": \"Point\",\n            \"coordinates\": [\n                106.7009,\n                10.7769\n            ]\n        }\n    },\n    \"status\": {\n        \"type\": \"Property\",\n        \"value\": \"pending\"\n    }\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Entity by ID",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/ngsi-ld/v1/entities/urn:ngsi-ld:Alert:demo-001",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "ngsi-ld",
+                                "v1",
+                                "entities",
+                                "urn:ngsi-ld:Alert:demo-001"
+                            ],
+                            "query": []
+                        },
+                        "description": "Retrieve a specific entity by its URN ID."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Update Entity Attributes",
+                    "request": {
+                        "method": "PATCH",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/ngsi-ld/v1/entities/urn:ngsi-ld:Alert:demo-001/attrs",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "ngsi-ld",
+                                "v1",
+                                "entities",
+                                "urn:ngsi-ld:Alert:demo-001",
+                                "attrs"
+                            ],
+                            "query": []
+                        },
+                        "description": "Update specific attributes of an entity.",
+                        "body": {
+                            "mode": "raw",
+                            "raw": "{\n    \"status\": {\n        \"type\": \"Property\",\n        \"value\": \"resolved\"\n    },\n    \"severity\": {\n        \"type\": \"Property\",\n        \"value\": \"low\"\n    }\n}"
+                        }
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Delete Entity",
+                    "request": {
+                        "method": "DELETE",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/ngsi-ld/v1/entities/urn:ngsi-ld:Alert:demo-001",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "ngsi-ld",
+                                "v1",
+                                "entities",
+                                "urn:ngsi-ld:Alert:demo-001"
+                            ],
+                            "query": []
+                        },
+                        "description": "Delete an entity by ID."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Geo-Queries",
+            "item": [
+                {
+                    "name": "Near Query (Alerts)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/ngsi-ld/v1/entities",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "ngsi-ld",
+                                "v1",
+                                "entities"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "Alert"
+                                },
+                                {
+                                    "key": "georel",
+                                    "value": "near;maxDistance==2000"
+                                },
+                                {
+                                    "key": "geometry",
+                                    "value": "Point"
+                                },
+                                {
+                                    "key": "coordinates",
+                                    "value": "[106.7009,10.7769]"
+                                }
+                            ]
+                        },
+                        "description": "Find entities near a specific point."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Within Query (Bounding Box)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/ngsi-ld/v1/entities",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "ngsi-ld",
+                                "v1",
+                                "entities"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "Alert"
+                                },
+                                {
+                                    "key": "georel",
+                                    "value": "within"
+                                },
+                                {
+                                    "key": "geometry",
+                                    "value": "Polygon"
+                                },
+                                {
+                                    "key": "coordinates",
+                                    "value": "[[[106.6,10.7],[106.8,10.7],[106.8,10.8],[106.6,10.8],[106.6,10.7]]]"
+                                }
+                            ]
+                        },
+                        "description": "Find entities within a polygon/bounding box."
+                    },
+                    "response": []
+                }
+            ]
+        },
+        {
+            "name": "Weather Integration",
+            "item": [
+                {
+                    "name": "Sync Weather Data",
+                    "request": {
+                        "method": "POST",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/weather/sync",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "weather",
+                                "sync"
+                            ],
+                            "query": []
+                        },
+                        "description": "Trigger manual sync of weather data from OpenWeatherMap."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "List Weather Entities",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/ngsi-ld/v1/entities",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "ngsi-ld",
+                                "v1",
+                                "entities"
+                            ],
+                            "query": [
+                                {
+                                    "key": "type",
+                                    "value": "WeatherObserved"
+                                },
+                                {
+                                    "key": "limit",
+                                    "value": "5"
+                                }
+                            ]
+                        },
+                        "description": "List WeatherObserved entities."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Current Weather (API)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/weather/current",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "weather",
+                                "current"
+                            ],
+                            "query": []
+                        },
+                        "description": "Get current weather data via standard API."
+                    },
+                    "response": []
+                },
+                {
+                    "name": "Get Forecast (API)",
+                    "request": {
+                        "method": "GET",
+                        "header": [
+                            {
+                                "key": "Accept",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            },
+                            {
+                                "key": "Content-Type",
+                                "value": "application/ld+json",
+                                "type": "text"
+                            }
+                        ],
+                        "url": {
+                            "raw": "{{base_url}}/api/v1/weather/forecast",
+                            "host": [
+                                "{{base_url}}"
+                            ],
+                            "path": [
+                                "api",
+                                "v1",
+                                "weather",
+                                "forecast"
+                            ],
+                            "query": []
+                        },
+                        "description": "Get 5-day weather forecast."
+                    },
+                    "response": []
+                }
+            ]
+        }
+    ],
+    "variable": [
+        {
+            "key": "base_url",
+            "value": "http://localhost:8000",
+            "type": "string"
+        }
+    ]
+}

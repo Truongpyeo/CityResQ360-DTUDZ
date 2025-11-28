@@ -1,15 +1,19 @@
 {
   "name": "iot-service",
-  "version": "0.1.0",
-  "description": "Placeholder IoT Service",
+  "version": "1.0.0",
+  "description": "IoT and sensor data management service for CityResQ360",
   "main": "src/server.js",
-  "license": "MIT",
-  "type": "module",
   "scripts": {
-    "start": "node src/server.js"
+    "start": "node src/server.js",
+    "dev": "nodemon src/server.js",
+    "test": "jest"
   },
   "dependencies": {
-    "express": "^4.19.2"
+    "axios": "^1.6.0",
+    "dotenv": "^16.3.1",
+    "express": "^4.18.2"
+  },
+  "devDependencies": {
+    "nodemon": "^3.0.1"
   }
 }
-

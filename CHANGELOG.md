@@ -1,6 +1,9 @@
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.1...v) (2025-11-27)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.1...v) (2025-11-28)
 
 
+* feat(ngsi-ld)!: trien khai NGSI-LD API va tich hop OpenWeatherMap ([b496ea6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b496ea61645c6631e9fdafe0d3098175f9451475))
+* perf(postman)!: Cập nhật Postman Collection đầy đủ các API ([eae50e6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/eae50e6a41b38b51f6e7c82641b5c57dc5a53a9a))
+* build(docker)!: Chỉnh Sửa DockerFile trong CoreAPI ([7794e54](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/7794e545657940f0b16d3edc40ec86c9a85ab609))
 * build(deloy)!: Cập nhật Deloy.sh ([8fca540](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8fca5405562e302259521635b4f27fa5f712b96f))
 * fix(docker)!: fix ([e5617d6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e5617d65b76d54b9ce91a9fd460bf7f862d15967))
 * build(docker)!: Thay đổi Docker ([de9b2b0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/de9b2b06057af348a2574105e56a96cfcb88fc69))
@@ -11,6 +14,7 @@
 
 * **deploy:** syntax error in NC variable assignment ([eb075da](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/eb075dad631e28e08a93170c9b6565b057056061))
 * **docker:** resolve invalid mqtt volume mount syntax ([8d62ebf](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8d62ebf6bd2cd621fdbc79106e7f83fc05031a5b))
+* **Scope:** Sửa lỗi 500 NGSI-LD API và cập nhật cấu hình Docker ([b2a60d2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b2a60d208860094d714fdd21c10cc8c4eaf6c205))
 
 
 ### Features
@@ -18,8 +22,21 @@
 * Update Root Repo ([252715c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/252715cd078188cdeb49eb551d9815cd9e0812ab))
 
 
+### Performance Improvements
+
+* Tạo smart deloy ([8c76f2d](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8c76f2d9aa94bce34b38bcacc59c99110f6b22fe))
+
+
 ### BREAKING CHANGES
 
+* - Triển khai các API endpoints chuẩn ETSI NGSI-LD tại /ngsi-ld/v1/ cho Alert và WeatherObserved.
+- Tích hợp OpenWeatherMap API để lấy và lưu trữ dữ liệu thời tiết.
+- Thêm hỗ trợ geo-query (near, within) và lọc theo thuộc tính.
+- Tạo bảng 'weather_observations' và migration tương ứng.
+- Thêm các script quản lý Docker (scripts/local/run.sh, scripts/rebuild-docker.sh).
+- Cập nhật Postman collection với các endpoints NGSI-LD mới.
+* Đã thêm 5 groups mới:
+* Thực hiện fix và chỉnh sửa dockerfile trong CoreAPI và deloy.sh
 * Thay đổi deloy.sh để đưa lên VPS
 * Fix Deloy.sh
 * Thay đổi cấu hình Nginx, Viết lại DockerFile, Viết lại Deloy.sh để auto Deloy

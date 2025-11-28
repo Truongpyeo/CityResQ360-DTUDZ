@@ -379,8 +379,8 @@ services:
       NOTIFICATION_SERVICE_URL: http://notification-service:8006/api/v1
       WALLET_SERVICE_URL: http://wallet-service:8005/api/v1
     volumes:
-      # Source code is built into image - do NOT mount here
-      # Mounting would override vendor/ and node_modules/
+      # Mount source code for local development
+      - ../../modules/CoreAPI:/var/www/html
       - coreapi_storage:/var/www/html/storage
       - /var/www/html/vendor
       - /var/www/html/node_modules
