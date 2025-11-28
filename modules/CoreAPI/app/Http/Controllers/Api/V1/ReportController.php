@@ -43,7 +43,7 @@ class ReportController extends BaseController
             ->where('la_cong_khai', true);
 
         // Filter by category (map index to ID)
-        if ($request->has('danh_muc') && $request->danh_muc !== '') {
+        if ($request->filled('danh_muc')) {
             $categories = DanhMucPhanAnh::orderBy('thu_tu_hien_thi')->pluck('id')->toArray();
             $danhMucIndex = (int) $request->danh_muc;
             if ($danhMucIndex >= 0 && $danhMucIndex < count($categories)) {
@@ -52,12 +52,12 @@ class ReportController extends BaseController
         }
 
         // Filter by status
-        if ($request->has('trang_thai') && $request->trang_thai !== '') {
+        if ($request->filled('trang_thai')) {
             $query->where('trang_thai', $request->trang_thai);
         }
 
         // Filter by priority (map index to ID)
-        if ($request->has('uu_tien') && $request->uu_tien !== '') {
+        if ($request->filled('uu_tien')) {
             $priorities = MucUuTien::orderBy('cap_do')->pluck('id')->toArray();
             $uuTienIndex = (int) $request->uu_tien;
             if ($uuTienIndex >= 0 && $uuTienIndex < count($priorities)) {
