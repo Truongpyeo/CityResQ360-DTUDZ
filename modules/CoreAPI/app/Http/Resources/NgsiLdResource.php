@@ -95,12 +95,15 @@ class NgsiLdResource extends JsonResource
             'viewCount' => $this->propertyValue($this->so_luot_xem ?? 0, 'Integer'),
             
             // Media URLs
+            // Media URLs (TODO: Fix schema for hinh_anh_phan_anhs before enabling)
+            /*
             'mediaUrls' => $this->when($this->hinhAnhs()->exists(), function() {
                 return $this->propertyValue(
                     $this->hinhAnhs->pluck('duong_dan')->toArray(),
                     'Array'
                 );
             }),
+            */
             
             // Tags
             'tags' => $this->when(!empty($this->the_tags), function() {

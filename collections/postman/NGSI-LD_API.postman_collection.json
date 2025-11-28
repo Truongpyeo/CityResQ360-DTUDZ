@@ -1,6 +1,6 @@
 {
     "info": {
-        "_postman_id": "98ddfaae-3b06-4478-bfb8-be2a1af66f55",
+        "_postman_id": "e6b6ef03-f4ab-4be2-b651-6ccc967a7790",
         "name": "CityResQ360 NGSI-LD API",
         "description": "NGSI-LD API Collection for OLP 2025\nIncludes Alert and WeatherObserved entities, Geo-queries, and Weather integration.",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
