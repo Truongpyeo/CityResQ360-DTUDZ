@@ -107,3 +107,7 @@ OLP_TASKS.md
 
 # Demo Scenarios (local only)
 docs/DEMO_SCENARIO.md
+
+# Postman Generation Scripts
+scripts/update_postman_collection.py
+scripts/generate_ngsi_ld_postman.py
