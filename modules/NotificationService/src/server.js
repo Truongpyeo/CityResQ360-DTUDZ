@@ -1,22 +1,40 @@
-import http from 'http';
+import express from 'express';
+import cors from 'cors';
+import helmet from 'helmet';
+import dotenv from 'dotenv';
+import connectDB from './config/database.js';
+import initializeFirebase from './config/firebase.js';
+import notificationRoutes from './routes/notificationRoutes.js';
 
+dotenv.config();
+
+// Connect to Database
+connectDB();
+
+// Initialize Firebase
+initializeFirebase();
+
+const app = express();
 const port = process.env.PORT || 8006;
 
-const requestListener = (_req, res) => {
-  res.writeHead(200, { 'Content-Type': 'application/json' });
-  res.end(
-    JSON.stringify({
-      status: 'ok',
-      service: 'NotificationService',
-      timestamp: new Date().toISOString()
-    })
-  );
-};
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
 
-const server = http.createServer(requestListener);
+// Routes
+app.use('/api/v1/notifications', notificationRoutes);
 
-server.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`NotificationService placeholder running on port ${port}`);
+// Health Check
+app.get('/health', (_req, res) => {
+  res.json({
+    service: 'NotificationService',
+    status: 'ok',
+    timestamp: new Date().toISOString()
+  });
 });
 
+// Start Server
+app.listen(port, () => {
+  console.log(`NotificationService listening on port ${port}`);
+});
