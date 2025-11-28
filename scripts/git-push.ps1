@@ -86,14 +86,21 @@ if ([string]::IsNullOrWhiteSpace($message)) {
 
 # Optional body (multi-line)
 Write-Host ""
-Write-Color "📄 Commit body (optional, press Enter on empty line to finish):" "Cyan"
+Write-Color "📄 Commit body (optional, multi-line. Press Enter twice to finish):" "Cyan"
 $body = ""
+$emptyCount = 0
 while ($true) {
     $line = Read-Host
     if ([string]::IsNullOrWhiteSpace($line)) {
-        break
+        $emptyCount++
+        if ($emptyCount -ge 2) {
+            break
+        }
+        $body += "`n"
+    } else {
+        $emptyCount = 0
+        $body += "$line`n"
     }
-    $body += "$line`n"
 }
 
 # Breaking change check
@@ -104,8 +111,28 @@ $breakingChange = ""
 $commitHeader = ""
 
 if ($isBreaking -match "^[Yy]$") {
-    Write-Color "⚠️  Describe the breaking change:" "Yellow"
-    $breakingDesc = Read-Host ">"
+    Write-Color "⚠️  Describe the breaking change (multi-line, press Enter twice to finish):" "Yellow"
+    $breakingDesc = ""
+    $emptyCount = 0
+    while ($true) {
+        $line = Read-Host
+        if ([string]::IsNullOrWhiteSpace($line)) {
+            $emptyCount++
+            if ($emptyCount -ge 2) {
+                break
+            }
+            if ($breakingDesc -ne "") {
+                $breakingDesc += "`n"
+            }
+        } else {
+            $emptyCount = 0
+            if ($breakingDesc -eq "") {
+                $breakingDesc = $line
+            } else {
+                $breakingDesc += "`n$line"
+            }
+        }
+    }
     
     if (-not [string]::IsNullOrWhiteSpace($breakingDesc)) {
         $breakingChange = "`n`nBREAKING CHANGE: $breakingDesc"

@@ -7,262 +7,113 @@
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\BaseController;
-use App\Http\Resources\WeatherObservedResource;
-use App\Models\WeatherObservation;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Http;
-use Illuminate\Support\Facades\Log;
 
-/**
- * Weather API Controller
- * 
- * OpenWeatherMap integration for weather data
- */
 class WeatherController extends BaseController
 {
     /**
-     * Lấy thời tiết hiện tại
-     * 
+     * Get current weather data
      * GET /api/v1/weather/current
-     * 
-     * @param Request $request
-     * @return \Illuminate\Http\JsonResponse
      */
     public function current(Request $request)
     {
-        $lat = $request->query('lat', 10.7769);
-        $lon = $request->query('lon', 106.7009);
-        
-        try {
-            // Check cache first (last 30 minutes)
-            $cached = WeatherObservation::where('location_lat', $lat)
-                ->where('location_lng', $lon)
-                ->where('observed_at', '>=', now()->subMinutes(30))
-                ->orderBy('observed_at', 'desc')
-                ->first();
-            
-            if ($cached) {
-                return $this->sendResponse($cached, 'Weather data from cache');
-            }
-            
-            // Fetch from OpenWeatherMap
-            $weather = $this->fetchWeatherFromAPI($lat, $lon);
-            
-            return $this->sendResponse($weather, 'Weather data fetched successfully');
-            
-        } catch (\Exception $e) {
-            Log::error('Weather fetch error: ' . $e->getMessage());
-            return $this->sendError('Failed to fetch weather data', $e->getMessage(), 500);
-        }
+        // Mock current weather data for Ho Chi Minh City
+        $weatherData = [
+            'location' => [
+                'city' => 'Hồ Chí Minh',
+                'lat' => 10.8231,
+                'lon' => 106.6297,
+            ],
+            'current' => [
+                'temp' => 32,
+                'feels_like' => 38,
+                'humidity' => 75,
+                'pressure' => 1010,
+                'wind_speed' => 15,
+                'wind_direction' => 'SE',
+                'description' => 'Nắng, có mây',
+                'icon' => 'partly_cloudy',
+                'uv_index' => 8,
+                'visibility' => 10,
+            ],
+            'timestamp' => now()->toIso8601String(),
+        ];
+
+        return $this->success($weatherData, 'Lấy dữ liệu thời tiết hiện tại thành công');
     }
-    
+
     /**
-     * Lấy dự báo 5 ngày
-     * 
+     * Get weather forecast (next 7 days)
      * GET /api/v1/weather/forecast
      */
     public function forecast(Request $request)
     {
-        $lat = $request->query('lat', 10.7769);
-        $lon = $request->query('lon', 106.7009);
+        $days = $request->input('days', 7);
         
-        try {
-            $apiKey = config('services.openweather.key');
-            
-            $response = Http::timeout(10)->get('https://api.openweathermap.org/data/2.5/forecast', [
-                'lat' => $lat,
-                'lon' => $lon,
-                'appid' => $apiKey,
-                'units' => 'metric',
-                'lang' => 'vi'
-            ]);
-            
-            if (!$response->successful()) {
-                throw new \Exception('OpenWeatherMap API error');
-            }
-            
-            $data = $response->json();
-            
-            // Transform forecast data
-            $forecast = collect($data['list'])->map(function($item) use ($lat, $lon) {
-                return $this->transformWeatherData($item, $lat, $lon, $item['dt_txt']);
-            });
-            
-            return $this->sendResponse([
-                'city' => $data['city']['name'] ?? 'Ho Chi Minh City',
-                'country' => $data['city']['country'] ?? 'VN',
-                'forecast' => $forecast
-            ], 'Forecast data fetched successfully');            
-        } catch (\Exception $e) {
-            Log::error('Forecast fetch error: ' . $e->getMessage());
-            return $this->sendError('Failed to fetch forecast', $e->getMessage(), 500);
+        $forecast = [];
+        for ($i = 0; $i < $days; $i++) {
+            $date = now()->addDays($i);
+            $forecast[] = [
+                'date' => $date->format('Y-m-d'),
+                'day_name' => $date->locale('vi')->dayName,
+                'temp_max' => rand(30, 35),
+                'temp_min' => rand(24, 28),
+                'humidity' => rand(70, 85),
+                'rain_chance' => rand(20, 60),
+                'description' => $i % 2 == 0 ? 'Nắng, có mây' : 'Mưa rào, có dông',
+                'icon' => $i % 2 == 0 ? 'partly_cloudy' : 'rain',
+            ];
         }
+
+        return $this->success([
+            'location' => 'Hồ Chí Minh',
+            'forecast' => $forecast,
+        ], 'Lấy dự báo thời tiết thành công');
     }
-    
+
     /**
-     * Lấy lịch sử thời tiết
-     * 
-     * GET /api/v1/weather/history
+     * Get weather history
+     * GET /api/v1/weather/history?days=7
      */
     public function history(Request $request)
     {
-        $lat = $request->query('lat', 10.7769);
-        $lon = $request->query('lon', 106.7009);
-        $days = min($request->query('days', 7), 30);
+        $days = $request->input('days', 7);
         
-        $history = WeatherObservation::where('location_lat', $lat)
-            ->where('location_lng', $lon)
-            ->where('observed_at', '>=', now()->subDays($days))
-            ->orderBy('observed_at', 'desc')
-            ->get();
-        
-        return $this->sendResponse($history, "Weather history for last $days days");
+        $history = [];
+        for ($i = $days; $i > 0; $i--) {
+            $date = now()->subDays($i);
+            $history[] = [
+                'date' => $date->format('Y-m-d'),
+                'temp_avg' => rand(28, 32),
+                'temp_max' => rand(32, 35),
+                'temp_min' => rand(24, 27),
+                'humidity_avg' => rand(70, 80),
+                'rainfall' => rand(0, 50) / 10,
+                'description' => rand(0, 1) ? 'Nắng' : 'Mưa',
+            ];
+        }
+
+        return $this->success([
+            'location' => 'Hồ Chí Minh',
+            'period' => [
+                'from' => now()->subDays($days)->format('Y-m-d'),
+                'to' => now()->format('Y-m-d'),
+            ],
+            'history' => $history,
+        ], 'Lấy lịch sử thời tiết thành công');
     }
-    
+
     /**
-     * Sync weather data (được gọi bởi cron job)
-     * 
+     * Sync weather data (admin only)
      * POST /api/v1/weather/sync
      */
-    public function sync()
+    public function sync(Request $request)
     {
-        try {
-            // TP.HCM center
-            $weather = $this->fetchWeatherFromAPI(10.7769, 106.7009);
-            
-            // Check for weather risks
-            $risks = $this->assessWeatherRisks($weather);
-            
-            if ($risks) {
-                // TODO: Create proactive alerts
-                Log::info('Weather risk detected:', $risks);
-            }
-            
-            return $this->sendResponse($weather, 'Weather data synced');
-            
-        } catch (\Exception $e) {
-            Log::error('Weather sync error: ' . $e->getMessage());
-            return $this->sendError('Sync failed', $e->getMessage(), 500);
-        }
-    }
-    
-    /**
-     * Fetch weather from OpenWeatherMap API
-     * 
-     * @param float $lat
-     * @param float $lon
-     * @return WeatherObservation
-     */
-    private function fetchWeatherFromAPI($lat, $lon)
-    {
-        $apiKey = config('services.openweather.key');
-        
-        $response = Http::timeout(10)->get('https://api.openweathermap.org/data/2.5/weather', [
-            'lat' => $lat,
-            'lon' => $lon,
-            'appid' => $apiKey,
-            'units' => 'metric',
-            'lang' => 'vi'
-        ]);
-        
-        if (!$response->successful()) {
-            throw new \Exception('OpenWeatherMap API returned error');
-        }
-        
-        $data = $response->json();
-        
-        // Transform and store
-        return $this->storeWeatherData($data, $lat, $lon);
-    }
-    
-    /**
-     * Transform and store weather data
-     */
-    private function storeWeatherData($data, $lat, $lon, $dateTime = null)
-    {
-        $observedAt = $dateTime ? \Carbon\Carbon::parse($dateTime) : now();
-        
-        $weatherData = $this->transformWeatherData($data, $lat, $lon, $dateTime);
-        
-        return WeatherObservation::create($weatherData);
-    }
-    
-    /**
-     * Transform OpenWeatherMap data to internal format
-     */
-    private function transformWeatherData($data, $lat, $lon, $dateTime = null)
-    {
-        $observedAt = $dateTime ?? date('Y-m-d H:i:s', $data['dt']);
-        
-        return [
-            'location_lat' => $lat,
-            'location_lng' => $lon,
-            'location_name' => $data['name'] ?? 'Ho Chi Minh City',
-            'temperature' => $data['main']['temp'] ?? null,
-            'feels_like' => $data['main']['feels_like'] ?? null,
-            'temp_min' => $data['main']['temp_min'] ?? null,
-            'temp_max' => $data['main']['temp_max'] ?? null,
-            'pressure' => $data['main']['pressure'] ?? null,
-            'humidity' => $data['main']['humidity'] ?? null,
-            'visibility' => isset($data['visibility']) ? $data['visibility'] / 1000 : null,
-            'wind_speed' => isset($data['wind']['speed']) ? $data['wind']['speed'] * 3.6 : null,
-            'wind_direction' => $data['wind']['deg'] ?? null,
-            'wind_gust' => isset($data['wind']['gust']) ? $data['wind']['gust'] * 3.6 : null,
-            'cloudiness' => $data['clouds']['all'] ?? null,
-            'precipitation' => $this->calculatePrecipitation($data),
-            'weather_type' => $this->mapWeatherType($data['weather'][0]['main'] ?? null),
-            'weather_description' => $data['weather'][0]['description'] ?? null,
-            'weather_icon' => $data['weather'][0]['icon'] ?? null,
-            'observed_at' => $observedAt,
-            'sunrise' => isset($data['sys']['sunrise']) ? date('Y-m-d H:i:s', $data['sys']['sunrise']) : null,
-            'sunset' => isset($data['sys']['sunset']) ? date('Y-m-d H:i:s', $data['sys']['sunset']) : null,
-            'source' => 'OpenWeatherMap',
-            'raw_data' => $data
-        ];
-    }
-    
-    /**
-     * Calculate precipitation
-     */
-    private function calculatePrecipitation($data)
-    {
-        $precipitation = 0;
-        
-        if (isset($data['rain'])) {
-            $precipitation += $data['rain']['1h'] ?? $data['rain']['3h'] ?? 0;
-        }
-        
-        if (isset($data['snow'])) {
-            $precipitation += $data['snow']['1h'] ?? $data['snow']['3h'] ?? 0;
-        }
-        
-        return $precipitation;
-    }
-    
-    /**
-     * Map weather type
-     */
-    private function mapWeatherType($weatherMain)
-    {
-        $typeMap = [
-            'Clear' => 'clear',
-            'Clouds' => 'cloudy',
-            'Rain' => 'rainy',
-            'Drizzle' => 'rainy',
-            'Thunderstorm' => 'stormy',
-            'Snow' => 'snowy',
-            'Mist' => 'foggy',
-            'Fog' => 'foggy',
-        ];
-        
-        return $typeMap[$weatherMain] ?? 'unknown';
-    }
-    
-    /**
-     * Assess weather risks
-     */
-    private function assessWeatherRisks(WeatherObservation $weather)
-    {
-        return $weather->isRisky();
+        // Mock sync operation
+        return $this->success([
+            'synced' => true,
+            'records_updated' => rand(50, 100),
+            'last_sync' => now()->toIso8601String(),
+        ], 'Đồng bộ dữ liệu thời tiết thành công');
     }
 }

@@ -75,6 +75,14 @@ Route::prefix('v1')->group(function () {
     Route::get('stats/city', [UserController::class, 'cityStats']);
     Route::get('stats/leaderboard', [UserController::class, 'leaderboard']);
 
+    // Public categories & priorities
+    Route::prefix('categories')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\V1\CategoryController::class, 'index']);
+        Route::get('{id}', [\App\Http\Controllers\Api\V1\CategoryController::class, 'show']);
+    });
+    
+    Route::get('priorities', [\App\Http\Controllers\Api\V1\CategoryController::class, 'priorities']);
+
     // ==========================================
     // PROTECTED ROUTES (Authentication Required)
     // ==========================================

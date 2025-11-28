@@ -83,7 +83,21 @@ infrastructure/docker/docker-compose.override.yml
 # Temporary files
 *.tmp
 *.bak
+*.swp
+*~
 .sass-cache/
+
+# Local API testing scripts (development only)
+scripts/add_missing_api_to_postman.py
+scripts/test_100_percent.py
+scripts/test_after_fix.py
+scripts/test_all_apis.sh
+scripts/test_all_collection.py
+scripts/test_apis_complete.py
+scripts/test_apis.py
+scripts/test_complete_final.py
+scripts/test_final.py
+scripts/test_postman_collection.py
 
 # Testing
 modules/*/coverage/

@@ -166,6 +166,10 @@ class UserController extends BaseController
     public function overview(Request $request)
     {
         $userId = auth()->id();
+        
+        if (!$userId) {
+            return $this->unauthorized('Vui lòng đăng nhập');
+        }
 
         $total = PhanAnh::where('nguoi_dung_id', $userId)->count();
         $pending = PhanAnh::where('nguoi_dung_id', $userId)->where('trang_thai', 0)->count();
@@ -199,6 +203,10 @@ class UserController extends BaseController
     public function categoriesStats(Request $request)
     {
         $userId = auth()->id();
+        
+        if (!$userId) {
+            return $this->unauthorized('Vui lòng đăng nhập');
+        }
 
         $categories = PhanAnh::select('danh_muc_id', DB::raw('COUNT(*) as total'))
             ->with('danhMuc:id,ten_danh_muc')
@@ -229,6 +237,10 @@ class UserController extends BaseController
     public function timeline(Request $request)
     {
         $userId = auth()->id();
+        
+        if (!$userId) {
+            return $this->unauthorized('Vui lòng đăng nhập');
+        }
         $fromDate = $request->get('tu_ngay', now()->subMonths(6)->format('Y-m-d'));
         $toDate = $request->get('den_ngay', now()->format('Y-m-d'));
 
@@ -307,11 +319,10 @@ class UserController extends BaseController
         
         $resolutionRate = $total > 0 ? round(($resolved / $total) * 100, 2) : 0;
 
-        // Average resolution time (hours)
+        // Average resolution time (hours) - thoi_gian_giai_quyet is already in hours
         $avgResolutionTime = PhanAnh::where('trang_thai', 3)
-            ->whereNotNull('ngay_giai_quyet')
-            ->select(DB::raw('AVG(TIMESTAMPDIFF(HOUR, created_at, ngay_giai_quyet)) as avg_time'))
-            ->value('avg_time');
+            ->whereNotNull('thoi_gian_giai_quyet')
+            ->avg('thoi_gian_giai_quyet');
 
         // Top categories
         $topCategories = PhanAnh::select('danh_muc_id', DB::raw('COUNT(*) as total'))

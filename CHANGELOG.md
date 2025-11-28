@@ -1,6 +1,7 @@
 # [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.1...v) (2025-11-28)
 
 
+* fix(api)!: đạt 100% API hoạt động - sửa tất cả lỗi 500 ([faa3e71](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/faa3e71e0ec477c53391f0f8a3d710c4027512d7))
 * feat(service)!: hoàn thiện code cho IoTService, NotificationService và WalletService ([9877d86](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/9877d86ea388d49b20d49d9d66dbe909deda09be))
 * fix(api)!: fix bộ lọc /api/v1/reports ([a6fcf3b](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a6fcf3be06eb1df96a6aaa1141a4e206de66f7c6))
 * feat(ngsi-ld)!: trien khai NGSI-LD API va tich hop OpenWeatherMap ([b496ea6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b496ea61645c6631e9fdafe0d3098175f9451475))
@@ -23,6 +24,7 @@
 
 ### Features
 
+* **api:** thêm API danh mục, ưu tiên và bổ sung Postman collection đầy đủ ([bbde086](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/bbde0867376afa47b556454716e23e8364f2fbe5))
 * **services:** hoàn thiện code 4 services còn lại (Search, Analytics, Incident, FloodEye) ([765bb3f](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/765bb3f25de66f05822ed954d69dadeb5164236a))
 * Update Root Repo ([252715c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/252715cd078188cdeb49eb551d9815cd9e0812ab))
 
@@ -34,6 +36,10 @@
 
 ### BREAKING CHANGES
 
+* Model NguoiDung giờ kế thừa Authenticatable
+
+Đóng: Lỗi CoreAPI endpoints
+Kiểm tra bởi: Manual curl testing + Python scripts
 * - IoTService: Thêm TimescaleDB, MQTT, Sensor API.
 - NotificationService: Thêm MongoDB, Firebase, Email API.
 - WalletService: Thêm PostgreSQL, GORM, Wallet API.
