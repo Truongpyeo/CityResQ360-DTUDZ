@@ -9,7 +9,7 @@ set -e
 
 # Configuration
 PROJECT_DIR="/opt/CityResQ360" # Adjust if needed or use current dir
-DOCKER_COMPOSE_FILE="../../infrastructure/docker/docker-compose.production.yml"
+DOCKER_COMPOSE_FILE="infrastructure/docker/docker-compose.production.yml"
 BRANCH="master" # Default branch
 
 # Colors
