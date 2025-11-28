@@ -24,6 +24,18 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class PhanThuong extends Model
 {
+    // Constants for 'loai'
+    const LOAI_VOUCHER = 0;
+    const LOAI_QUA_TANG = 1;
+    const LOAI_DICH_VU = 2;
+    const LOAI_VE_SU_KIEN = 3; // Adding extra types mapping to existing or new logic
+    const LOAI_CHUNG_NHAN = 4;
+    const LOAI_DIEU_KY_NIEM = 5;
+
+    // Constants for 'trang_thai'
+    const TRANG_THAI_INACTIVE = 0;
+    const TRANG_THAI_ACTIVE = 1;
+
     protected $fillable = [
         'ten_phan_thuong',
         'mo_ta',

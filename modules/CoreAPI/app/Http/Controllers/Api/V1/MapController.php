@@ -226,23 +226,52 @@ class MapController extends BaseController
         $lon = $request->get('kinh_do');
         $radius = $request->get('radius', 2); // km
 
-        // Mock data structure for future implementation
+        // Mock GTFS data for testing
+        // TODO: Replace with real GTFS data when available
         $routes = [
-            // Example:
-            // [
-            //     'id' => 1,
-            //     'ten_tuyen' => 'Tuyến xe buýt số 1',
-            //     'loai' => 'bus',
-            //     'diem_dung' => [
-            //         [
-            //             'id' => 1,
-            //             'ten_diem' => 'Bến xe buýt Bến Thành',
-            //             'vi_do' => 10.8231,
-            //             'kinh_do' => 106.6297,
-            //             'khoang_cach' => 0.5 // km
-            //         ]
-            //     ]
-            // ]
+            [
+                'id' => 1,
+                'ten_tuyen' => 'Tuyến xe buýt số 1',
+                'ma_tuyen' => 'BUS-01',
+                'loai' => 'bus',
+                'color' => '#FF5722',
+                'diem_dung' => [
+                    [
+                        'id' => 1,
+                        'ten_diem' => 'Bến xe buýt Bến Thành',
+                        'vi_do' => 10.7700,
+                        'kinh_do' => 106.6980,
+                        'khoang_cach' => 0.5
+                    ],
+                    [
+                        'id' => 2,
+                        'ten_diem' => 'Nhà Thờ Đức Bà',
+                        'vi_do' => 10.7797,
+                        'kinh_do' => 106.6990,
+                        'khoang_cach' => 1.2
+                    ]
+                ],
+                'tan_suat' => '10-15 phút',
+                'gio_hoat_dong' => '05:00 - 22:00'
+            ],
+            [
+                'id' => 2,
+                'ten_tuyen' => 'Tuyến xe buýt số 2',
+                'ma_tuyen' => 'BUS-02',
+                'loai' => 'bus',
+                'color' => '#2196F3',
+                'diem_dung' => [
+                    [
+                        'id' => 3,
+                        'ten_diem' => 'Bưu điện Trung tâm',
+                        'vi_do' => 10.7800,
+                        'kinh_do' => 106.6990,
+                        'khoang_cach' => 0.3
+                    ]
+                ],
+                'tan_suat' => '15-20 phút',
+                'gio_hoat_dong' => '05:30 - 21:30'
+            ]
         ];
 
         return $this->success($routes, 'GTFS routes (coming soon)');

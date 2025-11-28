@@ -125,3 +125,5 @@ docs/DEMO_SCENARIO.md
 # Postman Generation Scripts
 scripts/update_postman_collection.py
 scripts/generate_ngsi_ld_postman.py
+scripts/fix_postman_collection.py
+scripts/test_api_full.py

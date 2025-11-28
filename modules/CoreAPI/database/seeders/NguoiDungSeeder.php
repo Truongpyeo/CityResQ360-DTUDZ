@@ -14,8 +14,8 @@ class NguoiDungSeeder extends Seeder
     public function run(): void
     {
         $users = [
-            // Verified Citizens
             [
+                'id' => 1,
                 'ho_ten' => 'Nguyễn Văn An',
                 'email' => 'nguyenvanan@gmail.com',
                 'mat_khau' => Hash::make('password123'),
@@ -37,7 +37,9 @@ class NguoiDungSeeder extends Seeder
                     'sms' => false,
                 ],
             ],
+            // ID 2: Verified Citizen
             [
+                'id' => 2,
                 'ho_ten' => 'Trần Thị Bình',
                 'email' => 'tranthib@gmail.com',
                 'mat_khau' => Hash::make('password123'),
@@ -59,7 +61,9 @@ class NguoiDungSeeder extends Seeder
                     'sms' => true,
                 ],
             ],
+            // ID 3: Platinum User
             [
+                'id' => 3,
                 'ho_ten' => 'Lê Minh Cường',
                 'email' => 'leminhcuong@gmail.com',
                 'mat_khau' => Hash::make('password123'),
@@ -82,8 +86,9 @@ class NguoiDungSeeder extends Seeder
                 ],
             ],
 
-            // Unverified Citizens
+            // ID 4: Unverified Citizen
             [
+                'id' => 4,
                 'ho_ten' => 'Phạm Thị Dung',
                 'email' => 'phamthidung@gmail.com',
                 'mat_khau' => Hash::make('password123'),
@@ -105,7 +110,9 @@ class NguoiDungSeeder extends Seeder
                     'sms' => false,
                 ],
             ],
+            // ID 5: New User
             [
+                'id' => 5,
                 'ho_ten' => 'Hoàng Văn Em',
                 'email' => 'hoangvanem@gmail.com',
                 'mat_khau' => Hash::make('password123'),
@@ -128,8 +135,9 @@ class NguoiDungSeeder extends Seeder
                 ],
             ],
 
-            // Officers (Cán bộ)
+            // ID 6: Officer 1
             [
+                'id' => 6,
                 'ho_ten' => 'Nguyễn Văn Phúc',
                 'email' => 'officer1@tphcm.gov.vn',
                 'mat_khau' => Hash::make('password123'),
@@ -151,7 +159,9 @@ class NguoiDungSeeder extends Seeder
                     'sms' => true,
                 ],
             ],
+            // ID 7: Officer 2
             [
+                'id' => 7,
                 'ho_ten' => 'Trần Thị Giang',
                 'email' => 'officer2@tphcm.gov.vn',
                 'mat_khau' => Hash::make('password123'),
@@ -174,8 +184,9 @@ class NguoiDungSeeder extends Seeder
                 ],
             ],
 
-            // Banned User (for testing)
+            // ID 8: Banned User
             [
+                'id' => 8,
                 'ho_ten' => 'Người Dùng Bị Khóa',
                 'email' => 'banned@gmail.com',
                 'mat_khau' => Hash::make('password123'),
@@ -198,8 +209,9 @@ class NguoiDungSeeder extends Seeder
                 ],
             ],
 
-            // High activity users
+            // ID 9: High Activity User 1
             [
+                'id' => 9,
                 'ho_ten' => 'Võ Thị Hoa',
                 'email' => 'vothihoa@gmail.com',
                 'mat_khau' => Hash::make('password123'),
@@ -221,7 +233,9 @@ class NguoiDungSeeder extends Seeder
                     'sms' => true,
                 ],
             ],
+            // ID 10: High Activity User 2
             [
+                'id' => 10,
                 'ho_ten' => 'Đặng Minh Khôi',
                 'email' => 'dangminhkhoi@gmail.com',
                 'mat_khau' => Hash::make('password123'),
@@ -245,11 +259,12 @@ class NguoiDungSeeder extends Seeder
             ],
         ];
 
+        // Delete existing users to ensure clean state
+        NguoiDung::whereIn('id', array_column($users, 'id'))->forceDelete();
+        NguoiDung::whereIn('email', array_column($users, 'email'))->forceDelete();
+
         foreach ($users as $user) {
-            NguoiDung::updateOrCreate(
-                ['email' => $user['email']],
-                $user
-            );
+            NguoiDung::create($user);
         }
 
         $this->command->info('✅ Created '.count($users).' users');
