@@ -22,6 +22,11 @@
 * Update Root Repo ([252715c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/252715cd078188cdeb49eb551d9815cd9e0812ab))
 
 
+### Performance Improvements
+
+* Tạo smart deloy ([8c76f2d](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8c76f2d9aa94bce34b38bcacc59c99110f6b22fe))
+
+
 ### BREAKING CHANGES
 
 * - Triển khai các API endpoints chuẩn ETSI NGSI-LD tại /ngsi-ld/v1/ cho Alert và WeatherObserved.
