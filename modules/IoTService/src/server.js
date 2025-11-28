@@ -1,8 +1,27 @@
-import express from 'express';
+const express = require('express');
+const cors = require('cors');
+const helmet = require('helmet');
+require('dotenv').config();
 
+const db = require('./config/database');
+const sensorRoutes = require('./routes/sensorRoutes');
+
+// Initialize Express
 const app = express();
-const port = process.env.PORT || process.env.SERVICE_PORT || 8002;
+const port = process.env.PORT || 8002;
 
+// Middleware
+app.use(helmet());
+app.use(cors());
+app.use(express.json());
+
+// Initialize Database
+db.initDatabase();
+
+// Routes
+app.use('/api/v1/sensors', sensorRoutes);
+
+// Health Check
 app.get('/health', (_req, res) => {
   res.json({
     service: 'IoTService',
@@ -11,8 +30,7 @@ app.get('/health', (_req, res) => {
   });
 });
 
+// Start Server
 app.listen(port, () => {
-  // eslint-disable-next-line no-console
-  console.log(`IoTService placeholder listening on port ${port}`);
+  console.log(`IoTService listening on port ${port}`);
 });
-
