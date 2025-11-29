@@ -98,6 +98,7 @@ scripts/test_apis.py
 scripts/test_complete_final.py
 scripts/test_final.py
 scripts/test_postman_collection.py
+scripts/test_protected_api.py
 
 # Testing
 modules/*/coverage/
