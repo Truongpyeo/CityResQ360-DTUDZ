@@ -1,0 +1,40 @@
+
+================================================================================
+PROTECTED APIs TEST REPORT
+================================================================================
+
+Overall Statistics:
+   Total Endpoints Tested: 19
+   Successful: 19 (100.0%)
+   Failed: 0
+   Errors: 0
+
+================================================================================
+DETAILED RESULTS
+================================================================================
+
+OK   [GET   ] Get Current User                              200 (0.03s)
+OK   [GET   ] List All Reports                              200 (0.03s)
+OK   [GET   ] Get My Reports                                200 (0.02s)
+OK   [GET   ] Get Trending Reports                          200 (0.02s)
+OK   [GET   ] Get Nearby Reports                            200 (0.03s)
+OK   [GET   ] Get Comments                                  200 (0.02s)
+OK   [POST  ] Upload Media                                  201 (0.14s)
+     Media ID: 3
+     URL: http://minio:9000/cityresq-media/2025/11/29/b3ee5d14-2336-41e6-89a0-05223c0a632d.png
+OK   [GET   ] Get My Media                                  200 (0.02s)
+OK   [GET   ] Get Map Reports                               200 (0.02s)
+OK   [GET   ] Get Heatmap                                   200 (0.02s)
+OK   [GET   ] Get Clusters                                  200 (0.02s)
+OK   [GET   ] Get Wallet                                    200 (0.01s)
+OK   [GET   ] Get Transactions                              200 (0.01s)
+OK   [GET   ] Get Rewards                                   200 (0.01s)
+OK   [GET   ] Get Notifications                             200 (0.02s)
+OK   [GET   ] Get Unread                                    200 (0.01s)
+OK   [GET   ] Get Overview                                  200 (0.02s)
+OK   [GET   ] Get Categories Stats                          200 (0.02s)
+OK   [GET   ] Get Timeline                                  200 (0.01s)
+
+================================================================================
+Test completed at: 2025-11-30 03:37:59
+================================================================================
