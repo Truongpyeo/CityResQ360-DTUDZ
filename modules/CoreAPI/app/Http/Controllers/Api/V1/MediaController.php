@@ -104,22 +104,39 @@ class MediaController extends BaseController
         }
 
         // Fallback to local storage
-        Log::info('Media Service unavailable, using local storage fallback');
+        Log::info('Media Service unavailable, using local storage fallback', [
+            'file_name' => $file->getClientOriginalName(),
+            'file_size' => $file->getSize(),
+            'mime_type' => $file->getMimeType(),
+            'storage_disk' => config('filesystems.default'),
+        ]);
 
         $extension = $file->getClientOriginalExtension();
-        $filename = Str::uuid().'.'.$extension;
-        $path = 'media/'.$type.'s/'.date('Y/m');
+        $filename = Str::uuid() . '.' . $extension;
+        $path = 'media/' . $type . 's/' . date('Y/m');
 
         try {
+            // Ensure storage directory exists
+            $storagePath = Storage::disk('public')->path($path);
+            if (!is_dir($storagePath)) {
+                Log::info('Creating storage directory', ['path' => $storagePath]);
+                mkdir($storagePath, 0755, true);
+            }
+
             // Store original file
             $filePath = $file->storeAs($path, $filename, 'public');
             $fullUrl = Storage::url($filePath);
+
+            Log::info('File stored successfully', [
+                'file_path' => $filePath,
+                'full_url' => $fullUrl,
+            ]);
 
             // Generate thumbnail for images
             $thumbnailUrl = null;
             if ($type === 'image') {
                 try {
-                    $thumbnailPath = $path.'/thumb_'.$filename;
+                    $thumbnailPath = $path . '/thumb_' . $filename;
 
                     // Create thumbnail (300x300) using Intervention Image
                     $manager = new ImageManager(new Driver);
@@ -159,7 +176,25 @@ class MediaController extends BaseController
             ], 'Upload thành công (local storage)');
 
         } catch (\Exception $e) {
-            return $this->serverError('Lỗi khi upload file: '.$e->getMessage());
+            Log::error('Local storage upload failed', [
+                'error_message' => $e->getMessage(),
+                'error_code' => $e->getCode(),
+                'file' => $e->getFile(),
+                'line' => $e->getLine(),
+                'trace' => $e->getTraceAsString(),
+                'file_info' => [
+                    'name' => $file->getClientOriginalName(),
+                    'size' => $file->getSize(),
+                    'mime' => $file->getMimeType(),
+                    'extension' => $extension,
+                ],
+                'storage_config' => [
+                    'disk' => config('filesystems.default'),
+                    'public_path' => Storage::disk('public')->path(''),
+                ],
+            ]);
+
+            return $this->serverError('Lỗi khi upload file: ' . $e->getMessage());
         }
     }
 
@@ -171,7 +206,7 @@ class MediaController extends BaseController
     {
         $media = HinhAnhPhanAnh::find($id);
 
-        if (! $media) {
+        if (!$media) {
             return $this->notFound('Không tìm thấy file');
         }
 
@@ -195,7 +230,7 @@ class MediaController extends BaseController
     {
         $media = HinhAnhPhanAnh::find($id);
 
-        if (! $media) {
+        if (!$media) {
             return $this->notFound('Không tìm thấy file');
         }
 
@@ -206,10 +241,10 @@ class MediaController extends BaseController
 
         try {
             // Try to delete from Media Service if media_service_id exists
-            if (! empty($media->media_service_id)) {
+            if (!empty($media->media_service_id)) {
                 $token = $request->bearerToken();
                 $deleted = $this->mediaService->delete($media->media_service_id, $request->user()->id, $token);
-                if (! $deleted) {
+                if (!$deleted) {
                     Log::warning('Failed to delete from Media Service', [
                         'media_service_id' => $media->media_service_id,
                     ]);
@@ -236,7 +271,7 @@ class MediaController extends BaseController
             ], 'Xóa file thành công');
 
         } catch (\Exception $e) {
-            return $this->serverError('Lỗi khi xóa file: '.$e->getMessage());
+            return $this->serverError('Lỗi khi xóa file: ' . $e->getMessage());
         }
     }
 

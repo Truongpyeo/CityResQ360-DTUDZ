@@ -18,7 +18,7 @@ class NearbyReportRequest extends FormRequest
         return [
             'vi_do' => 'required|numeric|between:-90,90',
             'kinh_do' => 'required|numeric|between:-180,180',
-            'radius' => 'sometimes|numeric|min:0.1|max:50',
+            'radius' => 'sometimes|numeric|min:0.1|max:50000', // Support up to 50km radius
         ];
     }
 
