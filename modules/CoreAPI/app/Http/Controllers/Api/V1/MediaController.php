@@ -116,38 +116,43 @@ class MediaController extends BaseController
         $path = 'media/' . $type . 's/' . date('Y/m');
 
         try {
-            // Ensure storage directory exists
-            $storagePath = Storage::disk('public')->path($path);
-            if (!is_dir($storagePath)) {
-                Log::info('Creating storage directory', ['path' => $storagePath]);
-                mkdir($storagePath, 0755, true);
-            }
+            // Use S3/MinIO for fallback storage
+            $disk = config('filesystems.default', 's3');
 
-            // Store original file
-            $filePath = $file->storeAs($path, $filename, 'public');
-            $fullUrl = Storage::url($filePath);
+            // Store original file to S3/MinIO
+            $filePath = $file->storeAs($path, $filename, $disk);
+            $fullUrl = Storage::disk($disk)->url($filePath);
 
-            Log::info('File stored successfully', [
+            Log::info('File stored successfully to S3/MinIO fallback', [
                 'file_path' => $filePath,
                 'full_url' => $fullUrl,
+                'disk' => $disk,
             ]);
 
             // Generate thumbnail for images
             $thumbnailUrl = null;
             if ($type === 'image') {
                 try {
-                    $thumbnailPath = $path . '/thumb_' . $filename;
+                    $thumbnailFilename = 'thumb_' . $filename;
+                    $thumbnailPath = $path . '/' . $thumbnailFilename;
 
                     // Create thumbnail (300x300) using Intervention Image
                     $manager = new ImageManager(new Driver);
                     $image = $manager->read($file->getRealPath());
                     $image->scale(width: 300);
 
-                    // Save thumbnail - save directly to file path
-                    $fullThumbnailPath = Storage::disk('public')->path($thumbnailPath);
-                    $image->toJpeg(85)->save($fullThumbnailPath);
+                    // Save thumbnail to temp file first
+                    $tempThumbPath = sys_get_temp_dir() . '/' . $thumbnailFilename;
+                    $image->toJpeg(85)->save($tempThumbPath);
 
-                    $thumbnailUrl = Storage::url($thumbnailPath);
+                    // Upload thumbnail to S3/MinIO
+                    Storage::disk($disk)->put($thumbnailPath, file_get_contents($tempThumbPath));
+                    $thumbnailUrl = Storage::disk($disk)->url($thumbnailPath);
+
+                    // Clean up temp file
+                    @unlink($tempThumbPath);
+
+                    Log::info('Thumbnail created and uploaded', ['thumbnail_url' => $thumbnailUrl]);
                 } catch (\Exception $e) {
                     Log::warning('Failed to create thumbnail', ['error' => $e->getMessage()]);
                     // Continue without thumbnail
@@ -167,13 +172,13 @@ class MediaController extends BaseController
 
             return $this->created([
                 'id' => $media->id,
-                'url' => url($fullUrl),
-                'thumbnail_url' => $thumbnailUrl ? url($thumbnailUrl) : null,
+                'url' => $fullUrl,
+                'thumbnail_url' => $thumbnailUrl,
                 'type' => $type,
                 'kich_thuoc' => $media->kich_thuoc,
                 'dinh_dang' => $media->dinh_dang,
                 'created_at' => $media->created_at,
-            ], 'Upload thành công (local storage)');
+            ], 'Upload thành công (S3/MinIO fallback)');
 
         } catch (\Exception $e) {
             Log::error('Local storage upload failed', [
