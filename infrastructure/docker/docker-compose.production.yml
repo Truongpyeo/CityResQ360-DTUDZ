@@ -356,7 +356,6 @@ services:
             OPTIMIZED_HEIGHT: 1080
             JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
         volumes:
-            - ../modules/MediaService:/app
             - media_uploads:/app/uploads
             - /app/node_modules
         depends_on:

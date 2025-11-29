@@ -1,0 +1,40 @@
+
+================================================================================
+PROTECTED APIs TEST REPORT
+================================================================================
+
+Overall Statistics:
+   Total Endpoints Tested: 19
+   Successful: 18 (94.7%)
+   Failed: 1
+   Errors: 0
+
+================================================================================
+DETAILED RESULTS
+================================================================================
+
+OK   [GET   ] Get Current User                              200 (0.12s)
+OK   [GET   ] List All Reports                              200 (0.21s)
+OK   [GET   ] Get My Reports                                200 (0.12s)
+OK   [GET   ] Get Trending Reports                          200 (0.12s)
+OK   [GET   ] Get Nearby Reports                            200 (0.11s)
+OK   [GET   ] Get Comments                                  200 (0.12s)
+FAIL [POST  ] Upload Media                                  500
+     Error: Lỗi khi upload file: Found 1 error while validating the input provided for the GetObject operation:
+[Key] expected string length to be >= 1, but found string length of 0
+OK   [GET   ] Get My Media                                  200 (0.11s)
+OK   [GET   ] Get Map Reports                               200 (0.11s)
+OK   [GET   ] Get Heatmap                                   200 (0.11s)
+OK   [GET   ] Get Clusters                                  200 (0.11s)
+OK   [GET   ] Get Wallet                                    200 (0.11s)
+OK   [GET   ] Get Transactions                              200 (0.12s)
+OK   [GET   ] Get Rewards                                   200 (0.11s)
+OK   [GET   ] Get Notifications                             200 (0.11s)
+OK   [GET   ] Get Unread                                    200 (0.11s)
+OK   [GET   ] Get Overview                                  200 (0.12s)
+OK   [GET   ] Get Categories Stats                          200 (0.11s)
+OK   [GET   ] Get Timeline                                  200 (0.10s)
+
+================================================================================
+Test completed at: 2025-11-30 03:33:28
+================================================================================
