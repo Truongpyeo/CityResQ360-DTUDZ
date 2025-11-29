@@ -1,4 +1,4 @@
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.2...v) (2025-11-28)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.1...v) (2025-11-29)
 
 
 * fix(api)!: đạt 100% API hoạt động - sửa tất cả lỗi 500 ([faa3e71](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/faa3e71e0ec477c53391f0f8a3d710c4027512d7))
