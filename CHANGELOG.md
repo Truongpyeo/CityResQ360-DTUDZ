@@ -1,3 +1,41 @@
+# CHANGELOG
+
+## 30/11/2025 - 17h37
+
+### Release v1.0.5
+
+**✨ New Features:**
+- thêm script test tự động API production
+
+**🐛 Bug Fixes:**
+- fix create-release.sh lần 2
+- Fix file create-release.sh
+- Sửa auto release cho .sh
+- Fix Api Update Media, Mediaservice
+
+**📚 Documentation:**
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG for v1.0.1
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+
+**🔧 Other Changes:**
+- ﻿fix(api): Sửa lỗi MediaService
+
+**Technical Details:**
+- Tag: v1.0.5
+- Commits: 15
+- Released from: master branch
+- Release URL: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/releases/tag/v1.0.5
+
+---
+
+
 # [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.4...v) (2025-11-30)
 
 
@@ -101,6 +139,3 @@ Kiểm tra bởi: Manual curl testing + Python scripts
 * **docker:** Xóa duplicate volumes key gây lỗi YAML parse ([668bf83](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/668bf8307ee3d8e197198d32820909909c9b692a))
 * **mysql:** Bỏ init.sql mount vì syntax không tương thích MySQL 8.0 ([fb31d5e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/fb31d5ece3ac016bd68fcb5fd033ec4953101dd3))
 * readme ([a9585e5](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a9585e5d3e275aa0ee68923e0cdf25ae943a8d6b))
-
-
-
