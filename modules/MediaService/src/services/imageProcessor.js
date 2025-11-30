@@ -1,12 +1,26 @@
-const sharp = require('sharp');
+// Try to load Sharp, but allow service to work without it
+let sharp;
+try {
+  sharp = require('sharp');
+} catch (e) {
+  console.warn('⚠️  Sharp not installed - image processing disabled');
+  sharp = null;
+}
+
 const path = require('path');
 const fs = require('fs').promises;
 
 class ImageProcessor {
   async processImage(inputPath, outputDir) {
+    // If Sharp not available, return null (skip processing)
+    if (!sharp) {
+      console.log('📸 Skipping image processing (Sharp not installed)');
+      return null;
+    }
+
     try {
       const filename = path.basename(inputPath, path.extname(inputPath));
-      
+
       // Get image metadata
       const metadata = await sharp(inputPath).metadata();
 
