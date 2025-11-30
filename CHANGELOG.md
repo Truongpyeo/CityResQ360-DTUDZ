@@ -1,4 +1,9 @@
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.4...v) (2025-11-29)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.4...v) (2025-11-30)
+
+
+### Bug Fixes
+
+* **api:** Fix Api Update Media, Mediaservice ([e51178e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e51178e8a384bf9653593d4d1a59da371e46d893))
 
 
 

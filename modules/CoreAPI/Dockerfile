@@ -84,7 +84,7 @@ RUN mkdir -p /etc/supervisor.d && \
 
 EXPOSE 80
 
-# Create entrypoint script for migrations and supervisor startup
+# Create entrypoint script for migrations, seeding, and supervisor startup
 RUN echo '#!/bin/sh' > /entrypoint.sh && \
     echo 'set -e' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
@@ -101,9 +101,15 @@ RUN echo '#!/bin/sh' > /entrypoint.sh && \
     echo '    npm install --production' >> /entrypoint.sh && \
     echo 'fi' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
-    echo '# Ensure .env exists' >> /entrypoint.sh && \
+    echo '# Ensure .env exists and generate APP_KEY if needed' >> /entrypoint.sh && \
     echo 'if [ ! -f ".env" ]; then' >> /entrypoint.sh && \
+    echo '    echo "Creating .env from .env.example..."' >> /entrypoint.sh && \
     echo '    cp .env.example .env 2>/dev/null || true' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
+    echo '# Generate APP_KEY if not set' >> /entrypoint.sh && \
+    echo 'if ! grep -q "APP_KEY=base64:" .env 2>/dev/null; then' >> /entrypoint.sh && \
+    echo '    echo "Generating application key..."' >> /entrypoint.sh && \
     echo '    php artisan key:generate --force' >> /entrypoint.sh && \
     echo 'fi' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
@@ -116,6 +122,21 @@ RUN echo '#!/bin/sh' > /entrypoint.sh && \
     echo 'echo "MySQL is up - running migrations"' >> /entrypoint.sh && \
     echo 'php artisan migrate --force || echo "Migration failed, continuing..."' >> /entrypoint.sh && \
     echo '' >> /entrypoint.sh && \
+    echo '# Run database seeding only on first startup' >> /entrypoint.sh && \
+    echo 'SEED_MARKER="/var/www/html/storage/app/.db_seeded"' >> /entrypoint.sh && \
+    echo 'if [ ! -f "$SEED_MARKER" ]; then' >> /entrypoint.sh && \
+    echo '    echo "First startup detected - running database seeder..."' >> /entrypoint.sh && \
+    echo '    if php artisan db:seed --force; then' >> /entrypoint.sh && \
+    echo '        echo "Database seeded successfully!"' >> /entrypoint.sh && \
+    echo '        touch "$SEED_MARKER"' >> /entrypoint.sh && \
+    echo '        echo "Seed marker created at $SEED_MARKER"' >> /entrypoint.sh && \
+    echo '    else' >> /entrypoint.sh && \
+    echo '        echo "Warning: Database seeding failed, but continuing..."' >> /entrypoint.sh && \
+    echo '    fi' >> /entrypoint.sh && \
+    echo 'else' >> /entrypoint.sh && \
+    echo '    echo "Database already seeded (marker found), skipping seed..."' >> /entrypoint.sh && \
+    echo 'fi' >> /entrypoint.sh && \
+    echo '' >> /entrypoint.sh && \
     echo '# Clear and cache Laravel configuration' >> /entrypoint.sh && \
     echo 'echo "Optimizing Laravel configuration..."' >> /entrypoint.sh && \
     echo 'php artisan config:clear' >> /entrypoint.sh && \
@@ -125,5 +146,6 @@ RUN echo '#!/bin/sh' > /entrypoint.sh && \
     echo 'echo "Starting services with supervisor"' >> /entrypoint.sh && \
     echo 'exec /usr/bin/supervisord -c /etc/supervisor.d/supervisord.ini' >> /entrypoint.sh && \
     chmod +x /entrypoint.sh
+
 
 CMD ["/entrypoint.sh"]
