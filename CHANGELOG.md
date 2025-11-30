@@ -1,3 +1,121 @@
+# CHANGELOG
+
+## 30/11/2025 - 17h31
+
+### Release v1.0.1
+
+**✨ New Features:**
+- thêm script test tự động API production
+- thêm API danh mục, ưu tiên và bổ sung Postman collection đầy đủ
+- hoàn thiện code 4 services còn lại (Search, Analytics, Incident, FloodEye)
+- !: hoàn thiện code cho IoTService, NotificationService và WalletService
+- !: trien khai NGSI-LD API va tich hop OpenWeatherMap
+- !: Hoàn thiện API client cho React Native Mobile
+- Update Root Repo
+
+**🐛 Bug Fixes:**
+- Sửa auto release cho .sh
+- Fix Api Update Media, Mediaservice
+- khắc phục phản hồi null và tối ưu hóa bộ kiểm thử (tỷ lệ đạt 97%)
+- Sửa update-deloy.sh
+- !: đạt 100% API hoạt động - sửa tất cả lỗi 500
+- Sửa đường dẫn trong docker-compose.production.yml
+- !: fix bộ lọc /api/v1/reports
+- Sửa smart-deploy.sh
+- Sửa lỗi 500 NGSI-LD API và cập nhật cấu hình Docker
+- !: fix
+- resolve invalid mqtt volume mount syntax
+- syntax error in NC variable assignment
+
+**📚 Documentation:**
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG for v1.0.4
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG for v1.0.3
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- Update readme
+- update readme
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- update readme
+- update CHANGELOG.md [skip ci]
+- fix content
+- fix content
+- update CHANGELOG.md [skip ci]
+- update CHANGELOG.md [skip ci]
+- fix content
+
+**🔧 Other Changes:**
+- ﻿fix(api): Sửa lỗi MediaService
+- ﻿fix(modules): ổn định tính năng upload media và build service
+- ﻿fix(api): Switch media upload fallback to S3
+- ﻿fix(script): Chỉnh sửa Script Auto Release
+- ﻿feat(script): Tạo Script release
+- ﻿fix(api): Resolve API test failures - nearby reports validation and media upload logging
+- Tạo smart deloy
+- !: Cập nhật Postman Collection đầy đủ các API
+- !: Chỉnh Sửa DockerFile trong CoreAPI
+- !: Cập nhật Deloy.sh
+- !: Thay đổi Docker
+- use PAT_TOKEN for changelog workflow
+- change script changelog.yml
+- workflows release.yml
+- change scripts auto commit
+- Change CI CHANGELOG.md
+- add develop branch to changelog trigger
+- Tạo Scripp auto git
+- Refactor changelog.yml
+- remove migration scripts (used only once)
+- Update LICENSE
+- set production URL as default in Postman collection
+
+**⚠️ BREAKING CHANGES:**
+- fix(api)!: đạt 100% API hoạt động - sửa tất cả lỗi 500
+- feat(service)!: hoàn thiện code cho IoTService, NotificationService và WalletService
+- fix(api)!: fix bộ lọc /api/v1/reports
+- feat(ngsi-ld)!: trien khai NGSI-LD API va tich hop OpenWeatherMap
+- perf(postman)!: Cập nhật Postman Collection đầy đủ các API
+- build(docker)!: Chỉnh Sửa DockerFile trong CoreAPI
+- build(deloy)!: Cập nhật Deloy.sh
+- fix(docker)!: fix
+- build(docker)!: Thay đổi Docker
+- feat(api)!: Hoàn thiện API client cho React Native Mobile
+
+**Technical Details:**
+- Tag: v1.0.1
+- Commits: 83
+- Released from: master branch
+- Release URL: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/releases/tag/v1.0.1
+
+---
+
+
 # [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.4...v) (2025-11-30)
 
 
@@ -99,6 +217,3 @@ Kiểm tra bởi: Manual curl testing + Python scripts
 * **docker:** Xóa duplicate volumes key gây lỗi YAML parse ([668bf83](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/668bf8307ee3d8e197198d32820909909c9b692a))
 * **mysql:** Bỏ init.sql mount vì syntax không tương thích MySQL 8.0 ([fb31d5e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/fb31d5ece3ac016bd68fcb5fd033ec4953101dd3))
 * readme ([a9585e5](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a9585e5d3e275aa0ee68923e0cdf25ae943a8d6b))
-
-
-
