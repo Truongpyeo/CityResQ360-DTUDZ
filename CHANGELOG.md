@@ -6,6 +6,11 @@
 * **api:** Fix Api Update Media, Mediaservice ([e51178e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e51178e8a384bf9653593d4d1a59da371e46d893))
 
 
+### Features
+
+* **test:** thêm script test tự động API production ([08444a9](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/08444a99cf92924042517da7646b6444b60154d2))
+
+
 
 ## [1.0.4](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.3...v1.0.4) (2025-11-29)
 
