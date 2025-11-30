@@ -4,6 +4,7 @@
 ### Bug Fixes
 
 * **api:** Fix Api Update Media, Mediaservice ([e51178e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e51178e8a384bf9653593d4d1a59da371e46d893))
+* **auto:** Sửa auto release cho .sh ([57984cf](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/57984cf632953cf341ad65a8a517c0a940aa807a))
 
 
 ### Features
