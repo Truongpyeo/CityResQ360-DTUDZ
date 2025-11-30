@@ -53,7 +53,7 @@ git push origin master
 # Detect latest tag
 echo ""
 echo -e "${CYAN}[*] Fetching latest tags from remote...${NC}"
-git fetch --tags
+git fetch --tags --force
 
 echo -e "${CYAN}[*] Detecting latest tag...${NC}"
 
