@@ -121,16 +121,16 @@ while IFS= read -r commit; do
     MSG="${commit%%|||*}"
     
     if [[ "$MSG" =~ ^feat[\(\!]|^feat: ]]; then
-        CLEAN=$(echo "$MSG" | sed -E 's/^feat[\(\!:].*?[:\)]?\s*//')
+        CLEAN=$(echo "$MSG" | sed -E 's/^feat(\([^)]*\)|!)?:?[[:space:]]*//')
         FEATURES+=("- $CLEAN")
     elif [[ "$MSG" =~ ^fix[\(\!]|^fix: ]]; then
-        CLEAN=$(echo "$MSG" | sed -E 's/^fix[\(\!:].*?[:\)]?\s*//')
+        CLEAN=$(echo "$MSG" | sed -E 's/^fix(\([^)]*\)|!)?:?[[:space:]]*//')
         FIXES+=("- $CLEAN")
     elif [[ "$MSG" =~ ^docs[\(\!]|^docs: ]]; then
-        CLEAN=$(echo "$MSG" | sed -E 's/^docs[\(\!:].*?[:\)]?\s*//')
+        CLEAN=$(echo "$MSG" | sed -E 's/^docs(\([^)]*\)|!)?:?[[:space:]]*//')
         DOCS+=("- $CLEAN")
     else
-        CLEAN=$(echo "$MSG" | sed -E 's/^[a-z]+[\(\!:].*?[:\)]?\s*//')
+        CLEAN=$(echo "$MSG" | sed -E 's/^[a-z]+(\([^)]*\)|!)?:?[[:space:]]*//')
         OTHERS+=("- $CLEAN")
     fi
     
