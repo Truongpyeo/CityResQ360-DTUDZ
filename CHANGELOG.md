@@ -1,47 +1,14 @@
-# CHANGELOG
-
-## 30/11/2025 - 17h37
-
-### Release v1.0.5
-
-**✨ New Features:**
-- thêm script test tự động API production
-
-**🐛 Bug Fixes:**
-- fix create-release.sh lần 2
-- Fix file create-release.sh
-- Sửa auto release cho .sh
-- Fix Api Update Media, Mediaservice
-
-**📚 Documentation:**
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG for v1.0.1
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-
-**🔧 Other Changes:**
-- ﻿fix(api): Sửa lỗi MediaService
-
-**Technical Details:**
-- Tag: v1.0.5
-- Commits: 15
-- Released from: master branch
-- Release URL: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/releases/tag/v1.0.5
-
----
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.5...v) (2025-11-30)
 
 
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.4...v) (2025-11-30)
+
+## [1.0.5](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.4...v1.0.5) (2025-11-30)
 
 
 ### Bug Fixes
 
 * **api:** Fix Api Update Media, Mediaservice ([e51178e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e51178e8a384bf9653593d4d1a59da371e46d893))
+* **auto:** fix create-release.sh lần 2 ([44b66c4](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/44b66c4718eb72cfa0215ae5896e92590159804e))
 * **auto:** Fix file create-release.sh ([5f585ef](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/5f585efbbe5cde70f10785084f0e2465e9e45884))
 * **auto:** Sửa auto release cho .sh ([57984cf](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/57984cf632953cf341ad65a8a517c0a940aa807a))
 
@@ -139,3 +106,6 @@ Kiểm tra bởi: Manual curl testing + Python scripts
 * **docker:** Xóa duplicate volumes key gây lỗi YAML parse ([668bf83](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/668bf8307ee3d8e197198d32820909909c9b692a))
 * **mysql:** Bỏ init.sql mount vì syntax không tương thích MySQL 8.0 ([fb31d5e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/fb31d5ece3ac016bd68fcb5fd033ec4953101dd3))
 * readme ([a9585e5](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a9585e5d3e275aa0ee68923e0cdf25ae943a8d6b))
+
+
+
