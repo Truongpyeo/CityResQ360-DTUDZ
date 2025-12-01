@@ -257,6 +257,13 @@ if [ ! -f "$ENV_FILE" ]; then
     JWT_SECRET=$(openssl rand -hex 64)
     APP_KEY="base64:$(openssl rand -base64 32)"
     
+    # Determine MAIL_FROM_DOMAIN early for SMTP prompt
+    if [ "$USE_DOMAIN" = true ]; then
+        MAIL_FROM_DOMAIN="$DOMAIN"
+    else
+        MAIL_FROM_DOMAIN="cityresq360.com"
+    fi
+
     # ============================================
     # SMTP CONFIGURATION (Interactive)
     # ============================================
@@ -284,8 +291,8 @@ if [ ! -f "$ENV_FILE" ]; then
         read -sp "SMTP Password: " MAIL_PASSWORD
         echo ""
         
-        read -p "From Address [noreply@${MAIL_FROM_DOMAIN:-cityresq360.com}]: " MAIL_FROM_INPUT
-        MAIL_FROM_ADDRESS=${MAIL_FROM_INPUT:-noreply@${MAIL_FROM_DOMAIN:-cityresq360.com}}
+        read -p "From Address [noreply@${MAIL_FROM_DOMAIN}]: " MAIL_FROM_INPUT
+        MAIL_FROM_ADDRESS=${MAIL_FROM_INPUT:-noreply@${MAIL_FROM_DOMAIN}}
         
         echo ""
         echo -e "${GREEN}✅ SMTP configured${NC}"
@@ -295,7 +302,7 @@ if [ ! -f "$ENV_FILE" ]; then
         MAIL_PORT="587"
         MAIL_USERNAME=""
         MAIL_PASSWORD=""
-        MAIL_FROM_ADDRESS="noreply@cityresq360.com"
+        MAIL_FROM_ADDRESS="noreply@${MAIL_FROM_DOMAIN}"
     fi
     
     # Calculate URLs based on mode
