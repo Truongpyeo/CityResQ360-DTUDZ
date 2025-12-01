@@ -257,6 +257,54 @@ if [ ! -f "$ENV_FILE" ]; then
     JWT_SECRET=$(openssl rand -hex 64)
     APP_KEY="base64:$(openssl rand -base64 32)"
     
+    # Determine MAIL_FROM_DOMAIN early for SMTP prompt
+    if [ "$USE_DOMAIN" = true ]; then
+        MAIL_FROM_DOMAIN="$DOMAIN"
+    else
+        MAIL_FROM_DOMAIN="cityresq360.com"
+    fi
+
+    # ============================================
+    # SMTP CONFIGURATION (Interactive)
+    # ============================================
+    echo ""
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${CYAN}📧 Email Configuration (SMTP)${NC}"
+    echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+    echo -e "${YELLOW}Required for: User notifications, approval emails, password resets${NC}"
+    echo ""
+    read -p "Configure SMTP now? [Y/n]: " CONFIGURE_SMTP
+    
+    if [[ ! "$CONFIGURE_SMTP" =~ ^[Nn]$ ]]; then
+        echo ""
+        echo -e "${BLUE}Enter SMTP details:${NC}"
+        
+        read -p "SMTP Host [smtp.gmail.com]: " MAIL_HOST_INPUT
+        MAIL_HOST=${MAIL_HOST_INPUT:-smtp.gmail.com}
+        
+        read -p "SMTP Port [587]: " MAIL_PORT_INPUT
+        MAIL_PORT=${MAIL_PORT_INPUT:-587}
+        
+        read -p "SMTP Username (email): " MAIL_USERNAME
+        
+        echo -e "${YELLOW}For Gmail, use App Password: https://myaccount.google.com/apppasswords${NC}"
+        read -sp "SMTP Password: " MAIL_PASSWORD
+        echo ""
+        
+        read -p "From Address [noreply@${MAIL_FROM_DOMAIN}]: " MAIL_FROM_INPUT
+        MAIL_FROM_ADDRESS=${MAIL_FROM_INPUT:-noreply@${MAIL_FROM_DOMAIN}}
+        
+        echo ""
+        echo -e "${GREEN}✅ SMTP configured${NC}"
+    else
+        echo -e "${YELLOW}⚠️  SMTP skipped - you can configure later in ${ENV_FILE}${NC}"
+        MAIL_HOST="smtp.gmail.com"
+        MAIL_PORT="587"
+        MAIL_USERNAME=""
+        MAIL_PASSWORD=""
+        MAIL_FROM_ADDRESS="noreply@${MAIL_FROM_DOMAIN}"
+    fi
+    
     # Calculate URLs based on mode
     if [ "$USE_DOMAIN" = true ]; then
         FINAL_APP_URL="https://$API_URL"
@@ -359,15 +407,13 @@ NEXT_PUBLIC_API_URL=${FINAL_API_URL}
 NEXT_PUBLIC_MEDIA_URL=${FINAL_MEDIA_URL}
 
 # ============================================
-# SMTP (Optional - configure if needed)
+# SMTP Configuration
 # ============================================
-MAIL_MAILER=smtp
-MAIL_HOST=smtp.gmail.com
-MAIL_PORT=587
-MAIL_USERNAME=
-MAIL_PASSWORD=
-MAIL_ENCRYPTION=tls
-MAIL_FROM_ADDRESS=noreply@${MAIL_FROM_DOMAIN}
+MAIL_HOST=${MAIL_HOST}
+MAIL_PORT=${MAIL_PORT}
+MAIL_USERNAME=${MAIL_USERNAME}
+MAIL_PASSWORD=${MAIL_PASSWORD}
+MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS}
 
 # ============================================
 # FCM (Optional - configure if needed)

@@ -1,4 +1,22 @@
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.4...v) (2025-12-01)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v) (2025-12-01)
+
+
+### Bug Fixes
+
+* **api:** Sửa lỗi giao diện API Keys, xoá dependency lỗi & đồng bộ hạ tầng ([e52c848](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e52c8489c14e916a0eb452b35714d4926fc55393))
+
+
+### Features
+
+* **service:** Thêm kiến trúc Hybrid cho MediaService với CORS và Nginx ([f5a62a3](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/f5a62a312b99615f3cb52b4850b3b885017dc2c2))
+
+
+
+# [1.1.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.5...v1.1.0) (2025-11-30)
+
+
+
+## [1.0.5](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.0.4...v1.0.5) (2025-11-30)
 
 
 ### Bug Fixes
@@ -12,7 +30,6 @@
 
 ### Features
 
-* **service:** Thêm kiến trúc Hybrid cho MediaService với CORS và Nginx ([f5a62a3](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/f5a62a312b99615f3cb52b4850b3b885017dc2c2))
 * **test:** thêm script test tự động API production ([08444a9](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/08444a99cf92924042517da7646b6444b60154d2))
 
 

@@ -83,6 +83,164 @@ if [ -z "$SERVICES_TO_REBUILD" ]; then
     exit 0
 fi
 
+# ============================================
+# STEP 2.5: ENVIRONMENT VARIABLES UPDATE (OPTIONAL)
+# ============================================
+echo ""
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+read -p "Do you want to update environment variables? [y/N]: " UPDATE_ENV
+
+if [[ "$UPDATE_ENV" =~ ^[Yy]$ ]]; then
+    ENV_FILE="${PROJECT_DIR}/infrastructure/docker/.env"
+    
+    if [ ! -f "$ENV_FILE" ]; then
+        echo -e "${RED}❌ .env file not found at: $ENV_FILE${NC}"
+    else
+        echo ""
+        echo -e "${BLUE}Select service to configure:${NC}"
+        echo "1) CoreAPI (SMTP, JWT, APP_KEY)"
+        echo "2) MediaService (MinIO credentials)"
+        echo "3) NotificationService (FCM, SMTP)"
+        echo "4) Custom (manual key entry)"
+        echo "5) Skip"
+        echo ""
+        read -p "Enter choice [1-5]: " SERVICE_CHOICE
+        
+        # Helper function to get current env value
+        get_env_value() {
+            local key=$1
+            grep -E "^${key}=" "$ENV_FILE" 2>/dev/null | cut -d '=' -f2- | tr -d '"' || echo ""
+        }
+        
+        # Helper function to update or append env value
+        set_env_value() {
+            local key=$1
+            local value=$2
+            
+            if grep -q "^${key}=" "$ENV_FILE"; then
+                # Update existing key (cross-platform sed)
+                if [[ "$OSTYPE" == "darwin"* ]]; then
+                    sed -i '' "s|^${key}=.*|${key}=${value}|" "$ENV_FILE"
+                else
+                    sed -i "s|^${key}=.*|${key}=${value}|" "$ENV_FILE"
+                fi
+                echo -e "${GREEN}✓ Updated ${key}${NC}"
+            else
+                # Append new key
+                echo "${key}=${value}" >> "$ENV_FILE"
+                echo -e "${GREEN}✓ Added ${key}${NC}"
+            fi
+        }
+        
+        # Process based on service choice
+        case $SERVICE_CHOICE in
+            1) # CoreAPI
+                echo ""
+                echo -e "${BLUE}━━━ CoreAPI Configuration ━━━${NC}"
+                echo ""
+                
+                # SMTP Configuration
+                echo -e "${YELLOW}SMTP Settings:${NC}"
+                CURRENT_HOST=$(get_env_value "MAIL_HOST")
+                read -p "SMTP Host [${CURRENT_HOST:-smtp.gmail.com}]: " NEW_HOST
+                [ -n "$NEW_HOST" ] && set_env_value "MAIL_HOST" "$NEW_HOST" || true
+                
+                CURRENT_PORT=$(get_env_value "MAIL_PORT")
+                read -p "SMTP Port [${CURRENT_PORT:-587}]: " NEW_PORT
+                [ -n "$NEW_PORT" ] && set_env_value "MAIL_PORT" "$NEW_PORT" || true
+                
+                CURRENT_USER=$(get_env_value "MAIL_USERNAME")
+                read -p "SMTP Username [${CURRENT_USER}]: " NEW_USER
+                [ -n "$NEW_USER" ] && set_env_value "MAIL_USERNAME" "$NEW_USER" || true
+                
+                echo -e "${YELLOW}For Gmail, use App Password: https://myaccount.google.com/apppasswords${NC}"
+                read -sp "SMTP Password (leave blank to keep current): " NEW_PASS
+                echo ""
+                [ -n "$NEW_PASS" ] && set_env_value "MAIL_PASSWORD" "$NEW_PASS" || true
+                
+                CURRENT_FROM=$(get_env_value "MAIL_FROM_ADDRESS")
+                read -p "From Address [${CURRENT_FROM}]: " NEW_FROM
+                [ -n "$NEW_FROM" ] && set_env_value "MAIL_FROM_ADDRESS" "$NEW_FROM" || true
+                
+                echo ""
+                echo -e "${YELLOW}App Settings:${NC}"
+                CURRENT_URL=$(get_env_value "APP_URL")
+                read -p "APP_URL [${CURRENT_URL}]: " NEW_APP_URL
+                [ -n "$NEW_APP_URL" ] && set_env_value "APP_URL" "$NEW_APP_URL" || true
+                
+                echo ""
+                echo -e "${GREEN}✅ CoreAPI configuration updated${NC}"
+                ;;
+                
+            2) # MediaService
+                echo ""
+                echo -e "${BLUE}━━━ MediaService Configuration ━━━${NC}"
+                echo ""
+                
+                CURRENT_MINIO_USER=$(get_env_value "MINIO_ROOT_USER")
+                read -p "MinIO User [${CURRENT_MINIO_USER:-admin}]: " NEW_MINIO_USER
+                [ -n "$NEW_MINIO_USER" ] && set_env_value "MINIO_ROOT_USER" "$NEW_MINIO_USER" || true
+                
+                read -sp "MinIO Password (leave blank to keep current): " NEW_MINIO_PASS
+                echo ""
+                if [ -n "$NEW_MINIO_PASS" ]; then
+                    set_env_value "MINIO_ROOT_PASSWORD" "$NEW_MINIO_PASS"
+                    set_env_value "AWS_SECRET_ACCESS_KEY" "$NEW_MINIO_PASS"
+                fi
+                
+                echo -e "${GREEN}✅ MediaService configuration updated${NC}"
+                ;;
+                
+            3) # NotificationService
+                echo ""
+                echo -e "${BLUE}━━━ NotificationService Configuration ━━━${NC}"
+                echo ""
+                
+                echo -e "${YELLOW}FCM Settings:${NC}"
+                CURRENT_FCM_PROJECT=$(get_env_value "FCM_PROJECT_ID")
+                read -p "FCM Project ID [${CURRENT_FCM_PROJECT}]: " NEW_FCM_PROJECT
+                [ -n "$NEW_FCM_PROJECT" ] && set_env_value "FCM_PROJECT_ID" "$NEW_FCM_PROJECT" || true
+                
+                CURRENT_FCM_EMAIL=$(get_env_value "FCM_CLIENT_EMAIL")
+                read -p "FCM Client Email [${CURRENT_FCM_EMAIL}]: " NEW_FCM_EMAIL
+                [ -n "$NEW_FCM_EMAIL" ] && set_env_value "FCM_CLIENT_EMAIL" "$NEW_FCM_EMAIL" || true
+                
+                read -sp "FCM Private Key (leave blank to keep current): " NEW_FCM_KEY
+                echo ""
+                [ -n "$NEW_FCM_KEY" ] && set_env_value "FCM_PRIVATE_KEY" "$NEW_FCM_KEY" || true
+                
+                echo -e "${GREEN}✅ NotificationService configuration updated${NC}"
+                ;;
+                
+            4) # Custom
+                echo ""
+                echo -e "${BLUE}━━━ Custom Configuration ━━━${NC}"
+                echo -e "${YELLOW}Enter key-value pairs (empty key to finish)${NC}"
+                echo ""
+                
+                while true; do
+                    read -p "Key: " CUSTOM_KEY
+                    [ -z "$CUSTOM_KEY" ] && break
+                    
+                    CURRENT_VAL=$(get_env_value "$CUSTOM_KEY")
+                    if [ -n "$CURRENT_VAL" ]; then
+                        echo "Current value: ${CURRENT_VAL}"
+                    fi
+                    
+                    read -p "Value: " CUSTOM_VALUE
+                    [ -n "$CUSTOM_VALUE" ] && set_env_value "$CUSTOM_KEY" "$CUSTOM_VALUE" || true
+                done
+                
+                echo -e "${GREEN}✅ Custom configuration updated${NC}"
+                ;;
+                
+            *)
+                echo -e "${YELLOW}Skipping environment update${NC}"
+                ;;
+        esac
+    fi
+fi
+
 # 3. Rebuild and Restart
 echo -e "${YELLOW}[3/3] Rebuilding services: $SERVICES_TO_REBUILD${NC}"
 
