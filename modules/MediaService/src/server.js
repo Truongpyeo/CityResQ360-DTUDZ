@@ -2,7 +2,8 @@ require('dotenv').config();
 const express = require('express');
 const cors = require('cors');
 const helmet = require('helmet');
-const connectDB = require('./config/database');
+const connectMySQL = require('./config/database');
+const connectMongoDB = require('./config/mongo');
 const mediaRoutes = require('./routes/media');
 
 const app = express();
@@ -41,9 +42,24 @@ app.use((error, req, res, next) => {
   });
 });
 
-// Connect to database and start server
-connectDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 Media Service running on port ${PORT}`);
-  });
-});
+// Connect to databases and start server
+const startServer = async () => {
+  try {
+    // Connect to MongoDB
+    await connectMongoDB();
+
+    // Test MySQL Connection
+    const connection = await connectMySQL.getConnection();
+    connection.release();
+    console.log('✅ MySQL Connected');
+
+    app.listen(PORT, () => {
+      console.log(`🚀 Media Service running on port ${PORT}`);
+    });
+  } catch (error) {
+    console.error('❌ Server startup failed:', error);
+    process.exit(1);
+  }
+};
+
+startServer();

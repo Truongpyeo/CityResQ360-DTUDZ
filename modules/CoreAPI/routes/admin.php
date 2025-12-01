@@ -137,5 +137,23 @@ Route::prefix('admin')->name('admin.')->group(function () {
             Route::patch('functions/update/{id}', [PermissionController::class, 'updateFunction'])->name('functions.update');
             Route::delete('functions/delete/{id}', [PermissionController::class, 'destroyFunction'])->name('functions.destroy');
         });
+
+        // Module Management (SuperAdmin only)
+        Route::prefix('modules')->name('modules.')->group(function () {
+            Route::get('dashboard', [\App\Http\Controllers\Admin\ModuleManagementController::class, 'dashboard'])->name('dashboard');
+            Route::get('all-requests', [\App\Http\Controllers\Admin\ModuleManagementController::class, 'allRequests'])->name('all-requests');
+            Route::get('/', [\App\Http\Controllers\Admin\ModuleManagementController::class, 'index'])->name('index');
+            Route::get('{moduleKey}', [\App\Http\Controllers\Admin\ModuleManagementController::class, 'show'])->name('show');
+            Route::get('{moduleKey}/requests', [\App\Http\Controllers\Admin\ModuleManagementController::class, 'requests'])->name('requests');
+            
+            // Request actions
+            Route::post('requests/{id}/approve', [\App\Http\Controllers\Admin\ModuleManagementController::class, 'approveRequest'])->name('requests.approve');
+            Route::post('requests/{id}/reject', [\App\Http\Controllers\Admin\ModuleManagementController::class, 'rejectRequest'])->name('requests.reject');
+            
+            // Credential actions
+            Route::post('credentials/{id}/regenerate', [\App\Http\Controllers\Admin\ModuleManagementController::class, 'regenerateSecret'])->name('credentials.regenerate');
+            Route::post('credentials/{id}/revoke', [\App\Http\Controllers\Admin\ModuleManagementController::class, 'revokeCredential'])->name('credentials.revoke');
+            Route::post('credentials/{id}/restore', [\App\Http\Controllers\Admin\ModuleManagementController::class, 'restoreCredential'])->name('credentials.restore');
+        });
     });
 });
