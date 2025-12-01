@@ -8,6 +8,8 @@
 
 ### Features
 
+* **deploy:** Thêm quản lý env tự động & chuẩn hóa biến MAIL_* ([a494741](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a494741edfe1cde59db1e3393c081794268eed27))
+* **deploy:** Thêm quản lý env tự động & chuẩn hóa biến MAIL_* ([c0ccdd2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/c0ccdd23e1aca9586342b0942a7c70783574948d))
 * **service:** Thêm kiến trúc Hybrid cho MediaService với CORS và Nginx ([f5a62a3](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/f5a62a312b99615f3cb52b4850b3b885017dc2c2))
 
 
