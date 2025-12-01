@@ -21,13 +21,50 @@
 
 use Illuminate\Support\Facades\Route;
 use Inertia\Inertia;
+use App\Http\Controllers\DocsController;
 
 // Test route
 Route::get('/test', function () {
     return Inertia::render('Test');
 });
 
-// CoreAPI chỉ là Admin Panel - redirect root về admin login
+// ==========================================
+// CLIENT AUTHENTICATION
+// ==========================================
+Route::get('/login', [\App\Http\Controllers\Auth\AuthController::class, 'showLogin'])->name('login');
+Route::post('/login', [\App\Http\Controllers\Auth\AuthController::class, 'login']);
+Route::get('/register', [\App\Http\Controllers\Auth\AuthController::class, 'showRegister'])->name('register');
+Route::post('/register', [\App\Http\Controllers\Auth\AuthController::class, 'register']);
+
+Route::post('/logout', [\App\Http\Controllers\Auth\AuthController::class, 'logout'])->middleware('auth:web')->name('logout');
+
+// ==========================================
+// PUBLIC API DOCUMENTATION
+// ==========================================
+Route::prefix('documents')->name('docs.')->group(function () {
+    Route::get('/', [DocsController::class, 'index'])->name('index');
+    Route::get('/{service}', [DocsController::class, 'show'])->name('service');
+});
+
+// ==========================================
+// CLIENT PORTAL
+// ==========================================
+Route::middleware(['auth:web'])->prefix('client')->name('client.')->group(function () {
+    // Dashboard / Homepage
+    Route::get('/', [\App\Http\Controllers\Client\ClientPortalController::class, 'dashboard'])->name('dashboard');
+
+    // Module Integration
+    Route::get('/modules', [\App\Http\Controllers\Client\ClientPortalController::class, 'modules'])->name('modules');
+    Route::get('/modules/{moduleKey}/register', [\App\Http\Controllers\Client\ClientPortalController::class, 'registerForm'])->name('modules.register');
+    Route::post('/modules/{moduleKey}/register', [\App\Http\Controllers\Client\ClientPortalController::class, 'registerModule'])->name('modules.register.submit');
+
+    // API Keys & Usage
+    Route::get('/api-keys', [\App\Http\Controllers\Client\ClientPortalController::class, 'apiKeys'])->name('api-keys');
+    Route::post('/credentials/{id}/refresh-secret', [\App\Http\Controllers\Client\ClientPortalController::class, 'refreshSecret'])->name('credentials.refresh-secret');
+    Route::get('/usage', [\App\Http\Controllers\Client\ClientPortalController::class, 'usage'])->name('usage');
+});
+
+// Public Landing Page
 Route::get('/', function () {
-    return redirect()->route('admin.login');
+    return Inertia::render('Welcome');
 })->name('home');

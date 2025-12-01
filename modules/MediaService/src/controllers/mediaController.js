@@ -9,9 +9,9 @@ class MediaController {
   async upload(req, res) {
     try {
       const file = req.file;
-      const userId = req.user.id;
+      const userId = req.credential.user_id;
       const { type, lien_ket_den, mo_ta, id_lien_ket } = req.body;
-      
+
       // Auto-detect type if not provided
       const mediaType = type || (req.file.mimetype.startsWith('image/') ? 'image' : 'video');
 
@@ -69,11 +69,11 @@ class MediaController {
           storagePath,
           file.mimetype
         );
-        
+
         // Cleanup temp file
         await fs.unlink(file.path);
-        
-        processedData = { 
+
+        processedData = {
           url: videoUrl,
           metadata: {}
         };
@@ -158,7 +158,7 @@ class MediaController {
       }
 
       // Check permission (only owner can delete)
-      if (media.nguoi_dung_id !== req.user.id) {
+      if (media.nguoi_dung_id !== req.credential.user_id) {
         return res.status(403).json({
           success: false,
           message: 'Không có quyền xóa file này'
@@ -169,7 +169,7 @@ class MediaController {
       await storageService.deleteFile(media.ten_file_luu_tru);
       if (media.duong_dan_thumbnail) {
         const thumbnailPath = media.ten_file_luu_tru.replace(
-          path.basename(media.ten_file_luu_tru), 
+          path.basename(media.ten_file_luu_tru),
           `thumb_${path.basename(media.ten_file_luu_tru)}`
         );
         await storageService.deleteFile(thumbnailPath);
@@ -193,7 +193,7 @@ class MediaController {
 
   async myMedia(req, res) {
     try {
-      const userId = req.user.id;
+      const userId = req.credential.user_id;
       const { page = 1, limit = 20, type } = req.query;
 
       const query = {
