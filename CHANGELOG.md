@@ -8,6 +8,7 @@
 
 ### Features
 
+* **deploy:** Thêm quản lý env tự động & chuẩn hóa biến MAIL_* ([c0ccdd2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/c0ccdd23e1aca9586342b0942a7c70783574948d))
 * **service:** Thêm kiến trúc Hybrid cho MediaService với CORS và Nginx ([f5a62a3](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/f5a62a312b99615f3cb52b4850b3b885017dc2c2))
 
 
@@ -22,7 +23,6 @@
 ### Bug Fixes
 
 * **api:** Fix Api Update Media, Mediaservice ([e51178e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e51178e8a384bf9653593d4d1a59da371e46d893))
-* **api:** Sửa lỗi giao diện API Keys, xoá dependency lỗi & đồng bộ hạ tầng ([e52c848](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e52c8489c14e916a0eb452b35714d4926fc55393))
 * **auto:** fix create-release.sh lần 2 ([44b66c4](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/44b66c4718eb72cfa0215ae5896e92590159804e))
 * **auto:** Fix file create-release.sh ([5f585ef](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/5f585efbbe5cde70f10785084f0e2465e9e45884))
 * **auto:** Sửa auto release cho .sh ([57984cf](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/57984cf632953cf341ad65a8a517c0a940aa807a))
