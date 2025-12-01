@@ -12,7 +12,8 @@ import {
   Menu,
   X,
   ChevronDown,
-  BarChart3
+  BarChart3,
+  Cpu
 } from 'lucide-react';
 
 interface AdminLayoutProps {
@@ -28,6 +29,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     { name: 'Quản lý phản ánh', href: '/admin/reports', icon: FileText },
     { name: 'Người dùng', href: '/admin/users', icon: Users },
     { name: 'Cơ quan xử lý', href: '/admin/agencies', icon: Building2 },
+    { name: 'API Modules', href: '/admin/modules/all-requests', icon: Cpu },
     { name: 'Phân tích & Thống kê', href: '/admin/analytics', icon: BarChart3 },
     { name: 'Quản lý Admin', href: '/admin/admins', icon: UserCog },
     { name: 'Phân quyền', href: '/admin/permissions/roles', icon: Shield },
@@ -62,11 +64,10 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                       <li key={item.name}>
                         <Link
                           href={item.href}
-                          className={`group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 ${
-                            isActive
+                          className={`group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 ${isActive
                               ? 'bg-blue-50 text-blue-600'
                               : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
-                          }`}
+                            }`}
                         >
                           <item.icon className="h-6 w-6 shrink-0" />
                           {item.name}

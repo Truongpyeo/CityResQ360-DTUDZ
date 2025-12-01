@@ -380,6 +380,12 @@ services:
             OPTIMIZED_HEIGHT: 1080
             JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
             CORS_ORIGINS: ${MEDIASERVICE_CORS_ORIGINS:-*}
+            
+            # CoreAPI Database Connection (for Auth)
+            COREAPI_DB_HOST: mysql
+            COREAPI_DB_USER: cityresq
+            COREAPI_DB_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+            COREAPI_DB_NAME: cityresq_db
         volumes:
             - ../../modules/MediaService:/app
             - media_uploads:/app/uploads

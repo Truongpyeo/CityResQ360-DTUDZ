@@ -1,25 +1,26 @@
-const mongoose = require('mongoose');
+const mysql = require('mysql2/promise');
 
-const connectDB = async () => {
-  try {
-    const uri = process.env.MONGODB_URI;
-    console.log('🔌 Connecting to MongoDB...', uri.replace(/:[^:@]+@/, ':****@')); // Hide password in logs
-    
-    const options = {
-      authSource: 'admin',
-      retryWrites: true,
-      w: 'majority',
-      serverSelectionTimeoutMS: 5000,
-      socketTimeoutMS: 45000,
-    };
-    
-    await mongoose.connect(uri, options);
-    console.log('✅ MongoDB connected');
-  } catch (error) {
-    console.error('❌ MongoDB connection error:', error.message);
-    console.error('Full error:', error);
-    process.exit(1);
-  }
-};
+// Create connection pool to CoreAPI database
+const pool = mysql.createPool({
+  host: process.env.COREAPI_DB_HOST || 'cityresq-mysql',
+  user: process.env.COREAPI_DB_USER || 'root',
+  password: process.env.COREAPI_DB_PASSWORD || '',
+  database: process.env.COREAPI_DB_NAME || 'cityresq360',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 0
+});
 
-module.exports = connectDB;
+// Test connection
+pool.getConnection()
+  .then(connection => {
+    console.log('✅ Connected to CoreAPI database');
+    connection.release();
+  })
+  .catch(error => {
+    console.error('❌ CoreAPI database connection failed:', error.message);
+  });
+
+module.exports = pool;
