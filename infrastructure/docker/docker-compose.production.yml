@@ -309,6 +309,16 @@ services:
 
             JWT_SECRET: ${JWT_SECRET}
             JWT_TTL: 60
+            
+            MAIL_MAILER: smtp
+            MAIL_HOST: ${MAIL_HOST:-smtp.gmail.com}
+            MAIL_PORT: ${MAIL_PORT:-587}
+            MAIL_USERNAME: ${MAIL_USERNAME}
+            MAIL_PASSWORD: ${MAIL_PASSWORD}
+            MAIL_ENCRYPTION: tls
+            MAIL_FROM_ADDRESS: ${MAIL_FROM_ADDRESS:-noreply@cityresq360.io.vn}
+            MAIL_FROM_NAME: "${APP_NAME:-CityResQ360}"
+
             MEDIA_SERVICE_URL: ${MEDIA_SERVICE_URL:-http://media-service:8004/api/v1}
             NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL:-http://notification-service:8006/api/v1}
             WALLET_SERVICE_URL: ${WALLET_SERVICE_URL:-http://wallet-service:8005/api/v1}
