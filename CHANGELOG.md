@@ -5,6 +5,7 @@
 
 * add db credentials for media service ([a060847](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a060847ed9ddbfd6ef0502623ad093657463ab54))
 * **api:** Sửa lỗi giao diện API Keys, xoá dependency lỗi & đồng bộ hạ tầng ([e52c848](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e52c8489c14e916a0eb452b35714d4926fc55393))
+* **api:** Sửa lỗi Report API (SQL injection và priority mapping) ([2427602](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/242760233beb43769586029308f6ce7ab04b29e4))
 * **docker:** Expose MinIO ports and update Nginx proxy config ([7197899](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/719789958bab03536d1e0189ac8af9f7da2bbeb7))
 * **docker:** Sửa docker composer ([39e49df](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/39e49df98deca5331b9999390f5b5f2e386d22e5))
 * **media-service:** Bỏ IP whitelisting, chỉ giữ dual auth (Sanctum + JWT) ([bb0e24c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/bb0e24c20163dd820b77fcfb1bca37ffb4fe1a22))
