@@ -15,11 +15,18 @@ class StorageService {
       );
 
       // Generate public URL
-      // Use CDN URL if available, otherwise use MinIO endpoint
-      const baseUrl = process.env.CDN_URL || `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}`;
-      const url = `${baseUrl}/${bucketName}/${objectName}`;
-      
-      return url;
+      // Use PUBLIC_MEDIA_URL for client-facing URLs (e.g., https://media.cityresq360.io.vn)
+      // Falls back to MinIO internal URL for development
+      const publicUrl = process.env.PUBLIC_MEDIA_URL;
+
+      if (publicUrl) {
+        // Production: use public domain
+        return `${publicUrl}/${bucketName}/${objectName}`;
+      } else {
+        // Development: use MinIO endpoint
+        const baseUrl = `http://${process.env.MINIO_ENDPOINT}:${process.env.MINIO_PORT}`;
+        return `${baseUrl}/${bucketName}/${objectName}`;
+      }
     } catch (error) {
       throw new Error(`Upload failed: ${error.message}`);
     }

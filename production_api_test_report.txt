@@ -4,14 +4,14 @@ PRODUCTION API TEST REPORT
 ================================================================================
 
 Server: https://api.cityresq360.io.vn
-Tested at: 2025-12-02 19:58:12
+Tested at: 2025-12-02 20:14:33
 
 Overall Statistics:
    Total Endpoints: 80
    Tested: 66
    Skipped: 14 (for safety)
-   ✅ Success: 65 (98.5%)
-   ❌ Failed: 1
+   ✅ Success: 66 (100.0%)
+   ❌ Failed: 0
    💥 Errors: 0
 
 ================================================================================
@@ -28,10 +28,10 @@ DETAILED RESULTS BY FOLDER
 
 [Authentication (Protected)]
 --------------------------------------------------------------------------------
-✅ [GET   ] Get Current User                              200 (0.12s)
+✅ [GET   ] Get Current User                              200 (0.10s)
 ⏭️ [POST  ] Logout                                        SKIPPED
 ⏭️ [POST  ] Refresh Token                                 SKIPPED
-✅ [PUT   ] Update Profile                                200 (0.10s)
+✅ [PUT   ] Update Profile                                200 (0.09s)
 ⏭️ [POST  ] Change Password                               SKIPPED
 ✅ [POST  ] Verify Email                                  200 (0.09s)
 ✅ [POST  ] Verify Phone                                  200 (0.09s)
@@ -39,17 +39,17 @@ DETAILED RESULTS BY FOLDER
 
 [Reports]
 --------------------------------------------------------------------------------
-✅ [GET   ] List Reports                                  200 (0.20s)
-✅ [POST  ] Create Report                                 201 (0.12s)
-✅ [GET   ] Get My Reports                                200 (0.11s)
-✅ [GET   ] Get Nearby Reports                            200 (0.11s)
-✅ [GET   ] Get Trending Reports                          200 (0.12s)
-✅ [GET   ] Get Report Detail                             200 (0.11s)
+✅ [GET   ] List Reports                                  200 (0.19s)
+✅ [POST  ] Create Report                                 201 (0.11s)
+✅ [GET   ] Get My Reports                                200 (0.10s)
+✅ [GET   ] Get Nearby Reports                            200 (0.10s)
+✅ [GET   ] Get Trending Reports                          200 (0.11s)
+✅ [GET   ] Get Report Detail                             200 (0.10s)
 ⏭️ [PUT   ] Update Report                                 SKIPPED
 ⏭️ [DELETE] Delete Report                                 SKIPPED
-✅ [POST  ] Vote Report                                   200 (0.12s)
+✅ [POST  ] Vote Report                                   200 (0.11s)
 ✅ [POST  ] Increment View                                200 (0.10s)
-✅ [POST  ] Rate Report                                   200 (0.09s)
+✅ [POST  ] Rate Report                                   200 (0.10s)
 
 [Comments]
 --------------------------------------------------------------------------------
@@ -62,14 +62,14 @@ DETAILED RESULTS BY FOLDER
 
 [Media]
 --------------------------------------------------------------------------------
-❌ [POST  ] Upload Media                                  500
+✅ [POST  ] Upload Media                                  201 (0.33s)
 ✅ [GET   ] Get My Media                                  200 (0.09s)
 ✅ [GET   ] Get Media Detail                              200 (0.09s)
 ⏭️ [DELETE] Delete Media                                  SKIPPED
 
 [Map & Location]
 --------------------------------------------------------------------------------
-✅ [GET   ] Get Reports on Map                            200 (0.09s)
+✅ [GET   ] Get Reports on Map                            200 (0.11s)
 ✅ [GET   ] Get Heatmap Data                              200 (0.09s)
 ✅ [GET   ] Get Map Clusters                              200 (0.09s)
 ✅ [GET   ] Get GTFS Routes                               200 (0.09s)
@@ -89,23 +89,23 @@ DETAILED RESULTS BY FOLDER
 ✅ [GET   ] Get My Overview Stats                         200 (0.10s)
 ✅ [GET   ] Get Categories Stats                          200 (0.09s)
 ✅ [GET   ] Get Timeline Stats                            200 (0.09s)
-✅ [GET   ] Get Leaderboard                               200 (0.12s)
+✅ [GET   ] Get Leaderboard                               200 (0.10s)
 ✅ [GET   ] Get City Stats                                200 (0.09s)
 
 [Wallet & CityPoints]
 --------------------------------------------------------------------------------
 ✅ [GET   ] Get Wallet Balance                            200 (0.09s)
-✅ [GET   ] Get Transactions History                      200 (0.10s)
-✅ [POST  ] Redeem Reward                                 200 (0.14s)
+✅ [GET   ] Get Transactions History                      200 (0.09s)
+✅ [POST  ] Redeem Reward                                 200 (0.12s)
 ✅ [GET   ] Get Available Rewards                         200 (0.09s)
 ✅ [GET   ] Get Balance                                   200 (0.09s)
-✅ [GET   ] Get Transactions                              200 (0.09s)
+✅ [GET   ] Get Transactions                              200 (0.11s)
 ✅ [GET   ] List Rewards                                  200 (0.09s)
 
 [Notifications]
 --------------------------------------------------------------------------------
 ✅ [GET   ] Get Notifications                             200 (0.09s)
-✅ [GET   ] Get Unread Notifications                      200 (0.09s)
+✅ [GET   ] Get Unread Notifications                      200 (0.10s)
 ✅ [GET   ] Get Unread Count                              200 (0.09s)
 ✅ [POST  ] Mark as Read                                  200 (0.09s)
 ✅ [POST  ] Mark All as Read                              200 (0.09s)
@@ -116,17 +116,17 @@ DETAILED RESULTS BY FOLDER
 ✅ [GET   ] Get Unread Count                              200 (0.09s)
 ✅ [POST  ] Mark as Read                                  200 (0.09s)
 ✅ [POST  ] Mark All as Read                              200 (0.09s)
-✅ [PUT   ] Update Notification Settings                  200 (0.10s)
+✅ [PUT   ] Update Notification Settings                  200 (0.09s)
 
 [Categories & Priorities]
 --------------------------------------------------------------------------------
 ✅ [GET   ] List Categories                               200 (0.09s)
-✅ [GET   ] Get Category Detail                           200 (0.09s)
-✅ [GET   ] List Priorities                               200 (0.08s)
+✅ [GET   ] Get Category Detail                           200 (0.16s)
+✅ [GET   ] List Priorities                               200 (0.09s)
 
 [Authentication - Missing]
 --------------------------------------------------------------------------------
-✅ [GET   ] Check Login Status                            200 (0.10s)
+✅ [GET   ] Check Login Status                            200 (0.09s)
 
 [User Statistics]
 --------------------------------------------------------------------------------
@@ -142,5 +142,5 @@ DETAILED RESULTS BY FOLDER
 ⏭️ [POST  ] Sync Weather Data (Admin)                     SKIPPED
 
 ================================================================================
-Test completed at: 2025-12-02 19:58:12
+Test completed at: 2025-12-02 20:14:33
 ================================================================================
