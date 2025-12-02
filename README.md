@@ -1,6 +1,7 @@
 # 🌆 CityResQ360 — Chung tay vì một đô thị thông minh & an toàn
 
 <div align="center">
+  <img src="./static/logo21.png" alt="CityResQ360 Logo" width="100"/>
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
 
@@ -13,16 +14,19 @@
   <a href="https://nguyenthai11103.github.io/DTU-CityResQ360-documents/intro">
     <img src="https://img.shields.io/badge/📚_Docs-CityResQ360-1976D2?style=for-the-badge" alt="Documentation"/>
   </a>
+  <a href="https://api.cityresq360.io.vn/">
+    <img src="https://img.shields.io/badge/🪛_Services-CityResQ360-edf037?style=for-the-badge" alt="Services"/>
+  </a>
 
 </div>
 
-![Banner](/static/img/Banner.png)
+![Banner](./static/img/Banner.png)
 
 > _"Kết nối người dân - Chính quyền - Công nghệ"_
 
 ## 📖 Tổng Quan
 
-**CityResQ360** là một mã nguồn mở, được phát triển bởi đội **DTU-DZ** đến từ **Đại học Duy Tân** để tham gia cuộc thi **Olympic Tin học Sinh viên - Mã nguồn mở năm 2025**. Dự án được thiết kế trong lĩnh vực **xây dựng đô thị thông minh và an toàn**, với các mục tiêu:
+**CityResQ360** là một dự án mã nguồn mở, được phát triển bởi đội **DTU-DZ** đến từ **Đại học Duy Tân** để tham gia cuộc thi **Olympic Tin học Sinh viên - Phần mềm nguồn mở năm 2025**. Dự án được thiết kế trong lĩnh vực **xây dựng đô thị thông minh và an toàn hỗ trợ chuyển đổi số**, với các mục tiêu:
 
 🔗 **Kết nối người dân - chính quyền - công nghệ** một cách hiệu quả  
 📊 **Quản lý và xử lý sự cố đô thị** một cách chuyên nghiệp  
@@ -35,7 +39,7 @@ Dự án tập trung vào việc xây dựng một nền tảng toàn diện, k�
 
 ## 👥 Đối tượng hướng đến
 
-![DoiTuong](/static/img/doituong.png)
+![DoiTuong](./static/img/doituong.png)
 
 1. **Người dân:** Gửi phản ánh cực nhanh (kèm ảnh, vị trí), nhận cảnh báo nguy hiểm, và tích điểm **CityPoint** đổi quà.
 2. **Cơ quan chức năng:** Có công cụ quản lý trực quan, nắm bắt ngay các điểm nóng để điều phối xử lý.
@@ -76,7 +80,7 @@ Dự án tập trung vào việc xây dựng một nền tảng toàn diện, k�
 
 ## 🗺️ Kiến Trúc Hệ Thống
 
-![KienTruc](/static/img/kientruc.png)
+![KienTruc](./static/img/kientruc.png)
 
 Hệ thống được thiết kế theo kiến trúc Microservices hiện đại, đảm bảo khả năng mở rộng và xử lý dữ liệu lớn:
 
@@ -91,6 +95,17 @@ Hệ thống được thiết kế theo kiến trúc Microservices hiện đại
 | **Database**       | `PostgreSQL` + `PostGIS` (GeoData), `MinIO` (Storage), `OpenSearch`,`MongoDB`, `MySQL` |
 
 ---
+
+## 🪛 Service của CityResQ360
+
+Xem chi tiết các service của CityResQ360 tại đây [Service docs](https://api.cityresq360.io.vn/).
+
+Tài khoản demo hoặc có thể đăng kí
+
+```
+username: admin@master.com
+password: 123456
+```
 
 ## 🔗 Linked Open Data - NGSI-LD
 
@@ -132,7 +147,7 @@ Sử dụng **FiWARE Smart Data Models** - Alert:
 
 ## 🌱 Hướng phát triển
 
-Dự án không chỉ dừng lại ở việc phản ánh sự cố mà còn hướng tới một hệ sinh thái đô thị thông minh toàn diện:
+Dự án không chỉ dừng lại ở việc cải thiện tốc độ phản ánh sự cố mà còn hướng tới một hệ sinh thái đô thị thông minh toàn diện:
 
 ### 🌐 Mở rộng & Kết nối
 
@@ -152,13 +167,9 @@ Dự án không chỉ dừng lại ở việc phản ánh sự cố mà còn hư
 
 ---
 
-## ⚖️ Quy Tắc Ứng Xử
-
-Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file [CODE_OF_CONDUCT.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/feat/document/CODE_OF_CONDUCT.md) để biết thêm chi tiết về các quy tắc và hành vi được chấp nhận.
-
 ---
 
-## 🗂️ Cấu trúc dự án (Project Structure)
+## 🗂️ Cấu trúc dự án
 
 ```
 CityResQ360-DTUDZ/
@@ -203,11 +214,13 @@ CityResQ360-DTUDZ/
 └── CONTRIBUITING.md           # Contribution guidelines
 ```
 
+## 🛠️ Hướng dẫn cài đặt
+
+Xem file [Setup.md](Setup.md) để biết thêm chi tiết về cách cài đặt hệ thống.
+
 ---
 
 ## 🤝 Đóng Góp Cho Dự Án
-
-Dự án này là mã nguồn mở, được phát triển bởi đội DTU_DZ1 đến từ Đại học Duy Tân để tham gia cuộc thi Olympic Tin học Sinh viên - Mã nguồn mở năm 2025 nên rất hoan nghênh cộng đồng tham gia đóng góp!
 
 ### 🌱 Quy Trình Đóng Góp
 
@@ -254,6 +267,8 @@ git push -u origin feat/<new-feature>
 - Chọn branch của bạn để merge
 - Điền thông tin mô tả chi tiết
 
+Xem
+
 ### 📝 Issues
 
 - Báo cáo lỗi và đề xuất tính năng mới tại [GitHub Issues](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/issues)
@@ -261,6 +276,10 @@ git push -u origin feat/<new-feature>
 - Xem thêm hướng dẫn đóng góp tại [CONTRIBUTING.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md)
 
 ---
+
+## ⚖️ Quy Tắc Ứng Xử
+
+Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file [CODE_OF_CONDUCT.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/feat/document/CODE_OF_CONDUCT.md) để biết thêm chi tiết về các quy tắc và hành vi được chấp nhận.
 
 ## 👥 Người Hướng Dẫn
 
