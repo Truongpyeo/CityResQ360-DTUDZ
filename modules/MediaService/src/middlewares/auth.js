@@ -36,6 +36,15 @@ async function authenticate(req, res, next) {
  */
 async function verifySanctum(req, res, next, token) {
   try {
+    // Sanctum tokens have format: {id}|{plaintext}
+    // Laravel only hashes the plaintext part (after the |)
+    const parts = token.split('|');
+    if (parts.length !== 2) {
+      return res.status(401).json({ error: 'Invalid token format' });
+    }
+
+    const plainTextToken = parts[1]; // Only the part after |
+
     // Query personal_access_tokens table
     const [rows] = await db.query(`
       SELECT 
@@ -44,7 +53,7 @@ async function verifySanctum(req, res, next, token) {
         last_used_at
       FROM personal_access_tokens
       WHERE token = SHA2(?, 256)
-    `, [token]);
+    `, [plainTextToken]);
 
     if (rows.length === 0) {
       return res.status(401).json({ error: 'Invalid or expired token' });
@@ -83,7 +92,7 @@ async function verifySanctum(req, res, next, token) {
       UPDATE personal_access_tokens
       SET last_used_at = NOW()
       WHERE token = SHA2(?, 256)
-    `, [token]);
+    `, [plainTextToken]);
 
     console.log(`✅ Sanctum auth: user_id=${user.id}, role=${user.vai_tro}`);
     next();
