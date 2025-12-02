@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 
+<<<<<<< HEAD
 // IP whitelist for CoreAPI container (Docker internal network)
 const ALLOWED_IPS = [
   '172.18.0.0/16',  // Docker network range
@@ -11,6 +12,8 @@ const ALLOWED_IPS = [
 // Rate limiting cache (in-memory, consider Redis for production)
 const rateLimitCache = new Map();
 
+=======
+>>>>>>> 437b586303ade75fbb1a811acfbb318a2bdb33c3
 /**
  * Main authentication middleware - supports both Sanctum and JWT tokens
  */
@@ -46,6 +49,7 @@ async function authenticate(req, res, next) {
  */
 async function verifySanctum(req, res, next, token) {
   try {
+<<<<<<< HEAD
     // IP Whitelisting: Only allow CoreAPI container
     const clientIP = req.ip || req.connection.remoteAddress;
     if (!isIPAllowed(clientIP)) {
@@ -56,6 +60,8 @@ async function verifySanctum(req, res, next, token) {
       });
     }
 
+=======
+>>>>>>> 437b586303ade75fbb1a811acfbb318a2bdb33c3
     // Query personal_access_tokens table
     const [rows] = await db.query(`
       SELECT 
@@ -209,6 +215,7 @@ async function verifyJWT(req, res, next, token, decoded) {
 }
 
 /**
+<<<<<<< HEAD
  * Check if IP is in whitelist (for Sanctum tokens only)
  */
 function isIPAllowed(ip) {
@@ -259,6 +266,8 @@ async function checkRateLimit(token) {
 }
 
 /**
+=======
+>>>>>>> 437b586303ade75fbb1a811acfbb318a2bdb33c3
  * Get role-based upload limits
  */
 function getRoleLimits(role) {
@@ -272,6 +281,7 @@ function getRoleLimits(role) {
   return limits[role] || limits[0]; // Default to Citizen limits
 }
 
+<<<<<<< HEAD
 // Clean up rate limit cache every 5 minutes
 setInterval(() => {
   const now = Date.now();
@@ -284,3 +294,6 @@ setInterval(() => {
 
 module.exports = authenticate;
 
+=======
+module.exports = authenticate;
+>>>>>>> 437b586303ade75fbb1a811acfbb318a2bdb33c3
