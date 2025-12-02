@@ -122,6 +122,7 @@ OLP_TASKS.md
 
 # Demo Scenarios (local only)
 docs/DEMO_SCENARIO.md
+docs/DOCKER_CHEATSHEET.md
 
 # Postman Generation Scripts
 scripts/update_postman_collection.py
