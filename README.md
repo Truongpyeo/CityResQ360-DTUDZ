@@ -1,20 +1,20 @@
 # 🌆 CityResQ360 — Chung tay vì một đô thị thông minh & an toàn
 
 <div align="center">
-  <img src="./static/logo21.png" alt="CityResQ360 Logo" width="200"/>
+  <img src="./static/logo21.png" alt="CityResQ360 Logo" width="250"/>
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
 
 [🤝 Đóng Góp](CONTRIBUTING.md) •
 [📜 Changelog](CHANGELOG.md)
 
-  <a href="">
-    <img src="https://img.shields.io/badge/🚀_Demo-CityResQ360-00C853?style=for-the-badge" alt="Demo System"/>
+  <a href="https://api.cityresq360.io.vn/">
+    <img src="https://img.shields.io/badge/🚀_Website-CityResQ360-00C853?style=for-the-badge" alt="Demo System"/>
   </a>
   <a href="https://nguyenthai11103.github.io/DTU-CityResQ360-documents/intro">
     <img src="https://img.shields.io/badge/📚_Docs-CityResQ360-1976D2?style=for-the-badge" alt="Documentation"/>
   </a>
-  <a href="https://api.cityresq360.io.vn/">
+  <a href="https://api.cityresq360.io.vn/documents">
     <img src="https://img.shields.io/badge/🪛_Services-CityResQ360-edf037?style=for-the-badge" alt="Services"/>
   </a>
 
@@ -216,7 +216,45 @@ CityResQ360-DTUDZ/
 
 ## 🛠️ Hướng dẫn cài đặt
 
-Xem file [Setup.md](Setup.md) để biết thêm chi tiết về cách cài đặt hệ thống.
+### 🚀 Cài đặt nhanh với docker
+
+**Yêu cầu**: Docker, Docker Compose, Git
+
+```bash
+# 1. Clone repository
+git clone https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ.git
+cd CityResQ360-DTUDZ
+
+# 2. Cấu hình environment
+cp modules/CoreAPI/.env.example modules/CoreAPI/.env
+
+# 3. Tạo cấu hình MQTT
+mkdir -p infrastructure/mosquitto/config
+cat > infrastructure/mosquitto/config/mosquitto.conf << 'EOF'
+listener 1883
+allow_anonymous true
+persistence true
+persistence_location /mosquitto/data/
+log_dest file /mosquitto/log/mosquitto.log
+EOF
+
+# 4. Khởi động hệ thống
+cd infrastructure/docker
+docker compose up -d
+
+# 5. Chạy migrations
+docker exec -it cityresq-coreapi php artisan migrate --seed
+docker exec -it cityresq-coreapi php artisan key:generate
+```
+
+**Truy cập**:
+
+- 🌐 CoreAPI: http://localhost:8000
+- 📱 Web App: http://localhost:3000
+- 📦 MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
+- 🐰 RabbitMQ: http://localhost:15672 (cityresq/cityresq_password)
+
+> 📖 Xem file [Setup.md](Setup.md) để biết thêm chi tiết về cách cài đặt hệ thống.
 
 ---
 
