@@ -10,6 +10,7 @@
 * **media-service:** Clean dual auth without IP whitelisting ([3d515ce](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/3d515cedb15403d456243156cc58b72782d4e023))
 * **media-service:** Hash only plaintext part of Sanctum token ([d55420b](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/d55420b3538a393c7fb926f5d7a59cfdd6a8e84f))
 * **media-service:** Remove non-existent revoked_at and expires_at columns ([144ed00](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/144ed00c2ee7c59b3ce9a1540869c2b6ec2ea34f))
+* **media-service:** Return public URLs instead of internal MinIO URLs ([b6b0ac1](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b6b0ac1b0db58c3d062a26aa5919d8bbd29f3728))
 * **media:** Fix lỗi upload media và cài đặt sharp ([e0eca00](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e0eca005b96af259222dbec985d43423b395514a))
 
 
