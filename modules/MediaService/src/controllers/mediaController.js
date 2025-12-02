@@ -39,29 +39,47 @@ class MediaController {
 
         processedData = await imageProcessor.processImage(file.path, outputDir);
 
-        // Upload original
-        const originalUrl = await storageService.uploadFile(
-          processedData.original,
-          storagePath,
-          file.mimetype
-        );
+        if (processedData) {
+          // Upload original
+          const originalUrl = await storageService.uploadFile(
+            processedData.original,
+            storagePath,
+            file.mimetype
+          );
 
-        // Upload thumbnail
-        const thumbnailPath = `${dateFolder}/thumb_${uniqueFilename}`;
-        thumbnailUrl = await storageService.uploadFile(
-          processedData.thumbnail,
-          thumbnailPath,
-          'image/jpeg'
-        );
+          // Upload thumbnail
+          const thumbnailPath = `${dateFolder}/thumb_${uniqueFilename}`;
+          thumbnailUrl = await storageService.uploadFile(
+            processedData.thumbnail,
+            thumbnailPath,
+            'image/jpeg'
+          );
 
-        // Cleanup temp files
-        await imageProcessor.cleanup([
-          file.path,
-          processedData.original,
-          processedData.thumbnail
-        ]);
+          // Cleanup temp files
+          await imageProcessor.cleanup([
+            file.path,
+            processedData.original,
+            processedData.thumbnail
+          ]);
 
-        processedData.url = originalUrl;
+          processedData.url = originalUrl;
+        } else {
+          // Fallback when Sharp is missing: Upload original only
+          console.warn('⚠️ Sharp missing, skipping optimization');
+          const originalUrl = await storageService.uploadFile(
+            file.path,
+            storagePath,
+            file.mimetype
+          );
+
+          // Cleanup temp file
+          await fs.unlink(file.path);
+
+          processedData = {
+            url: originalUrl,
+            metadata: {}
+          };
+        }
       } else {
         // Video upload (simple version)
         const videoUrl = await storageService.uploadFile(
