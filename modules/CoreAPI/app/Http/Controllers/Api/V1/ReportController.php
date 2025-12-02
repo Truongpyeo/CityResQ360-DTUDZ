@@ -74,9 +74,29 @@ class ReportController extends BaseController
             });
         }
 
-        // Sort
+        // Sort (with validation to prevent SQL injection)
+        $allowedSortColumns = [
+            'created_at',
+            'updated_at',
+            'luot_ung_ho',
+            'luot_xem',
+            'trang_thai',
+            'uu_tien_id',
+        ];
+        
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
+        
+        // Validate sort column
+        if (!in_array($sortBy, $allowedSortColumns)) {
+            $sortBy = 'created_at';
+        }
+        
+        // Validate sort order
+        if (!in_array(strtolower($sortOrder), ['asc', 'desc'])) {
+            $sortOrder = 'desc';
+        }
+        
         $query->orderBy($sortBy, $sortOrder);
 
         // Paginate
@@ -181,7 +201,9 @@ class ReportController extends BaseController
             'uu_tien_id' => $report->uu_tien_id,
             'uu_tien' => $report->uuTien ? [
                 'id' => $report->uuTien->id,
+                'level' => $report->uuTien->cap_do,  // 0=low, 1=medium, 2=high, 3=urgent
                 'ten_muc' => $report->uuTien->ten_muc,
+                'mau_sac' => $report->uuTien->mau_sac,
             ] : null,
             'vi_do' => $report->vi_do,
             'kinh_do' => $report->kinh_do,
@@ -234,7 +256,9 @@ class ReportController extends BaseController
             'uu_tien_id' => $report->uu_tien_id,
             'uu_tien' => $report->uuTien ? [
                 'id' => $report->uuTien->id,
+                'level' => $report->uuTien->cap_do,  // 0=low, 1=medium, 2=high, 3=urgent
                 'ten_muc' => $report->uuTien->ten_muc,
+                'mau_sac' => $report->uuTien->mau_sac,
             ] : null,
             'vi_do' => $report->vi_do,
             'kinh_do' => $report->kinh_do,
@@ -305,7 +329,9 @@ class ReportController extends BaseController
             'uu_tien_id' => $report->uu_tien_id,
             'uu_tien' => $report->uuTien ? [
                 'id' => $report->uuTien->id,
+                'level' => $report->uuTien->cap_do,  // 0=low, 1=medium, 2=high, 3=urgent
                 'ten_muc' => $report->uuTien->ten_muc,
+                'mau_sac' => $report->uuTien->mau_sac,
             ] : null,
             'updated_at' => $report->updated_at,
         ], 'Cập nhật phản ánh thành công');
@@ -404,7 +430,9 @@ class ReportController extends BaseController
                 'uu_tien_id' => $report->uu_tien_id,
                 'uu_tien' => $report->uuTien ? [
                     'id' => $report->uuTien->id,
+                    'level' => $report->uuTien->cap_do,  // 0=low, 1=medium, 2=high, 3=urgent
                     'ten_muc' => $report->uuTien->ten_muc,
+                    'mau_sac' => $report->uuTien->mau_sac,
                 ] : null,
                 'vi_do' => $report->vi_do,
                 'kinh_do' => $report->kinh_do,
