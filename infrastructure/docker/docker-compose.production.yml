@@ -364,6 +364,10 @@ services:
             THUMBNAIL_HEIGHT: 300
             OPTIMIZED_WIDTH: 1920
             OPTIMIZED_HEIGHT: 1080
+            COREAPI_DB_HOST: mysql
+            COREAPI_DB_USER: cityresq
+            COREAPI_DB_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+            COREAPI_DB_NAME: cityresq_db
             JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
         volumes:
             - media_uploads:/app/uploads
@@ -443,43 +447,6 @@ services:
         networks:
             - cityresq-network
         restart: unless-stopped
-
-    mediaservice:
-        build:
-            context: ../../modules/MediaService
-            dockerfile: Dockerfile
-        container_name: cityresq-mediaservice
-        environment:
-            NODE_ENV: production
-            PORT: 8004
-            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017/media_db?authSource=admin
-            MINIO_ENDPOINT: minio
-            MINIO_PORT: 9000
-            MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
-            MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
-            MINIO_BUCKET: cityresq-media
-            MINIO_USE_SSL: "false"
-            UPLOAD_DIR: ./uploads
-            MAX_FILE_SIZE: 52428800
-            ALLOWED_IMAGE_TYPES: image/jpeg,image/png,image/webp
-            ALLOWED_VIDEO_TYPES: video/mp4,video/quicktime
-            THUMBNAIL_WIDTH: 300
-            THUMBNAIL_HEIGHT: 300
-            OPTIMIZED_WIDTH: 1920
-            OPTIMIZED_HEIGHT: 1080
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
-            CORS_ORIGINS: ${MEDIASERVICE_CORS_ORIGINS:-*}
-        volumes:
-            - media_uploads:/app/uploads
-        depends_on:
-            mongodb:
-                condition: service_healthy
-            minio:
-                condition: service_healthy
-        networks:
-            - cityresq-network
-        restart: unless-stopped
-
 
     incident-service:
         build:
