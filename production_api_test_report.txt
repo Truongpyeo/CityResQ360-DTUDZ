@@ -4,7 +4,7 @@ PRODUCTION API TEST REPORT
 ================================================================================
 
 Server: https://api.cityresq360.io.vn
-Tested at: 2025-12-02 16:10:18
+Tested at: 2025-12-02 19:58:12
 
 Overall Statistics:
    Total Endpoints: 80
@@ -28,10 +28,10 @@ DETAILED RESULTS BY FOLDER
 
 [Authentication (Protected)]
 --------------------------------------------------------------------------------
-✅ [GET   ] Get Current User                              200 (0.10s)
+✅ [GET   ] Get Current User                              200 (0.12s)
 ⏭️ [POST  ] Logout                                        SKIPPED
 ⏭️ [POST  ] Refresh Token                                 SKIPPED
-✅ [PUT   ] Update Profile                                200 (0.11s)
+✅ [PUT   ] Update Profile                                200 (0.10s)
 ⏭️ [POST  ] Change Password                               SKIPPED
 ✅ [POST  ] Verify Email                                  200 (0.09s)
 ✅ [POST  ] Verify Phone                                  200 (0.09s)
@@ -39,25 +39,25 @@ DETAILED RESULTS BY FOLDER
 
 [Reports]
 --------------------------------------------------------------------------------
-✅ [GET   ] List Reports                                  200 (0.18s)
+✅ [GET   ] List Reports                                  200 (0.20s)
 ✅ [POST  ] Create Report                                 201 (0.12s)
 ✅ [GET   ] Get My Reports                                200 (0.11s)
-✅ [GET   ] Get Nearby Reports                            200 (0.10s)
-✅ [GET   ] Get Trending Reports                          200 (0.10s)
-✅ [GET   ] Get Report Detail                             200 (0.10s)
+✅ [GET   ] Get Nearby Reports                            200 (0.11s)
+✅ [GET   ] Get Trending Reports                          200 (0.12s)
+✅ [GET   ] Get Report Detail                             200 (0.11s)
 ⏭️ [PUT   ] Update Report                                 SKIPPED
 ⏭️ [DELETE] Delete Report                                 SKIPPED
-✅ [POST  ] Vote Report                                   200 (0.11s)
+✅ [POST  ] Vote Report                                   200 (0.12s)
 ✅ [POST  ] Increment View                                200 (0.10s)
-✅ [POST  ] Rate Report                                   200 (0.11s)
+✅ [POST  ] Rate Report                                   200 (0.09s)
 
 [Comments]
 --------------------------------------------------------------------------------
 ✅ [GET   ] Get Report Comments                           200 (0.10s)
-✅ [POST  ] Create Comment                                201 (0.11s)
+✅ [POST  ] Create Comment                                201 (0.10s)
 ⏭️ [PUT   ] Update Comment                                SKIPPED
 ⏭️ [DELETE] Delete Comment                                SKIPPED
-✅ [POST  ] Like Comment                                  200 (0.13s)
+✅ [POST  ] Like Comment                                  200 (0.10s)
 ✅ [DELETE] Unlike Comment                                200 (0.10s)
 
 [Media]
@@ -77,15 +77,15 @@ DETAILED RESULTS BY FOLDER
 [Agencies]
 --------------------------------------------------------------------------------
 ✅ [GET   ] List Agencies                                 200 (0.09s)
-✅ [GET   ] Get Agency Detail                             200 (0.08s)
-✅ [GET   ] Get Agency Reports                            200 (0.09s)
-✅ [GET   ] Get Agency Stats                              200 (0.10s)
+✅ [GET   ] Get Agency Detail                             200 (0.09s)
+✅ [GET   ] Get Agency Reports                            200 (0.10s)
+✅ [GET   ] Get Agency Stats                              200 (0.09s)
 
 [User Profile & Stats]
 --------------------------------------------------------------------------------
 ✅ [GET   ] Get User Profile                              200 (0.09s)
-✅ [GET   ] Get User Reports                              200 (0.10s)
-✅ [GET   ] Get User Stats                                200 (0.10s)
+✅ [GET   ] Get User Reports                              200 (0.09s)
+✅ [GET   ] Get User Stats                                200 (0.09s)
 ✅ [GET   ] Get My Overview Stats                         200 (0.10s)
 ✅ [GET   ] Get Categories Stats                          200 (0.09s)
 ✅ [GET   ] Get Timeline Stats                            200 (0.09s)
@@ -94,11 +94,11 @@ DETAILED RESULTS BY FOLDER
 
 [Wallet & CityPoints]
 --------------------------------------------------------------------------------
-✅ [GET   ] Get Wallet Balance                            200 (0.10s)
-✅ [GET   ] Get Transactions History                      200 (0.09s)
-✅ [POST  ] Redeem Reward                                 200 (0.12s)
+✅ [GET   ] Get Wallet Balance                            200 (0.09s)
+✅ [GET   ] Get Transactions History                      200 (0.10s)
+✅ [POST  ] Redeem Reward                                 200 (0.14s)
 ✅ [GET   ] Get Available Rewards                         200 (0.09s)
-✅ [GET   ] Get Balance                                   200 (0.08s)
+✅ [GET   ] Get Balance                                   200 (0.09s)
 ✅ [GET   ] Get Transactions                              200 (0.09s)
 ✅ [GET   ] List Rewards                                  200 (0.09s)
 
@@ -108,15 +108,15 @@ DETAILED RESULTS BY FOLDER
 ✅ [GET   ] Get Unread Notifications                      200 (0.09s)
 ✅ [GET   ] Get Unread Count                              200 (0.09s)
 ✅ [POST  ] Mark as Read                                  200 (0.09s)
-✅ [POST  ] Mark All as Read                              200 (0.10s)
-⏭️ [DELETE] Delete Notification                           SKIPPED
-✅ [PUT   ] Update Notification Settings                  200 (0.11s)
-✅ [GET   ] List Notifications                            200 (0.09s)
-✅ [GET   ] Get Unread Notifications                      200 (0.08s)
-✅ [GET   ] Get Unread Count                              200 (0.09s)
-✅ [POST  ] Mark as Read                                  200 (0.10s)
 ✅ [POST  ] Mark All as Read                              200 (0.09s)
+⏭️ [DELETE] Delete Notification                           SKIPPED
 ✅ [PUT   ] Update Notification Settings                  200 (0.09s)
+✅ [GET   ] List Notifications                            200 (0.09s)
+✅ [GET   ] Get Unread Notifications                      200 (0.09s)
+✅ [GET   ] Get Unread Count                              200 (0.09s)
+✅ [POST  ] Mark as Read                                  200 (0.09s)
+✅ [POST  ] Mark All as Read                              200 (0.09s)
+✅ [PUT   ] Update Notification Settings                  200 (0.10s)
 
 [Categories & Priorities]
 --------------------------------------------------------------------------------
@@ -126,11 +126,11 @@ DETAILED RESULTS BY FOLDER
 
 [Authentication - Missing]
 --------------------------------------------------------------------------------
-✅ [GET   ] Check Login Status                            200 (0.09s)
+✅ [GET   ] Check Login Status                            200 (0.10s)
 
 [User Statistics]
 --------------------------------------------------------------------------------
-✅ [GET   ] Get Overview Stats                            200 (0.09s)
+✅ [GET   ] Get Overview Stats                            200 (0.10s)
 ✅ [GET   ] Get Categories Stats                          200 (0.09s)
 ✅ [GET   ] Get Timeline Stats                            200 (0.09s)
 
@@ -142,5 +142,5 @@ DETAILED RESULTS BY FOLDER
 ⏭️ [POST  ] Sync Weather Data (Admin)                     SKIPPED
 
 ================================================================================
-Test completed at: 2025-12-02 16:10:18
+Test completed at: 2025-12-02 19:58:12
 ================================================================================
