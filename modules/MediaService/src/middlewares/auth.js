@@ -41,12 +41,9 @@ async function verifySanctum(req, res, next, token) {
       SELECT 
         tokenable_id as user_id,
         abilities,
-        last_used_at,
-        expires_at
+        last_used_at
       FROM personal_access_tokens
-      WHERE token = SHA2(?, 256) 
-        AND (revoked_at IS NULL OR revoked_at > NOW())
-        AND (expires_at IS NULL OR expires_at > NOW())
+      WHERE token = SHA2(?, 256)
     `, [token]);
 
     if (rows.length === 0) {
@@ -54,11 +51,6 @@ async function verifySanctum(req, res, next, token) {
     }
 
     const tokenData = rows[0];
-
-    // Check if token expired
-    if (tokenData.expires_at && new Date(tokenData.expires_at) < new Date()) {
-      return res.status(401).json({ error: 'Token has expired' });
-    }
 
     // Query user info for role-based limits
     const [userData] = await db.query(`
