@@ -158,17 +158,23 @@ server {
     }
 }
 
-# MediaService
+# MediaService (proxies to MinIO for serving media files)
 server {
     listen 80;
     server_name media.$DOMAIN;
     
+    client_max_body_size 100M;
+    
     location / {
-        proxy_pass http://localhost:8004;
+        proxy_pass http://localhost:9000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
+        
+        # CORS headers for media files
+        add_header Access-Control-Allow-Origin * always;
+        add_header Access-Control-Allow-Methods 'GET, OPTIONS' always;
     }
 }
 
