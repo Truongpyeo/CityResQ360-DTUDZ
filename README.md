@@ -1,7 +1,7 @@
 # 🌆 CityResQ360 — Chung tay vì một đô thị thông minh & an toàn
 
 <div align="center">
-  <img src="./static/logo21.png" alt="CityResQ360 Logo" width="100"/>
+  <img src="./static/logo21.png" alt="CityResQ360 Logo" width="200"/>
 
 [![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
 
