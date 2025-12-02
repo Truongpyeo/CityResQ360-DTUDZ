@@ -1,19 +1,6 @@
 const jwt = require('jsonwebtoken');
 const db = require('../config/database');
 
-<<<<<<< HEAD
-// IP whitelist for CoreAPI container (Docker internal network)
-const ALLOWED_IPS = [
-  '172.18.0.0/16',  // Docker network range
-  '::ffff:172.18.0.0/112', // IPv6 mapped
-  'cityresq-coreapi', // Container hostname
-];
-
-// Rate limiting cache (in-memory, consider Redis for production)
-const rateLimitCache = new Map();
-
-=======
->>>>>>> 437b586303ade75fbb1a811acfbb318a2bdb33c3
 /**
  * Main authentication middleware - supports both Sanctum and JWT tokens
  */
@@ -49,19 +36,6 @@ async function authenticate(req, res, next) {
  */
 async function verifySanctum(req, res, next, token) {
   try {
-<<<<<<< HEAD
-    // IP Whitelisting: Only allow CoreAPI container
-    const clientIP = req.ip || req.connection.remoteAddress;
-    if (!isIPAllowed(clientIP)) {
-      console.warn(`⚠️  Blocked Sanctum request from unauthorized IP: ${clientIP}`);
-      return res.status(403).json({
-        error: 'Access denied',
-        message: 'Sanctum tokens only accepted from authorized sources'
-      });
-    }
-
-=======
->>>>>>> 437b586303ade75fbb1a811acfbb318a2bdb33c3
     // Query personal_access_tokens table
     const [rows] = await db.query(`
       SELECT 
@@ -84,15 +58,6 @@ async function verifySanctum(req, res, next, token) {
     // Check if token expired
     if (tokenData.expires_at && new Date(tokenData.expires_at) < new Date()) {
       return res.status(401).json({ error: 'Token has expired' });
-    }
-
-    // Rate limiting per token
-    const isRateLimited = await checkRateLimit(token);
-    if (isRateLimited) {
-      return res.status(429).json({
-        error: 'Rate limit exceeded',
-        message: 'Too many requests. Please try again later.'
-      });
     }
 
     // Query user info for role-based limits
@@ -215,59 +180,6 @@ async function verifyJWT(req, res, next, token, decoded) {
 }
 
 /**
-<<<<<<< HEAD
- * Check if IP is in whitelist (for Sanctum tokens only)
- */
-function isIPAllowed(ip) {
-  // Always allow localhost for development
-  if (ip === '127.0.0.1' || ip === '::1' || ip === '::ffff:127.0.0.1') {
-    return true;
-  }
-
-  // Check Docker network range (172.18.0.0/16)
-  if (ip.startsWith('172.18.') || ip.startsWith('::ffff:172.18.')) {
-    return true;
-  }
-
-  // Check if hostname resolution (cityresq-coreapi)
-  // Note: Docker internal DNS resolves to container IP
-  return false;
-}
-
-/**
- * Rate limiting: 100 requests per minute per token
- */
-async function checkRateLimit(token) {
-  const now = Date.now();
-  const key = `ratelimit:${token.substring(0, 10)}`; // Use first 10 chars as key
-
-  if (!rateLimitCache.has(key)) {
-    rateLimitCache.set(key, { count: 1, resetAt: now + 60000 }); // 60 seconds
-    return false;
-  }
-
-  const limit = rateLimitCache.get(key);
-
-  // Reset if time window passed
-  if (now > limit.resetAt) {
-    rateLimitCache.set(key, { count: 1, resetAt: now + 60000 });
-    return false;
-  }
-
-  // Increment counter
-  limit.count++;
-
-  // Check if exceeded
-  if (limit.count > 100) {
-    return true; // Rate limited
-  }
-
-  return false;
-}
-
-/**
-=======
->>>>>>> 437b586303ade75fbb1a811acfbb318a2bdb33c3
  * Get role-based upload limits
  */
 function getRoleLimits(role) {
@@ -281,19 +193,4 @@ function getRoleLimits(role) {
   return limits[role] || limits[0]; // Default to Citizen limits
 }
 
-<<<<<<< HEAD
-// Clean up rate limit cache every 5 minutes
-setInterval(() => {
-  const now = Date.now();
-  for (const [key, value] of rateLimitCache.entries()) {
-    if (now > value.resetAt + 300000) { // 5 minutes after reset
-      rateLimitCache.delete(key);
-    }
-  }
-}, 300000);
-
 module.exports = authenticate;
-
-=======
-module.exports = authenticate;
->>>>>>> 437b586303ade75fbb1a811acfbb318a2bdb33c3
