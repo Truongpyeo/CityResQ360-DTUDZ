@@ -2,7 +2,7 @@
     "info": {
         "_postman_id": "api-mnm-2025-1",
         "name": "API_MNM_2025_1",
-        "description": "CityResQ360 Client API Collection - Version 1\n\n**Base URL:** {{base_url}}/api/v1\n**Authentication:** Bearer Token (Laravel Sanctum)\n\n**Setup:**\n1. Set base_url variable:\n   - Local: http://localhost:8000\n   - Production: https://api.cityresq360.io.vn\n2. Login to get token\n3. Token will be automatically saved to 'auth_token' variable\n\n**Quick Start:**\n1. Import collection v\u00e0o Postman\n2. Set base_url:\n   - Local Development: http://localhost:8000\n   - Production Server: https://api.cityresq360.io.vn\n3. Ch\u1ea1y \"Login\" request \u0111\u1ec3 l\u1ea5y token\n4. Token s\u1ebd t\u1ef1 \u0111\u1ed9ng \u0111\u01b0\u1ee3c l\u01b0u v\u00e0o bi\u1ebfn auth_token\n5. T\u1ea5t c\u1ea3 protected requests s\u1ebd t\u1ef1 \u0111\u1ed9ng d\u00f9ng token n\u00e0y\n\n**Environments:**\n\n**Local Development:**\n- Base URL: http://localhost:8000\n- \u0110\u1ea3m b\u1ea3o Docker containers \u0111ang ch\u1ea1y: docker-compose ps\n- Ho\u1eb7c ch\u1ea1y: php artisan serve\n\n**Production:**\n- Base URL: https://api.cityresq360.io.vn\n- Server: VPS 34.85.44.142\n- SSL: Enabled (Let's Encrypt)\n\n**Available Endpoints:**\n- API: https://api.cityresq360.io.vn\n- Admin Panel: https://api.cityresq360.io.vn/admin\n- Media: https://media.cityresq360.io.vn\n- Notification: https://notification.cityresq360.io.vn\n- Wallet: https://wallet.cityresq360.io.vn",
+        "description": "**CityResQ360 API Collection - Phiên bản 1.0**\n\nTài liệu chi tiết API cho ứng dụng CityResQ360.\nBao gồm đầy đủ mô tả Tiếng Việt cho các Endpoints và Tham số.\n\n**Tài liệu tham khảo:** Xem file `docs/API_DOCUMENTATION.md` trong source code.\n\n**Authentication:** Sử dụng Bearer Token (Laravel Sanctum).\n",
         "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
     },
     "item": [
@@ -41,7 +41,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"ho_ten\": \"Nguy\u1ec5n V\u0103n A\",\n  \"email\": \"nguyenvana@example.com\",\n  \"so_dien_thoai\": \"0901234567\",\n  \"mat_khau\": \"password123\",\n  \"mat_khau_confirmation\": \"password123\"\n}"
+                            "raw": "{\n  \"ho_ten\": \"Nguyễn Văn A\",\n  \"email\": \"nguyenvana@example.com\",\n  \"so_dien_thoai\": \"0901234567\",\n  \"mat_khau\": \"password123\",\n  \"mat_khau_confirmation\": \"password123\"\n}"
                         },
                         "url": {
                             "raw": "{{base_url}}/api/v1/auth/register",
@@ -55,7 +55,7 @@
                                 "register"
                             ]
                         },
-                        "description": "\u0110\u0103ng k\u00fd t\u00e0i kho\u1ea3n m\u1edbi"
+                        "description": "Đăng ký tài khoản người dùng mới.\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `email` | Địa chỉ email của người dùng |\n| `mat_khau` | Mật khẩu đăng nhập |\n| `mat_khau_confirmation` | Nhập lại mật khẩu để xác nhận |\n| `ho_ten` | Họ và tên đầy đủ |\n| `so_dien_thoai` | Số điện thoại liên lạc |\n"
                     },
                     "response": []
                 },
@@ -106,7 +106,7 @@
                                 "login"
                             ]
                         },
-                        "description": "\u0110\u0103ng nh\u1eadp v\u00e0 nh\u1eadn Bearer Token"
+                        "description": "Đăng nhập hệ thống và nhận Bearer Token.\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `email` | Địa chỉ email của người dùng |\n| `mat_khau` | Mật khẩu đăng nhập |\n| `remember` | Ghi nhớ đăng nhập (true/false) |\n"
                     },
                     "response": []
                 },
@@ -140,7 +140,7 @@
                                 "forgot-password"
                             ]
                         },
-                        "description": "G\u1eedi link \u0111\u1eb7t l\u1ea1i m\u1eadt kh\u1ea9u"
+                        "description": "Gửi yêu cầu đặt lại mật khẩu qua email.\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `email` | Địa chỉ email của người dùng |\n"
                     },
                     "response": []
                 },
@@ -174,7 +174,7 @@
                                 "reset-password"
                             ]
                         },
-                        "description": "\u0110\u1eb7t l\u1ea1i m\u1eadt kh\u1ea9u v\u1edbi token"
+                        "description": "Đặt lại mật khẩu mới bằng token đã nhận qua email.\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `email` | Địa chỉ email của người dùng |\n| `mat_khau` | Mật khẩu đăng nhập |\n| `mat_khau_confirmation` | Nhập lại mật khẩu để xác nhận |\n| `token` | Chuỗi token xác thực |\n"
                     },
                     "response": []
                 }
@@ -210,7 +210,7 @@
                                 "me"
                             ]
                         },
-                        "description": "L\u1ea5y th\u00f4ng tin user hi\u1ec7n t\u1ea1i"
+                        "description": "Lấy thông tin chi tiết của người dùng đang đăng nhập."
                     },
                     "response": []
                 },
@@ -241,7 +241,7 @@
                                 "logout"
                             ]
                         },
-                        "description": "\u0110\u0103ng xu\u1ea5t v\u00e0 revoke token"
+                        "description": "Đăng xuất khỏi hệ thống và hủy token hiện tại."
                     },
                     "response": []
                 },
@@ -272,7 +272,7 @@
                                 "refresh"
                             ]
                         },
-                        "description": "L\u00e0m m\u1edbi token"
+                        "description": "Làm mới token xác thực để kéo dài phiên đăng nhập."
                     },
                     "response": []
                 },
@@ -297,7 +297,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"ho_ten\": \"Nguy\u1ec5n V\u0103n A Updated\",\n  \"so_dien_thoai\": \"0901234567\",\n  \"anh_dai_dien\": \"https://example.com/avatar.jpg\"\n}"
+                            "raw": "{\n  \"ho_ten\": \"Nguyễn Văn A Updated\",\n  \"so_dien_thoai\": \"0901234567\",\n  \"anh_dai_dien\": \"https://example.com/avatar.jpg\"\n}"
                         },
                         "url": {
                             "raw": "{{base_url}}/api/v1/auth/profile",
@@ -311,7 +311,7 @@
                                 "profile"
                             ]
                         },
-                        "description": "C\u1eadp nh\u1eadt th\u00f4ng tin profile"
+                        "description": "Cập nhật thông tin cá nhân (Họ tên, SĐT, Avatar).\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `ho_ten` | Họ và tên đầy đủ |\n| `so_dien_thoai` | Số điện thoại liên lạc |\n"
                     },
                     "response": []
                 },
@@ -350,7 +350,7 @@
                                 "change-password"
                             ]
                         },
-                        "description": "\u0110\u1ed5i m\u1eadt kh\u1ea9u"
+                        "description": "Thay đổi mật khẩu đăng nhập.\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `mat_khau_cu` | Mật khẩu hiện tại đang sử dụng |\n| `mat_khau_moi` | Mật khẩu mới muốn thay đổi |\n| `mat_khau_moi_confirmation` | Xác nhận mật khẩu mới |\n"
                     },
                     "response": []
                 },
@@ -389,7 +389,7 @@
                                 "verify-email"
                             ]
                         },
-                        "description": "X\u00e1c th\u1ef1c email v\u1edbi m\u00e3 code"
+                        "description": "Xác thực địa chỉ email bằng mã OTP.\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `code` | Mã xác thực (OTP) |\n"
                     },
                     "response": []
                 },
@@ -428,7 +428,7 @@
                                 "verify-phone"
                             ]
                         },
-                        "description": "X\u00e1c th\u1ef1c s\u1ed1 \u0111i\u1ec7n tho\u1ea1i v\u1edbi m\u00e3 code"
+                        "description": "Xác thực số điện thoại bằng mã OTP.\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `code` | Mã xác thực (OTP) |\n"
                     },
                     "response": []
                 },
@@ -467,7 +467,7 @@
                                 "update-fcm-token"
                             ]
                         },
-                        "description": "C\u1eadp nh\u1eadt FCM token cho push notifications"
+                        "description": "Cập nhật token FCM để nhận thông báo đẩy (Push Notification).\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `fcm_token` | Token Firebase Cloud Messaging để nhận thông báo push |\n"
                     },
                     "response": []
                 }
@@ -504,33 +504,37 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 },
                                 {
                                     "key": "per_page",
-                                    "value": "20"
+                                    "value": "20",
+                                    "description": "Số lượng bản ghi trên mỗi trang (mặc định: 15)"
                                 },
                                 {
                                     "key": "danh_muc",
                                     "value": "",
-                                    "description": "0:traffic, 1:environment, 2:fire, 3:waste, 4:flood, 5:other"
+                                    "description": "ID danh mục (1: Giao thông, 2: Môi trường, 3: Cháy nổ, 4: Rác thải, 5: Ngập lụt, 6: Khác)."
                                 },
                                 {
                                     "key": "trang_thai",
                                     "value": "",
-                                    "description": "0:pending, 1:verified, 2:in_progress, 3:resolved, 4:rejected"
+                                    "description": "Trạng thái xử lý (0: Chờ duyệt, 1: Đã duyệt, 2: Đang xử lý, 3: Đã xong, 4: Từ chối)"
                                 },
                                 {
                                     "key": "sort_by",
-                                    "value": "created_at"
+                                    "value": "created_at",
+                                    "description": "Trường cần sắp xếp (vd: created_at, luot_ung_ho)"
                                 },
                                 {
                                     "key": "sort_order",
-                                    "value": "desc"
+                                    "value": "desc",
+                                    "description": "Thứ tự sắp xếp (asc: tăng dần, desc: giảm dần)"
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y danh s\u00e1ch ph\u1ea3n \u00e1nh"
+                        "description": "Lấy danh sách các phản ánh với bộ lọc (trạng thái, danh mục, tìm kiếm...)."
                     },
                     "response": []
                 },
@@ -555,7 +559,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"tieu_de\": \"\u1ed4 g\u00e0 tr\u00ean \u0111\u01b0\u1eddng L\u00ea L\u1ee3i\",\n  \"mo_ta\": \"Nhi\u1ec1u \u1ed5 g\u00e0 l\u1edbn g\u00e2y nguy hi\u1ec3m cho ng\u01b0\u1eddi tham gia giao th\u00f4ng\",\n  \"danh_muc\": 0,\n  \"vi_do\": 10.7769,\n  \"kinh_do\": 106.7009,\n  \"dia_chi\": \"123 L\u00ea L\u1ee3i, Qu\u1eadn 1, TP.HCM\",\n  \"media_ids\": [1, 2],\n  \"uu_tien\": 1,\n  \"la_cong_khai\": true,\n  \"the_tags\": []\n}",
+                            "raw": "{\n  \"tieu_de\": \"Ổ gà trên đường Lê Lợi\",\n  \"mo_ta\": \"Nhiều ổ gà lớn gây nguy hiểm cho người tham gia giao thông\",\n  \"danh_muc\": 0,\n  \"vi_do\": 10.7769,\n  \"kinh_do\": 106.7009,\n  \"dia_chi\": \"123 Lê Lợi, Quận 1, TP.HCM\",\n  \"media_ids\": [1, 2],\n  \"uu_tien\": 1,\n  \"la_cong_khai\": true,\n  \"the_tags\": []\n}",
                             "options": {
                                 "raw": {
                                     "language": "json"
@@ -573,7 +577,7 @@
                                 "reports"
                             ]
                         },
-                        "description": "T\u1ea1o ph\u1ea3n \u00e1nh m\u1edbi\n\n**L\u01b0u \u00fd:**\n- Upload \u1ea3nh tr\u01b0\u1edbc qua Media API \u0111\u1ec3 l\u1ea5y media IDs\n- D\u00f9ng media_ids (array) \u0111\u1ec3 g\u1eafn \u1ea3nh v\u00e0o report\n- dia_chi (kh\u00f4ng ph\u1ea3i dia_chi_chi_tiet)\n- danh_muc: 0=traffic, 1=environment, 2=fire, 3=waste, 4=flood, 5=other\n- uu_tien: 1=normal, 2=high, 3=urgent (optional, default: 1)\n- la_cong_khai: true/false (optional, default: true)\n- the_tags: array of strings (optional)"
+                        "description": "Tạo một phản ánh mới. Yêu cầu upload media trước để lấy ID.\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `tieu_de` | Tiêu đề của phản ánh (bắt buộc) |\n| `mo_ta` | Mô tả chi tiết nội dung phản ánh |\n| `danh_muc` | ID danh mục (1: Giao thông, 2: Môi trường, 3: Cháy nổ, 4: Rác thải, 5: Ngập lụt, 6: Khác). |\n| `uu_tien` | ID mức độ ưu tiên (1: Thấp, 2: Trung bình, 3: Cao, 4: Khẩn cấp). Mặc định: 2. |\n| `vi_do` | Vĩ độ (Latitude) của vị trí phản ánh |\n| `kinh_do` | Kinh độ (Longitude) của vị trí phản ánh |\n| `dia_chi` | Địa chỉ văn bản của vị trí |\n| `media_ids` | Danh sách ID của ảnh/video đã upload (mảng số nguyên) |\n| `la_cong_khai` | Trạng thái công khai (true: Công khai, false: Riêng tư) |\n| `the_tags` | Danh sách các thẻ (tags) liên quan |\n"
                     },
                     "response": []
                 },
@@ -606,15 +610,17 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 },
                                 {
                                     "key": "per_page",
-                                    "value": "20"
+                                    "value": "20",
+                                    "description": "Số lượng bản ghi trên mỗi trang (mặc định: 15)"
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y danh s\u00e1ch ph\u1ea3n \u00e1nh c\u1ee7a t\u00f4i"
+                        "description": "Lấy danh sách các phản ánh do chính người dùng tạo."
                     },
                     "response": []
                 },
@@ -647,20 +653,22 @@
                             "query": [
                                 {
                                     "key": "vi_do",
-                                    "value": "10.7769"
+                                    "value": "10.7769",
+                                    "description": "Vĩ độ (Latitude) của vị trí phản ánh"
                                 },
                                 {
                                     "key": "kinh_do",
-                                    "value": "106.7009"
+                                    "value": "106.7009",
+                                    "description": "Kinh độ (Longitude) của vị trí phản ánh"
                                 },
                                 {
                                     "key": "radius",
                                     "value": "5",
-                                    "description": "Radius in meters"
+                                    "description": "Bán kính tìm kiếm (đơn vị: km)"
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y ph\u1ea3n \u00e1nh g\u1ea7n \u0111\u00e2y"
+                        "description": "Tìm các phản ánh xung quanh một vị trí GPS trong bán kính nhất định."
                     },
                     "response": []
                 },
@@ -693,11 +701,12 @@
                             "query": [
                                 {
                                     "key": "limit",
-                                    "value": "10"
+                                    "value": "10",
+                                    "description": "Giới hạn số lượng bản ghi trả về"
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y ph\u1ea3n \u00e1nh \u0111ang trending"
+                        "description": "Lấy các phản ánh đang được quan tâm nhiều nhất (nhiều lượt xem/ủng hộ)."
                     },
                     "response": []
                 },
@@ -728,7 +737,7 @@
                                 "12"
                             ]
                         },
-                        "description": "L\u1ea5y chi ti\u1ebft ph\u1ea3n \u00e1nh"
+                        "description": "Xem thông tin chi tiết của một phản ánh cụ thể."
                     },
                     "response": []
                 },
@@ -767,7 +776,7 @@
                                 "12"
                             ]
                         },
-                        "description": "C\u1eadp nh\u1eadt ph\u1ea3n \u00e1nh (ch\u1ec9 owner)"
+                        "description": "Cập nhật nội dung phản ánh (chỉ người tạo mới có quyền).\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `tieu_de` | Tiêu đề của phản ánh (bắt buộc) |\n| `mo_ta` | Mô tả chi tiết nội dung phản ánh |\n"
                     },
                     "response": []
                 },
@@ -798,7 +807,7 @@
                                 "12"
                             ]
                         },
-                        "description": "X\u00f3a ph\u1ea3n \u00e1nh (ch\u1ec9 owner)"
+                        "description": "Xóa phản ánh (chỉ người tạo mới có quyền và khi chưa được xử lý)."
                     },
                     "response": []
                 },
@@ -838,7 +847,7 @@
                                 "vote"
                             ]
                         },
-                        "description": "Vote ph\u1ea3n \u00e1nh (ung_ho ho\u1eb7c khong_ung_ho)"
+                        "description": "Bình chọn (Ủng hộ/Không ủng hộ) cho một phản ánh.\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `loai_binh_chon` | Loại bình chọn ('upvote' hoặc 'downvote') |\n"
                     },
                     "response": []
                 },
@@ -870,7 +879,7 @@
                                 "view"
                             ]
                         },
-                        "description": "T\u0103ng l\u01b0\u1ee3t xem"
+                        "description": "Tăng lượt xem cho phản ánh (dùng khi người dùng mở xem chi tiết)."
                     },
                     "response": []
                 },
@@ -910,7 +919,7 @@
                                 "rate"
                             ]
                         },
-                        "description": "\u0110\u00e1nh gi\u00e1 ph\u1ea3n \u00e1nh (1-5 sao)"
+                        "description": "Đánh giá mức độ hài lòng về kết quả xử lý phản ánh (chỉ người tạo).\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `danh_gia_hai_long` | Điểm đánh giá mức độ hài lòng (1-5 sao) |\n| `nhan_xet` | Lời nhận xét chi tiết sau khi xử lý |\n"
                     },
                     "response": []
                 }
@@ -949,19 +958,22 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 },
                                 {
                                     "key": "sort_by",
-                                    "value": "created_at"
+                                    "value": "created_at",
+                                    "description": "Trường cần sắp xếp (vd: created_at, luot_ung_ho)"
                                 },
                                 {
                                     "key": "sort_order",
-                                    "value": "desc"
+                                    "value": "desc",
+                                    "description": "Thứ tự sắp xếp (asc: tăng dần, desc: giảm dần)"
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y danh s\u00e1ch b\u00ecnh lu\u1eadn c\u1ee7a ph\u1ea3n \u00e1nh"
+                        "description": "Lấy danh sách bình luận của một phản ánh."
                     },
                     "response": []
                 },
@@ -986,7 +998,7 @@
                         ],
                         "body": {
                             "mode": "raw",
-                            "raw": "{\n  \"noi_dung\": \"T\u00f4i c\u0169ng g\u1eb7p v\u1ea5n \u0111\u1ec1 t\u01b0\u01a1ng t\u1ef1 \u1edf \u0111o\u1ea1n \u0111\u01b0\u1eddng n\u00e0y\"\n}"
+                            "raw": "{\n  \"noi_dung\": \"Tôi cũng gặp vấn đề tương tự ở đoạn đường này\"\n}"
                         },
                         "url": {
                             "raw": "{{base_url}}/api/v1/reports/12/comments",
@@ -1001,7 +1013,7 @@
                                 "comments"
                             ]
                         },
-                        "description": "T\u1ea1o b\u00ecnh lu\u1eadn m\u1edbi"
+                        "description": "Thêm bình luận mới vào phản ánh.\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `noi_dung` | Nội dung của bình luận hoặc nhận xét |\n"
                     },
                     "response": []
                 },
@@ -1040,7 +1052,7 @@
                                 "2"
                             ]
                         },
-                        "description": "C\u1eadp nh\u1eadt b\u00ecnh lu\u1eadn (ch\u1ec9 author)"
+                        "description": "Chỉnh sửa nội dung bình luận (chỉ người viết).\n\n**Chi tiết tham số (Body):**\n| Tham số | Mô tả |\n|---|---|\n| `noi_dung` | Nội dung của bình luận hoặc nhận xét |\n"
                     },
                     "response": []
                 },
@@ -1071,7 +1083,7 @@
                                 "2"
                             ]
                         },
-                        "description": "X\u00f3a b\u00ecnh lu\u1eadn (ch\u1ec9 author ho\u1eb7c admin)"
+                        "description": "Xóa bình luận (chỉ người viết)."
                     },
                     "response": []
                 },
@@ -1103,7 +1115,7 @@
                                 "like"
                             ]
                         },
-                        "description": "Like b\u00ecnh lu\u1eadn"
+                        "description": "Thích một bình luận."
                     },
                     "response": []
                 },
@@ -1135,7 +1147,7 @@
                                 "like"
                             ]
                         },
-                        "description": "Unlike b\u00ecnh lu\u1eadn"
+                        "description": "Bỏ thích một bình luận."
                     },
                     "response": []
                 }
@@ -1154,7 +1166,7 @@
                                     "if (pm.response.code === 201 || pm.response.code === 200) {",
                                     "    var jsonData = pm.response.json();",
                                     "    if (jsonData.data && jsonData.data.id) {",
-                                    "        // L\u01b0u media ID v\u00e0o bi\u1ebfn \u0111\u1ec3 d\u00f9ng sau",
+                                    "        // Lưu media ID vào biến để dùng sau",
                                     "        var mediaIds = pm.collectionVariables.get('uploaded_media_ids') || [];",
                                     "        mediaIds.push(jsonData.data.id);",
                                     "        pm.collectionVariables.set('uploaded_media_ids', JSON.stringify(mediaIds));",
@@ -1187,7 +1199,7 @@
                                     "key": "file",
                                     "type": "file",
                                     "src": [],
-                                    "description": "Ch\u1ecdn file \u1ea3nh (jpg, png, gif) ho\u1eb7c video (mp4, mov, avi)"
+                                    "description": "File cần upload (ảnh hoặc video)"
                                 },
                                 {
                                     "key": "type",
@@ -1205,13 +1217,13 @@
                                     "key": "id_lien_ket",
                                     "value": "",
                                     "type": "text",
-                                    "description": "ID c\u1ee7a ph\u1ea3n \u00e1nh ho\u1eb7c b\u00ecnh lu\u1eadn (optional, c\u00f3 th\u1ec3 \u0111\u1ec3 tr\u1ed1ng khi upload tr\u01b0\u1edbc khi t\u1ea1o report)"
+                                    "description": "ID của phản ánh hoặc bình luận (optional, có thể để trống khi upload trước khi tạo report)"
                                 },
                                 {
                                     "key": "mo_ta",
-                                    "value": "H\u00ecnh \u1ea3nh hi\u1ec7n tr\u01b0\u1eddng",
+                                    "value": "Hình ảnh hiện trường",
                                     "type": "text",
-                                    "description": "Description (optional)"
+                                    "description": "Mô tả chi tiết nội dung phản ánh"
                                 }
                             ]
                         },
@@ -1227,7 +1239,7 @@
                                 "upload"
                             ]
                         },
-                        "description": "Upload media (image/video)\n\n**H\u01b0\u1edbng d\u1eabn:**\n1. Ch\u1ecdn tab 'Body'\n2. Ch\u1ecdn 'form-data'\n3. Click v\u00e0o field 'file' \u2192 ch\u1ecdn 'File' t\u1eeb dropdown\n4. Click 'Select Files' v\u00e0 ch\u1ecdn \u1ea3nh t\u1eeb m\u00e1y\n5. \u0110i\u1ec1n c\u00e1c th\u00f4ng tin kh\u00e1c\n6. Send request\n7. L\u1ea5y media ID t\u1eeb response \u0111\u1ec3 d\u00f9ng trong Create Report\n\n**Response:**\n```json\n{\n  \"success\": true,\n  \"data\": {\n    \"id\": 123,  // \u2190 D\u00f9ng ID n\u00e0y trong media_ids\n    \"url\": \"...\",\n    \"thumbnail_url\": \"...\"\n  }\n}\n```"
+                        "description": "Upload file ảnh hoặc video lên server. Trả về ID để dùng cho tạo phản ánh."
                     },
                     "response": []
                 },
@@ -1260,7 +1272,8 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 },
                                 {
                                     "key": "type",
@@ -1269,7 +1282,7 @@
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y danh s\u00e1ch media c\u1ee7a t\u00f4i"
+                        "description": "Lấy danh sách các file media đã upload của người dùng."
                     },
                     "response": []
                 },
@@ -1300,7 +1313,7 @@
                                 "1"
                             ]
                         },
-                        "description": "L\u1ea5y chi ti\u1ebft media"
+                        "description": "Xem thông tin chi tiết của một file media."
                     },
                     "response": []
                 },
@@ -1331,7 +1344,7 @@
                                 "1"
                             ]
                         },
-                        "description": "X\u00f3a media (ch\u1ec9 owner)"
+                        "description": "Xóa file media (chỉ người upload)."
                     },
                     "response": []
                 }
@@ -1374,7 +1387,7 @@
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y danh s\u00e1ch ph\u1ea3n \u00e1nh tr\u00ean b\u1ea3n \u0111\u1ed3 theo v\u00f9ng bounds"
+                        "description": "Lấy dữ liệu GeoJSON của các phản ánh để hiển thị trên bản đồ."
                     },
                     "response": []
                 },
@@ -1412,7 +1425,7 @@
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y d\u1eef li\u1ec7u heatmap cho b\u1ea3n \u0111\u1ed3"
+                        "description": "Lấy dữ liệu mật độ phản ánh để vẽ biểu đồ nhiệt (Heatmap)."
                     },
                     "response": []
                 },
@@ -1446,11 +1459,11 @@
                                 {
                                     "key": "zoom",
                                     "value": "12",
-                                    "description": "Map zoom level"
+                                    "description": "Mức độ zoom của bản đồ"
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y cluster markers cho b\u1ea3n \u0111\u1ed3"
+                        "description": "Lấy dữ liệu gom nhóm (Cluster) các phản ánh khi zoom out."
                     },
                     "response": []
                 },
@@ -1481,7 +1494,7 @@
                                 "routes"
                             ]
                         },
-                        "description": "L\u1ea5y th\u00f4ng tin tuy\u1ebfn GTFS (placeholder)"
+                        "description": "Lấy thông tin lộ trình phương tiện công cộng (nếu có)."
                     },
                     "response": []
                 }
@@ -1511,7 +1524,7 @@
                                 "agencies"
                             ]
                         },
-                        "description": "L\u1ea5y danh s\u00e1ch c\u01a1 quan ch\u1ee9c n\u0103ng (public)"
+                        "description": "Lấy danh sách các cơ quan chức năng/đơn vị xử lý."
                     },
                     "response": []
                 },
@@ -1537,7 +1550,7 @@
                                 "1"
                             ]
                         },
-                        "description": "L\u1ea5y chi ti\u1ebft c\u01a1 quan (public)"
+                        "description": "Xem thông tin chi tiết của một cơ quan."
                     },
                     "response": []
                 },
@@ -1566,11 +1579,12 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y danh s\u00e1ch ph\u1ea3n \u00e1nh do c\u01a1 quan x\u1eed l\u00fd (public)"
+                        "description": "Lấy danh sách phản ánh thuộc thẩm quyền của cơ quan."
                     },
                     "response": []
                 },
@@ -1597,7 +1611,7 @@
                                 "stats"
                             ]
                         },
-                        "description": "L\u1ea5y th\u1ed1ng k\u00ea c\u1ee7a c\u01a1 quan (public)"
+                        "description": "Xem thống kê hiệu quả xử lý của cơ quan."
                     },
                     "response": []
                 }
@@ -1628,7 +1642,7 @@
                                 "1"
                             ]
                         },
-                        "description": "Xem profile c\u00f4ng khai c\u1ee7a user (public)"
+                        "description": "Xem profile công khai của user (public)"
                     },
                     "response": []
                 },
@@ -1657,11 +1671,12 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 }
                             ]
                         },
-                        "description": "Xem ph\u1ea3n \u00e1nh c\u1ee7a user (public)"
+                        "description": "Xem phản ánh của user (public)"
                     },
                     "response": []
                 },
@@ -1688,7 +1703,7 @@
                                 "stats"
                             ]
                         },
-                        "description": "Xem th\u1ed1ng k\u00ea c\u1ee7a user (public)"
+                        "description": "Xem thống kê hoạt động của cá nhân (số phản ánh, điểm tin cậy...)."
                     },
                     "response": []
                 },
@@ -1719,7 +1734,7 @@
                                 "overview"
                             ]
                         },
-                        "description": "T\u1ed5ng quan th\u1ed1ng k\u00ea c\u00e1 nh\u00e2n"
+                        "description": "Tổng quan thống kê cá nhân"
                     },
                     "response": []
                 },
@@ -1750,7 +1765,7 @@
                                 "categories"
                             ]
                         },
-                        "description": "Th\u1ed1ng k\u00ea theo danh m\u1ee5c"
+                        "description": "Thống kê theo danh mục"
                     },
                     "response": []
                 },
@@ -1788,7 +1803,7 @@
                                 }
                             ]
                         },
-                        "description": "Th\u1ed1ng k\u00ea theo th\u1eddi gian"
+                        "description": "Thống kê theo thời gian"
                     },
                     "response": []
                 },
@@ -1816,11 +1831,12 @@
                             "query": [
                                 {
                                     "key": "limit",
-                                    "value": "10"
+                                    "value": "10",
+                                    "description": "Giới hạn số lượng bản ghi trả về"
                                 }
                             ]
                         },
-                        "description": "B\u1ea3ng x\u1ebfp h\u1ea1ng ng\u01b0\u1eddi d\u00f9ng (public)"
+                        "description": "Xem bảng xếp hạng người dùng tích cực."
                     },
                     "response": []
                 },
@@ -1846,7 +1862,7 @@
                                 "city"
                             ]
                         },
-                        "description": "Th\u1ed1ng k\u00ea to\u00e0n th\u00e0nh ph\u1ed1 (public)"
+                        "description": "Thống kê toàn thành phố (public)"
                     },
                     "response": []
                 }
@@ -1881,7 +1897,7 @@
                                 "wallet"
                             ]
                         },
-                        "description": "Xem s\u1ed1 d\u01b0 v\u00ed CityPoints"
+                        "description": "Xem số dư ví CityPoints"
                     },
                     "response": []
                 },
@@ -1914,7 +1930,8 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 },
                                 {
                                     "key": "type",
@@ -1923,7 +1940,7 @@
                                 }
                             ]
                         },
-                        "description": "L\u1ecbch s\u1eed giao d\u1ecbch"
+                        "description": "Lịch sử giao dịch"
                     },
                     "response": []
                 },
@@ -1962,7 +1979,7 @@
                                 "redeem"
                             ]
                         },
-                        "description": "\u0110\u1ed5i ph\u1ea7n th\u01b0\u1edfng b\u1eb1ng CityPoints"
+                        "description": "Đổi phần thưởng bằng CityPoints"
                     },
                     "response": []
                 },
@@ -1995,11 +2012,12 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 }
                             ]
                         },
-                        "description": "Danh s\u00e1ch ph\u1ea7n th\u01b0\u1edfng c\u00f3 th\u1ec3 \u0111\u1ed5i"
+                        "description": "Danh sách phần thưởng có thể đổi"
                     },
                     "response": []
                 }
@@ -2036,11 +2054,12 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 }
                             ]
                         },
-                        "description": "L\u1ea5y danh s\u00e1ch th\u00f4ng b\u00e1o"
+                        "description": "Lấy danh sách thông báo"
                     },
                     "response": []
                 },
@@ -2071,7 +2090,7 @@
                                 "unread"
                             ]
                         },
-                        "description": "L\u1ea5y th\u00f4ng b\u00e1o ch\u01b0a \u0111\u1ecdc"
+                        "description": "Lấy thông báo chưa đọc"
                     },
                     "response": []
                 },
@@ -2102,7 +2121,7 @@
                                 "unread-count"
                             ]
                         },
-                        "description": "\u0110\u1ebfm s\u1ed1 th\u00f4ng b\u00e1o ch\u01b0a \u0111\u1ecdc"
+                        "description": "Đếm số thông báo chưa đọc"
                     },
                     "response": []
                 },
@@ -2134,7 +2153,7 @@
                                 "read"
                             ]
                         },
-                        "description": "\u0110\u00e1nh d\u1ea5u th\u00f4ng b\u00e1o \u0111\u00e3 \u0111\u1ecdc"
+                        "description": "Đánh dấu một thông báo là đã đọc."
                     },
                     "response": []
                 },
@@ -2165,7 +2184,7 @@
                                 "read-all"
                             ]
                         },
-                        "description": "\u0110\u00e1nh d\u1ea5u t\u1ea5t c\u1ea3 \u0111\u00e3 \u0111\u1ecdc"
+                        "description": "Đánh dấu tất cả thông báo là đã đọc."
                     },
                     "response": []
                 },
@@ -2196,7 +2215,7 @@
                                 "2"
                             ]
                         },
-                        "description": "X\u00f3a th\u00f4ng b\u00e1o"
+                        "description": "Xóa một thông báo."
                     },
                     "response": []
                 },
@@ -2235,7 +2254,7 @@
                                 "settings"
                             ]
                         },
-                        "description": "C\u1eadp nh\u1eadt c\u00e0i \u0111\u1eb7t th\u00f4ng b\u00e1o"
+                        "description": "Cập nhật cài đặt thông báo"
                     },
                     "response": []
                 }
@@ -2259,7 +2278,8 @@
                                 "v1",
                                 "categories"
                             ]
-                        }
+                        },
+                        "description": "Lấy danh sách danh mục phản ánh (Giao thông, Môi trường...)."
                     },
                     "response": []
                 },
@@ -2298,7 +2318,8 @@
                                 "v1",
                                 "priorities"
                             ]
-                        }
+                        },
+                        "description": "Lấy danh sách mức độ ưu tiên."
                     },
                     "response": []
                 }
@@ -2388,14 +2409,17 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 },
                                 {
                                     "key": "per_page",
-                                    "value": "20"
+                                    "value": "20",
+                                    "description": "Số lượng bản ghi trên mỗi trang (mặc định: 15)"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Xem lịch sử giao dịch/biến động số dư."
                     },
                     "response": []
                 },
@@ -2454,14 +2478,17 @@
                             "query": [
                                 {
                                     "key": "page",
-                                    "value": "1"
+                                    "value": "1",
+                                    "description": "Số trang hiện tại (mặc định: 1)"
                                 },
                                 {
                                     "key": "per_page",
-                                    "value": "20"
+                                    "value": "20",
+                                    "description": "Số lượng bản ghi trên mỗi trang (mặc định: 15)"
                                 }
                             ]
-                        }
+                        },
+                        "description": "Lấy danh sách thông báo của người dùng."
                     },
                     "response": []
                 },
@@ -2540,7 +2567,8 @@
                                 "2",
                                 "read"
                             ]
-                        }
+                        },
+                        "description": "Đánh dấu một thông báo là đã đọc."
                     },
                     "response": []
                 },
@@ -2566,7 +2594,8 @@
                                 "notifications",
                                 "read-all"
                             ]
-                        }
+                        },
+                        "description": "Đánh dấu tất cả thông báo là đã đọc."
                     },
                     "response": []
                 },
@@ -2726,7 +2755,8 @@
                                 "weather",
                                 "current"
                             ]
-                        }
+                        },
+                        "description": "Lấy thông tin thời tiết hiện tại tại vị trí."
                     },
                     "response": []
                 },
@@ -2752,7 +2782,8 @@
                                 "weather",
                                 "forecast"
                             ]
-                        }
+                        },
+                        "description": "Lấy dự báo thời tiết cho các ngày tới."
                     },
                     "response": []
                 },

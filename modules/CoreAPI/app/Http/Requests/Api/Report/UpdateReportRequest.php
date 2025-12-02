@@ -18,7 +18,8 @@ class UpdateReportRequest extends FormRequest
         return [
             'tieu_de' => 'sometimes|string|max:255',
             'mo_ta' => 'sometimes|string',
-            'uu_tien' => 'sometimes|integer|min:0|max:3',
+            'uu_tien_id' => 'sometimes|exists:muc_uu_tiens,id',
+            'uu_tien' => 'sometimes|exists:muc_uu_tiens,id',
         ];
     }
 

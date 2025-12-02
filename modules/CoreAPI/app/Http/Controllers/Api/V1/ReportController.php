@@ -42,13 +42,12 @@ class ReportController extends BaseController
         $query = PhanAnh::with(['nguoiDung', 'danhMuc', 'uuTien', 'coQuanXuLy'])
             ->where('la_cong_khai', true);
 
-        // Filter by category (map index to ID)
-        if ($request->filled('danh_muc')) {
-            $categories = DanhMucPhanAnh::orderBy('thu_tu_hien_thi')->pluck('id')->toArray();
-            $danhMucIndex = (int) $request->danh_muc;
-            if ($danhMucIndex >= 0 && $danhMucIndex < count($categories)) {
-                $query->where('danh_muc_id', $categories[$danhMucIndex]);
-            }
+        // Filter by category ID
+        if ($request->filled('danh_muc_id')) {
+            $query->where('danh_muc_id', $request->danh_muc_id);
+        } elseif ($request->filled('danh_muc')) {
+            // Support legacy param but treat as ID
+            $query->where('danh_muc_id', $request->danh_muc);
         }
 
         // Filter by status
@@ -56,13 +55,12 @@ class ReportController extends BaseController
             $query->where('trang_thai', $request->trang_thai);
         }
 
-        // Filter by priority (map index to ID)
-        if ($request->filled('uu_tien')) {
-            $priorities = MucUuTien::orderBy('cap_do')->pluck('id')->toArray();
-            $uuTienIndex = (int) $request->uu_tien;
-            if ($uuTienIndex >= 0 && $uuTienIndex < count($priorities)) {
-                $query->where('uu_tien_id', $priorities[$uuTienIndex]);
-            }
+        // Filter by priority ID
+        if ($request->filled('uu_tien_id')) {
+            $query->where('uu_tien_id', $request->uu_tien_id);
+        } elseif ($request->filled('uu_tien')) {
+            // Support legacy param but treat as ID
+            $query->where('uu_tien_id', $request->uu_tien);
         }
 
         // Search by title or description
@@ -83,20 +81,20 @@ class ReportController extends BaseController
             'trang_thai',
             'uu_tien_id',
         ];
-        
+
         $sortBy = $request->get('sort_by', 'created_at');
         $sortOrder = $request->get('sort_order', 'desc');
-        
+
         // Validate sort column
         if (!in_array($sortBy, $allowedSortColumns)) {
             $sortBy = 'created_at';
         }
-        
+
         // Validate sort order
         if (!in_array(strtolower($sortOrder), ['asc', 'desc'])) {
             $sortOrder = 'desc';
         }
-        
+
         $query->orderBy($sortBy, $sortOrder);
 
         // Paginate
@@ -114,28 +112,10 @@ class ReportController extends BaseController
     {
         $user = $request->user();
 
-        // Map danh_muc index (0-5) to actual database ID
-        // API uses: 0=traffic, 1=environment, 2=fire, 3=waste, 4=flood, 5=other
-        // Database IDs: 1, 2, 3, 4, 5, 6 (ordered by thu_tu_hien_thi)
-        $categories = DanhMucPhanAnh::orderBy('thu_tu_hien_thi')->pluck('id')->toArray();
-        $danhMucIndex = (int) $request->danh_muc;
-        
-        if ($danhMucIndex < 0 || $danhMucIndex >= count($categories)) {
-            return $this->badRequest('Danh mục không hợp lệ');
-        }
-        
-        $danhMucId = $categories[$danhMucIndex];
-
-        // Map uu_tien index to actual database ID
-        // API uses: 0=low, 1=medium, 2=high, 3=urgent
-        $priorities = MucUuTien::orderBy('cap_do')->pluck('id')->toArray();
-        $uuTienIndex = (int) $request->get('uu_tien', 1); // Default: medium (index 1)
-        
-        if ($uuTienIndex < 0 || $uuTienIndex >= count($priorities)) {
-            $uuTienIndex = 1; // Default to medium if invalid
-        }
-        
-        $uuTienId = $priorities[$uuTienIndex];
+        // Use direct IDs from request
+        // Default priority ID = 2 (Trung bình) if not provided
+        $uuTienId = $request->input('uu_tien_id', $request->input('uu_tien', 2));
+        $danhMucId = $request->input('danh_muc_id', $request->input('danh_muc'));
 
         // Create report
         $report = PhanAnh::create([
@@ -147,7 +127,7 @@ class ReportController extends BaseController
             'vi_do' => $request->vi_do,
             'kinh_do' => $request->kinh_do,
             'dia_chi' => $request->dia_chi,
-            'la_cong_khai' => $request->get('la_cong_khai', true),
+            'la_cong_khai' => $request->boolean('la_cong_khai', true),
             'trang_thai' => 0, // Pending
             'luot_ung_ho' => 0,
             'luot_khong_ung_ho' => 0,

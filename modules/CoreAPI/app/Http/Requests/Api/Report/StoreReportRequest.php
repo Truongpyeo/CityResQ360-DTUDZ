@@ -18,8 +18,10 @@ class StoreReportRequest extends FormRequest
         return [
             'tieu_de' => 'required|string|max:255',
             'mo_ta' => 'required|string',
-            'danh_muc' => 'required|integer|min:0|max:10',
-            'uu_tien' => 'sometimes|integer|min:0|max:3',
+            'danh_muc_id' => 'required_without:danh_muc|exists:danh_muc_phan_anhs,id',
+            'danh_muc' => 'sometimes|exists:danh_muc_phan_anhs,id',
+            'uu_tien_id' => 'sometimes|exists:muc_uu_tiens,id',
+            'uu_tien' => 'sometimes|exists:muc_uu_tiens,id',
             'vi_do' => 'required|numeric|between:-90,90',
             'kinh_do' => 'required|numeric|between:-180,180',
             'dia_chi' => 'required|string',
