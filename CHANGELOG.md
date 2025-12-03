@@ -1,76 +1,4 @@
-# CHANGELOG
-
-## 03/12/2025 - 00h02
-
-### Release v1.1.1
-
-**✨ New Features:**
-- Implement dual authentication (Sanctum + JWT) với IP whitelisting
-- Thêm quản lý env tự động & chuẩn hóa biến MAIL_*
-- Thêm quản lý env tự động & chuẩn hóa biến MAIL_*
-- Thêm kiến trúc Hybrid cho MediaService với CORS và Nginx
-
-**🐛 Bug Fixes:**
-- chuyển đổi report api sang dùng id và cập nhật tài liệu
-- Sửa lỗi Report API (SQL injection và priority mapping)
-- Expose MinIO ports and update Nginx proxy config
-- Return public URLs instead of internal MinIO URLs
-- Hash only plaintext part of Sanctum token
-- Remove non-existent revoked_at and expires_at columns
-- Clean dual auth without IP whitelisting
-- Bỏ IP whitelisting, chỉ giữ dual auth (Sanctum + JWT)
-- Fix lỗi upload media và cài đặt sharp
-- Sửa docker composer
-- add db credentials for media service
-- Sửa lỗi giao diện API Keys, xoá dependency lỗi & đồng bộ hạ tầng
-
-**📚 Documentation:**
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- Add Docker commands cheat sheet for project.
-- update CHANGELOG.md [skip ci]
-- Thêm vào .gitignore
-- update readme
-- add Setup.md
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG for v1.1.1
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update readme
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG for v1.1.1
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG for v1.2.0
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-
-**Technical Details:**
-- Tag: v1.1.1
-- Commits: 51
-- Released from: master branch
-- Release URL: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/releases/tag/v1.1.1
-
----
-
-
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v) (2025-12-02)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v) (2025-12-03)
 
 
 ### Bug Fixes
@@ -208,3 +136,6 @@ Kiểm tra bởi: Manual curl testing + Python scripts
 * **docker:** Xóa duplicate volumes key gây lỗi YAML parse ([668bf83](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/668bf8307ee3d8e197198d32820909909c9b692a))
 * **mysql:** Bỏ init.sql mount vì syntax không tương thích MySQL 8.0 ([fb31d5e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/fb31d5ece3ac016bd68fcb5fd033ec4953101dd3))
 * readme ([a9585e5](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a9585e5d3e275aa0ee68923e0cdf25ae943a8d6b))
+
+
+
