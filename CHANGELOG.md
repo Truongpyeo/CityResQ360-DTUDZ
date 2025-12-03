@@ -1,4 +1,4 @@
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v) (2025-12-02)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v) (2025-12-03)
 
 
 ### Bug Fixes
@@ -23,6 +23,7 @@
 * **deploy:** Thêm quản lý env tự động & chuẩn hóa biến MAIL_* ([c0ccdd2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/c0ccdd23e1aca9586342b0942a7c70783574948d))
 * **media-service:** Implement dual authentication (Sanctum + JWT) với IP whitelisting ([ee9423e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/ee9423e0279667e62b220eb976202cf20910379e))
 * **service:** Thêm kiến trúc Hybrid cho MediaService với CORS và Nginx ([f5a62a3](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/f5a62a312b99615f3cb52b4850b3b885017dc2c2))
+* update mobile ([5006bfe](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/5006bfec465dd19faad2685b8cb80d81f3147359))
 
 
 
