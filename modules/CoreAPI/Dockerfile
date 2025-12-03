@@ -15,7 +15,8 @@ RUN apk add --no-cache \
     nodejs \
     npm \
     nginx \
-    supervisor
+    supervisor \
+    linux-headers
 
 # Install Redis extension dependencies
 RUN apk add --no-cache \
@@ -26,7 +27,7 @@ RUN apk add --no-cache \
 
 # Configure and install PHP extensions with JPEG support
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype
-RUN docker-php-ext-install pdo pdo_mysql gd xml zip intl
+RUN docker-php-ext-install pdo pdo_mysql gd xml zip intl bcmath sockets
 
 # Install Redis extension via PECL
 RUN pecl install redis && docker-php-ext-enable redis

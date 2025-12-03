@@ -1,18 +1,24 @@
-FROM python:3.11-slim
-
-ENV PYTHONDONTWRITEBYTECODE=1 \
-    PYTHONUNBUFFERED=1 \
-    SERVICE_PORT=8007
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
-COPY requirements.txt .
+# Copy everything first
+COPY . .
 
-RUN pip install --no-cache-dir -r requirements.txt
+# Download dependencies and generate go.sum
+RUN go mod tidy && go mod download
 
-COPY . /app
+# Build
+RUN go build -o main .
+
+# Production image
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
+
+WORKDIR /root/
+
+COPY --from=builder /app/main .
 
 EXPOSE 8007
 
-CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8007"]
-
+CMD ["./main"]

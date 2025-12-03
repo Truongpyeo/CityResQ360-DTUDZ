@@ -1,21 +1,24 @@
-FROM node:20-alpine
-
-ENV NODE_ENV=production \
-    SERVICE_PORT=8002
+FROM golang:1.21-alpine AS builder
 
 WORKDIR /app
 
-COPY package*.json ./
+# Copy everything first
+COPY . .
 
-RUN if [ -f package-lock.json ]; then \
-        npm ci --only=production; \
-    else \
-        npm install --omit=dev && npm cache clean --force; \
-    fi
+# Download dependencies and generate go.sum
+RUN go mod tidy && go mod download
 
-COPY . /app
+# Build
+RUN go build -o main .
 
-EXPOSE 8002
+# Production image
+FROM alpine:latest
+RUN apk --no-cache add ca-certificates
 
-CMD ["node", "src/server.js"]
+WORKDIR /root/
 
+COPY --from=builder /app/main .
+
+EXPOSE 8004
+
+CMD ["./main"]
