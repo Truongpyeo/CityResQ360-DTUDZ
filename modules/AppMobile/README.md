@@ -1,140 +1,97 @@
-# CityResQ360
+This is a new [**React Native**](https://reactnative.dev) project, bootstrapped using [`@react-native-community/cli`](https://github.com/react-native-community/cli).
 
-CityResQ360 là nền tảng phản ánh – cảnh báo – giám sát đô thị mở giúp người dân, chính quyền và AI phối hợp xử lý sự cố theo thời gian thực. Dữ liệu tuân thủ chuẩn NGSI-LD nên rất dễ mở API cho đô thị thông minh khác hoặc startup GovTech tích hợp.
+# Getting Started
 
-## 🚨 Giới thiệu nhanh
-- Citizen App (web/mobile web) gửi phản ánh kèm ảnh, video, GPS, mô tả và theo dõi trạng thái xử lý.
-- AI Recognition Engine (Vision + NLP) tự động nhận dạng mức khẩn cấp, gợi ý SLA, đơn vị phụ trách và thông điệp broadcast.
-- Admin Dashboard giúp city officer quan sát bản đồ realtime, phân công lực lượng, khóa SLA và xem nhật ký xử lý.
-- CityWallet + CivicPoint token hóa điểm thưởng, tạo bảng xếp hạng “Citizen Hero”, minh bạch mọi giao dịch.
-- Mapbox/Leaflet hiển thị điểm phản ánh, cảnh báo đỏ – vàng – xanh, heatmap mật độ sự cố; sẵn sàng chia sẻ dữ liệu NGSI-LD.
+> **Note**: Make sure you have completed the [Set Up Your Environment](https://reactnative.dev/docs/set-up-your-environment) guide before proceeding.
 
-## 🧩 Bốn mô-đun chính
-### 1. Citizen App
-- Gửi phản ánh đa phương tiện, gắn GPS tự động, nhận thông báo tiến độ.
-- CivicPoint thưởng cho phản ánh hữu ích, hiển thị leaderboard theo phường.
+## Step 1: Start Metro
 
-### 2. AI Recognition Engine
-- Vision AI nhận diện kẹt xe, rác, ngập, cháy nổ… từ ảnh người dân.
-- NLP AI xử lý tiếng Việt, phân loại sự cố, suy luận mức khẩn cấp và gợi ý SLA.
+First, you will need to run **Metro**, the JavaScript build tool for React Native.
 
-### 3. Admin Dashboard
-- Bản đồ realtime + bảng SLA + nhật ký hành động cho từng phường/tuyến.
-- Bộ lọc theo khu vực, loại sự cố, cấp độ cảnh báo; phân quyền đa vai trò.
+To start the Metro dev server, run the following command from the root of your React Native project:
 
-### 4. CityWallet + CivicPoint
-- Token thưởng cho cư dân; bảng xếp hạng “Citizen Hero”.
-- API mở để doanh nghiệp/đơn vị tài trợ tạo ưu đãi hoặc quỹ cộng đồng.
+```sh
+# Using npm
+npm start
 
-## 🎯 Nhân vật & màn hình tiêu biểu
-### 👥 Citizen App
-| Screen | Mô tả | Thành phần |
-|--------|-------|-----------|
-| `/` | Trang giới thiệu, luồng mô-đun | Hero, Module grid, CTA |
-| `/map` | Bản đồ realtime (Mapbox) hiển thị phản ánh + heatmap | Map container, overlays |
-| `/actions` | Chiến dịch hành động + CivicPoint | ActionCard, FilterBar |
-| `/feedback` | Gửi ý tưởng/kịch bản phản ánh | Upload form |
-| `/stats` | Thống kê SLA, mật độ sự cố | Recharts (bar/radar/line) |
-
-### 🤖 AI Recognition Engine
-| Screen | Mô tả | Thành phần |
-|--------|-------|-----------|
-| `/chat` | CivicAI Copilot mô phỏng trả lời, gợi ý quy trình | Chat UI, typing indicator |
-| `/recommendations` | Kịch bản AI đề xuất (alert template, SLA) | Recommendation list |
-
-### 🏛️ Admin Dashboard
-| Screen | Mô tả | Thành phần |
-|--------|-------|-----------|
-| `/admin/dashboard` | Tổng quan phản ánh, sensor, heatmap | Cards, charts |
-| `/admin/wards` | Quản lý dữ liệu từng phường | Table, detail drawer |
-| `/admin/ai` | Theo dõi kết quả AI | Heatmap, Insight cards |
-| `/admin/users` | Quản lý tài khoản & quyền | CRUD table |
-| `/admin/logs` | Nhật ký hệ thống | Timeline, filters |
-
-### 💠 CityWallet + CivicPoint
-| Screen | Mô tả |
-|--------|-------|
-| `/actions` | Danh sách chiến dịch nhận CivicPoint |
-| `/stats` | Leaderboard & heatmap điểm thưởng |
-| `/feedback` | Đề xuất chiến dịch/ý tưởng mới |
-
-## 🛠 Tech Stack
-- Next.js 15.2.3 + TypeScript
-- Tailwind CSS 4, custom components (shadcn patterns)
-- ApexCharts & Recharts
-- Mapbox GL (Cesium optional)
-- React Dropzone, Flatpickr, Zustand, React Query
-
-## 📦 Cài đặt
-```bash
-git clone <repository-url>
-cd CityResQ360-DTUDZ/app
-yarn install
+# OR using Yarn
+yarn start
 ```
 
-Tạo `.env.local`:
-```env
-DATABASE_URL="postgresql://..."
-NEXT_PUBLIC_MAPBOX_TOKEN=your_mapbox_token
-NEXT_PUBLIC_AI_API_KEY=your_ai_api_key
-NEXT_PUBLIC_API_URL=http://localhost:3000
-JWT_SECRET=your_jwt_secret
+## Step 2: Build and run your app
+
+With Metro running, open a new terminal window/pane from the root of your React Native project, and use one of the following commands to build and run your Android or iOS app:
+
+### Android
+
+```sh
+# Using npm
+npm run android
+
+# OR using Yarn
+yarn android
 ```
 
-```bash
-yarn prisma:migrate
-yarn dev
-# mở http://localhost:3000
+### iOS
+
+For iOS, remember to install CocoaPods dependencies (this only needs to be run on first clone or after updating native deps).
+
+The first time you create a new project, run the Ruby bundler to install CocoaPods itself:
+
+```sh
+bundle install
 ```
 
-## 🌐 Routes
-```
-/                           # Landing CityResQ360
-/map                        # Bản đồ phản ánh realtime
-/actions                    # Chiến dịch & CivicPoint
-/feedback                   # Gửi ý tưởng / đề xuất
-/stats                      # Thống kê SLA, heatmap
+Then, and every time you update your native dependencies, run:
 
-/school/*                   # (Demo) module đào tạo đô thị
-/admin/*                    # Dashboard quản trị
-
-/chat                       # CivicAI Copilot
-/recommendations            # Kịch bản AI đề xuất
+```sh
+bundle exec pod install
 ```
 
-## 📱 Theme & Responsive
-- Light/Dark mode, lưu preference cục bộ.
-- Responsive đầy đủ: desktop ≥1920, laptop ≥1024, tablet ≥768, mobile ≥320.
+For more information, please visit [CocoaPods Getting Started guide](https://guides.cocoapods.org/using/getting-started.html).
 
-## 🚦 Scripts
-- `yarn dev` / `yarn build` / `yarn start`
-- `yarn lint`
-- `yarn prisma:generate`, `yarn prisma:migrate`, `yarn prisma:seed`
+```sh
+# Using npm
+npm run ios
 
-## 🔐 Roles
-- **Citizen**: gửi phản ánh, xem bản đồ, nhận CivicPoint.
-- **School / Partner**: (demo) quản lý chương trình cộng đồng.
-- **Admin**: quản trị dữ liệu, dashboard, logs.
+# OR using Yarn
+yarn ios
+```
 
-## 🗄 Database (Prisma + PostgreSQL)
-- Users & Roles
-- Incidents / Reports / Attachments
-- CivicPoint Transactions
-- Sensors & AI insights
-- Feedback & Campaigns
+If everything is set up correctly, you should see your new app running in the Android Emulator, iOS Simulator, or your connected device.
 
-## 📊 Feature highlights
-- Bản đồ realtime với cảnh báo đỏ – vàng – xanh, heatmap mật độ sự cố.
-- AI Recognition (Vision + NLP) mô phỏng pipeline tự động đánh giá mức khẩn cấp.
-- CityCopilot trợ lý chat hỗ trợ viết biên bản, đề xuất quy trình xử lý.
-- CityWallet + CivicPoint gamification minh bạch, leaderboard Citizen Hero.
-- Admin analytics: Dashboard SLA, logs, phân quyền đa tầng.
+This is one way to run your app — you can also build it directly from Android Studio or Xcode.
 
-## 🤝 Contributing
-1. Fork repo
-2. `git checkout -b feature/<name>`
-3. Commit + push
-4. Mở Pull Request
+## Step 3: Modify your app
 
-## 📄 License
-Phân phối theo MIT License – xem `LICENSE`.
+Now that you have successfully run the app, let's make changes!
+
+Open `App.tsx` in your text editor of choice and make some changes. When you save, your app will automatically update and reflect these changes — this is powered by [Fast Refresh](https://reactnative.dev/docs/fast-refresh).
+
+When you want to forcefully reload, for example to reset the state of your app, you can perform a full reload:
+
+- **Android**: Press the <kbd>R</kbd> key twice or select **"Reload"** from the **Dev Menu**, accessed via <kbd>Ctrl</kbd> + <kbd>M</kbd> (Windows/Linux) or <kbd>Cmd ⌘</kbd> + <kbd>M</kbd> (macOS).
+- **iOS**: Press <kbd>R</kbd> in iOS Simulator.
+
+## Congratulations! :tada:
+
+You've successfully run and modified your React Native App. :partying_face:
+
+### Now what?
+
+- If you want to add this new React Native code to an existing application, check out the [Integration guide](https://reactnative.dev/docs/integration-with-existing-apps).
+- If you're curious to learn more about React Native, check out the [docs](https://reactnative.dev/docs/getting-started).
+
+# Troubleshooting
+
+If you're having issues getting the above steps to work, see the [Troubleshooting](https://reactnative.dev/docs/troubleshooting) page.
+
+# Learn More
+
+To learn more about React Native, take a look at the following resources:
+
+- [React Native Website](https://reactnative.dev) - learn more about React Native.
+- [Getting Started](https://reactnative.dev/docs/environment-setup) - an **overview** of React Native and how setup your environment.
+- [Learn the Basics](https://reactnative.dev/docs/getting-started) - a **guided tour** of the React Native **basics**.
+- [Blog](https://reactnative.dev/blog) - read the latest official React Native **Blog** posts.
+- [`@facebook/react-native`](https://github.com/facebook/react-native) - the Open Source; GitHub **repository** for React Native.
