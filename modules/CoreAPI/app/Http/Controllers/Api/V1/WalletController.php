@@ -78,14 +78,14 @@ class WalletController extends BaseController
     public function transactions(Request $request)
     {
         $userId = auth()->id();
-        
+
         $filters = [
             'loai_giao_dich' => $request->loai_giao_dich,
             'per_page' => $request->get('per_page', 15),
         ];
-        
+
         $transactions = $this->walletService->getTransactions($userId, $filters);
-        
+
         $data = $transactions->getCollection()->map(function ($trans) {
             return [
                 'id' => $trans->id,
@@ -131,7 +131,7 @@ class WalletController extends BaseController
 
         try {
             $redemption = $this->walletService->processRedeem($userId, $rewardId);
-            
+
             $data = [
                 'so_du_moi' => auth()->user()->fresh()->diem_thanh_pho,
                 'voucher_code' => $redemption->ma_voucher,
@@ -157,21 +157,21 @@ class WalletController extends BaseController
     {
         $query = PhanThuong::where('trang_thai', 1)
             ->where('so_luong_con_lai', '>', 0);
-        
+
         // Filter by type if provided
         if ($request->has('loai')) {
             $query->where('loai', $request->loai);
         }
-        
+
         // Filter out expired rewards
         $query->where(function ($q) {
             $q->whereNull('ngay_het_han')
-              ->orWhere('ngay_het_han', '>=', now()->toDateString());
+                ->orWhere('ngay_het_han', '>=', now()->toDateString());
         });
 
         $rewards = $query->orderBy('so_diem_can')
             ->paginate($request->get('per_page', 15));
-        
+
         $data = $rewards->getCollection()->map(function ($reward) {
             return [
                 'id' => $reward->id,

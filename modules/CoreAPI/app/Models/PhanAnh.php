@@ -155,6 +155,11 @@ class PhanAnh extends Model
         return $this->hasMany(BinhLuanPhanAnh::class, 'phan_anh_id');
     }
 
+    public function hinhAnhs(): HasMany
+    {
+        return $this->hasMany(HinhAnhPhanAnh::class, 'phan_anh_id');
+    }
+
     public function binhChons(): HasMany
     {
         return $this->hasMany(BinhChonPhanAnh::class, 'phan_anh_id');
@@ -203,8 +208,8 @@ class PhanAnh extends Model
                 sin(radians(vi_do))
             )) AS distance
         ", [$lat, $lon, $lat])
-        ->having('distance', '<=', $radiusKm)
-        ->orderBy('distance');
+            ->having('distance', '<=', $radiusKm)
+            ->orderBy('distance');
     }
 
     /**
@@ -232,7 +237,7 @@ class PhanAnh extends Model
 
     public function getStatusName(): string
     {
-        return match($this->trang_thai) {
+        return match ($this->trang_thai) {
             self::TRANG_THAI_PENDING => 'Chờ xử lý',
             self::TRANG_THAI_VERIFIED => 'Đã xác minh',
             self::TRANG_THAI_IN_PROGRESS => 'Đang xử lý',

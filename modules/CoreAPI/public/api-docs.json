@@ -1,0 +1,485 @@
+{
+    "openapi": "3.0.0",
+    "info": {
+        "title": "CityResQ360 NGSI-LD API",
+        "description": "API dữ liệu mở liên kết (Linked Open Data) theo chuẩn ETSI NGSI-LD cho hệ thống ứng phó khẩn cấp thành phố thông minh. Hỗ trợ 5 loại entity: Alert (Phản ánh), Organization (Tổ chức), Person (Người dùng), Category (Danh mục), WeatherObserved (Thời tiết).",
+        "contact": {
+            "name": "DTU-DZ Team",
+            "email": "contact@cityresq360.io.vn"
+        },
+        "license": {
+            "name": "GPL-3.0",
+            "url": "https://www.gnu.org/licenses/gpl-3.0.html"
+        },
+        "version": "1.0.0"
+    },
+    "servers": [
+        {
+            "url": "http://localhost:8000",
+            "description": "Local Development Server"
+        },
+        {
+            "url": "https://api.cityresq360.io.vn",
+            "description": "Production Server"
+        }
+    ],
+    "paths": {
+        "/ngsi-ld/v1/entities": {
+            "get": {
+                "tags": [
+                    "NGSI-LD OpenData"
+                ],
+                "summary": "Truy vấn NGSI-LD entities",
+                "description": "Truy vấn các entities với bộ lọc linh hoạt. Hỗ trợ 5 loại entity: Alert (Phản ánh), Organization (Tổ chức), Person (Người dùng), Category (Danh mục), WeatherObserved (Thời tiết).\n\nVÍ DỤ: Alerts về giao thông (?type=Alert&q=category==traffic), Tổ chức cấp thành phố (?type=Organization&level=0), Phân trang (?limit=10&offset=20), Tìm gần điểm (?georel=near;maxDistance==5000&geometry=Point&coordinates=[106.7,10.8])",
+                "operationId": "getEntities",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "query",
+                        "description": "Loại entity cần truy vấn",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "Alert",
+                            "enum": [
+                                "Alert",
+                                "Organization",
+                                "Person",
+                                "Category",
+                                "WeatherObserved"
+                            ]
+                        }
+                    },
+                    {
+                        "name": "limit",
+                        "in": "query",
+                        "description": "Số lượng kết quả tối đa (1-1000)",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 20,
+                            "maximum": 1000,
+                            "minimum": 1
+                        },
+                        "example": 20
+                    },
+                    {
+                        "name": "offset",
+                        "in": "query",
+                        "description": "Vị trí bắt đầu cho phân trang",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "default": 0,
+                            "minimum": 0
+                        },
+                        "example": 0
+                    },
+                    {
+                        "name": "q",
+                        "in": "query",
+                        "description": "Bộ lọc thuộc tính. Ví dụ: category==traffic (lọc giao thông), severity==high (mức độ cao), status==pending (đang chờ)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "category==traffic"
+                    },
+                    {
+                        "name": "georel",
+                        "in": "query",
+                        "description": "Quan hệ địa lý (near, within)",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "near;maxDistance==5000"
+                    },
+                    {
+                        "name": "geometry",
+                        "in": "query",
+                        "description": "Loại hình học (Point, Polygon)",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Point",
+                                "Polygon"
+                            ]
+                        },
+                        "example": "Point"
+                    },
+                    {
+                        "name": "coordinates",
+                        "in": "query",
+                        "description": "Tọa độ dạng JSON [longitude, latitude]",
+                        "required": false,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "[106.7,10.8]"
+                    },
+                    {
+                        "name": "level",
+                        "in": "query",
+                        "description": "Cấp tổ chức (chỉ dùng cho Organization): 0=Thành phố, 1=Quận, 2=Phường",
+                        "required": false,
+                        "schema": {
+                            "type": "integer",
+                            "enum": [
+                                0,
+                                1,
+                                2
+                            ]
+                        },
+                        "example": 0
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công - Trả về danh sách entities dạng JSON-LD",
+                        "headers": {
+                            "Content-Type": {
+                                "description": "application/ld+json",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            },
+                            "X-Total-Count": {
+                                "description": "Tổng số entities",
+                                "schema": {
+                                    "type": "integer"
+                                }
+                            }
+                        },
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "type": "array",
+                                    "items": {
+                                        "properties": {
+                                            "id": {
+                                                "type": "string",
+                                                "example": "urn:ngsi-ld:Alert:1"
+                                            },
+                                            "type": {
+                                                "type": "string",
+                                                "example": "Alert"
+                                            },
+                                            "@context": {
+                                                "type": "array",
+                                                "items": {
+                                                    "type": "string"
+                                                }
+                                            }
+                                        },
+                                        "type": "object"
+                                    }
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "description": "Lỗi request không hợp lệ",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "example": "https://uri.etsi.org/ngsi-ld/errors/BadRequestData"
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Unsupported entity type"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ngsi-ld/v1/entities/{id}": {
+            "get": {
+                "tags": [
+                    "NGSI-LD OpenData"
+                ],
+                "summary": "Lấy entity theo ID",
+                "description": "Truy vấn một entity cụ thể bằng URN. Format ID: urn:ngsi-ld:EntityType:ID (ví dụ: urn:ngsi-ld:Alert:1, urn:ngsi-ld:Organization:5)",
+                "operationId": "getEntityById",
+                "parameters": [
+                    {
+                        "name": "id",
+                        "in": "path",
+                        "description": "Entity URN (Uniform Resource Name)",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        },
+                        "example": "urn:ngsi-ld:Alert:1"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công - Trả về entity dạng JSON-LD",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "example": "urn:ngsi-ld:Alert:1"
+                                        },
+                                        "type": {
+                                            "type": "string",
+                                            "example": "Alert"
+                                        },
+                                        "@context": {
+                                            "type": "array",
+                                            "items": {
+                                                "type": "string"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Không tìm thấy entity",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "example": "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Entity not found"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ngsi-ld/v1/types": {
+            "get": {
+                "tags": [
+                    "NGSI-LD OpenData"
+                ],
+                "summary": "Liệt kê các loại entity có sẵn",
+                "description": "Trả về danh sách các loại entity (types) được hỗ trợ trong hệ thống. Mỗi type đại diện cho một loại dữ liệu khác nhau như Alert, Organization, Person, Category, WeatherObserved.",
+                "operationId": "getTypes",
+                "responses": {
+                    "200": {
+                        "description": "Thành công - Danh sách entity types",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "types": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "id": {
+                                                        "type": "string",
+                                                        "example": "Alert"
+                                                    },
+                                                    "typeName": {
+                                                        "type": "string",
+                                                        "example": "Alert"
+                                                    },
+                                                    "description": {
+                                                        "type": "string",
+                                                        "example": "Phản ánh sự cố từ người dân"
+                                                    },
+                                                    "attributeNames": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ngsi-ld/v1/types/{type}": {
+            "get": {
+                "tags": [
+                    "NGSI-LD OpenData"
+                ],
+                "summary": "Lấy schema của một entity type",
+                "description": "Trả về JSON Schema chi tiết của một entity type cụ thể, bao gồm các thuộc tính, kiểu dữ liệu, và mô tả của từng field.",
+                "operationId": "getTypeSchema",
+                "parameters": [
+                    {
+                        "name": "type",
+                        "in": "path",
+                        "description": "Tên entity type",
+                        "required": true,
+                        "schema": {
+                            "type": "string",
+                            "enum": [
+                                "Alert",
+                                "Organization",
+                                "Person",
+                                "Category",
+                                "WeatherObserved"
+                            ]
+                        },
+                        "example": "Alert"
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "Thành công - Schema của entity type",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "id": {
+                                            "type": "string",
+                                            "example": "Alert"
+                                        },
+                                        "typeName": {
+                                            "type": "string",
+                                            "example": "Alert"
+                                        },
+                                        "description": {
+                                            "type": "string"
+                                        },
+                                        "attributeDetails": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "attributeName": {
+                                                        "type": "string"
+                                                    },
+                                                    "attributeType": {
+                                                        "type": "string"
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "description": "Entity type không tồn tại",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "type": {
+                                            "type": "string",
+                                            "example": "https://uri.etsi.org/ngsi-ld/errors/ResourceNotFound"
+                                        },
+                                        "title": {
+                                            "type": "string",
+                                            "example": "Entity type not found"
+                                        },
+                                        "detail": {
+                                            "type": "string"
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        },
+        "/ngsi-ld/v1/attributes": {
+            "get": {
+                "tags": [
+                    "NGSI-LD OpenData"
+                ],
+                "summary": "Danh sách các attributes có thể query",
+                "description": "Trả về danh sách tất cả các attributes có thể sử dụng trong query filter (tham số q). Giúp developer biết được các field nào có thể dùng để lọc dữ liệu.",
+                "operationId": "getAttributes",
+                "responses": {
+                    "200": {
+                        "description": "Thành công - Danh sách queryable attributes",
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "properties": {
+                                        "attributes": {
+                                            "type": "array",
+                                            "items": {
+                                                "properties": {
+                                                    "attributeName": {
+                                                        "type": "string",
+                                                        "example": "category"
+                                                    },
+                                                    "attributeType": {
+                                                        "type": "string",
+                                                        "example": "Property"
+                                                    },
+                                                    "entityTypes": {
+                                                        "type": "array",
+                                                        "items": {
+                                                            "type": "string"
+                                                        }
+                                                    },
+                                                    "description": {
+                                                        "type": "string"
+                                                    },
+                                                    "queryExample": {
+                                                        "type": "string",
+                                                        "example": "category==traffic"
+                                                    }
+                                                },
+                                                "type": "object"
+                                            }
+                                        }
+                                    },
+                                    "type": "object"
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    },
+    "tags": [
+        {
+            "name": "NGSI-LD OpenData",
+            "description": "Dữ liệu mở liên kết theo chuẩn ETSI GS CIM 009. Các endpoints này tuân thủ chuẩn NGSI-LD và trả về dữ liệu ở định dạng JSON-LD với semantic context."
+        }
+    ]
+}

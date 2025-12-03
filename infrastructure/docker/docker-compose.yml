@@ -23,6 +23,7 @@ services:
             RABBITMQ_DEFAULT_VHOST: /
         volumes:
             - rabbitmq_data:/var/lib/rabbitmq
+            - ../../infrastructure/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
         networks:
             - cityresq-network
         healthcheck:
@@ -76,8 +77,7 @@ services:
         restart: unless-stopped
 
     mongodb:
-        image: mongo:4.4
-        platform: linux/amd64
+        image: mongo:5.0
         container_name: cityresq-mongodb
         ports:
             - "27017:27017"
@@ -103,10 +103,9 @@ services:
         environment:
             POSTGRES_USER: cityresq
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
-            POSTGRES_DB: wallet_db
+            POSTGRES_DB: shared_db
         volumes:
             - postgres_data:/var/lib/postgresql/data
-            - ../../modules/WalletService/migrations:/docker-entrypoint-initdb.d
         networks:
             - cityresq-network
         healthcheck:
@@ -300,6 +299,231 @@ services:
             retries: 5
         restart: unless-stopped
 
+    meilisearch:
+        image: getmeili/meilisearch:v1.5
+        container_name: cityresq-meilisearch
+        ports:
+            - "7700:7700"
+        environment:
+            MEILI_MASTER_KEY: ${MEILISEARCH_MASTER_KEY:-cityresq_meili_master_key}
+            MEILI_ENV: ${MEILI_ENV:-development}
+            MEILI_HTTP_ADDR: 0.0.0.0:7700
+            MEILI_NO_ANALYTICS: "true"
+        volumes:
+            - meilisearch_data:/meili_data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    orion-ld:
+        image: fiware/orion-ld:1.5.1
+        platform: linux/amd64
+        container_name: cityresq-orion-ld
+        ports:
+            - "1026:1026"
+        environment:
+            ORIONLD_MONGO_HOST: mongodb
+            ORIONLD_MONGO_DB: orion
+            ORIONLD_MONGO_USER: cityresq
+            ORIONLD_MONGO_PASSWORD: ${MONGODB_PASSWORD:-cityresq_password}
+            ORIONLD_PORT: 1026
+            ORIONLD_LOG_LEVEL: DEBUG
+        depends_on:
+            mongodb:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:1026/version"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+        restart: unless-stopped
+
+
+    # ==========================================
+    # CONSUMER SERVICES
+    # ==========================================
+    analytics-consumer:
+        build:
+            context: ../../modules/AnalyticsConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-analytics-consumer
+        environment:
+            NODE_ENV: development
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            CLICKHOUSE_HOST: clickhouse
+            CLICKHOUSE_PORT: 8123
+            CLICKHOUSE_HTTP_PORT: 8123
+            CLICKHOUSE_DB: analytics_db
+            CLICKHOUSE_USER: cityresq
+            CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cityresq_password}
+            QUEUE_NAME: analytics.events
+            BATCH_SIZE: 100
+            FLUSH_INTERVAL: 5000
+        ports:
+            - "9100:9229"  # Node.js debug port
+        volumes:
+            - ../../modules/AnalyticsConsumer:/app
+            - /app/node_modules
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            clickhouse:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    notification-consumer:
+        build:
+            context: ../../modules/NotificationConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-notification-consumer
+        environment:
+            NODE_ENV: development
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            NOTIFICATION_SERVICE_URL: http://notification-service:8006/api/v1
+            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017/notification_db?authSource=admin
+            QUEUE_NAME: notifications.events
+        ports:
+            - "9101:9229"  # Node.js debug port
+        volumes:
+            - ../../modules/NotificationConsumer:/app
+            - /app/node_modules
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            notification-service:
+                condition: service_started
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    orion-sync-consumer:
+        build:
+            context: ../../modules/OrionSyncConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-orion-sync-consumer
+        environment:
+            NODE_ENV: development
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            ORION_URL: http://orion-ld:1026
+            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017
+            QUEUE_NAME: orion.sync
+        ports:
+            - "9102:9229"  # Node.js debug port
+        volumes:
+            - ../../modules/OrionSyncConsumer:/app
+            - /app/node_modules
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            orion-ld:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    # ==========================================
+    # ADAPTER SERVICES
+    # ==========================================
+    context-broker-adapter:
+        build:
+            context: ../../modules/ContextBrokerAdapter
+            dockerfile: Dockerfile
+        container_name: cityresq-context-broker-adapter
+        ports:
+            - "8012:8012"
+        environment:
+            PORT: "8012"
+            MYSQL_HOST: mysql
+            MYSQL_PORT: "3306"
+            MYSQL_USER: cityresq
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-cityresq_db}
+            ORION_URL: http://orion-ld:1026
+        depends_on:
+            mysql:
+                condition: service_healthy
+            orion-ld:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    iot-adapter:
+        build:
+            context: ../../modules/IoTAdapter
+            dockerfile: Dockerfile
+        container_name: cityresq-iot-adapter
+        ports:
+            - "8011:8011"
+        environment:
+            PORT: "8011"
+            MQTT_BROKER: mqtt
+            MQTT_PORT: "1883"
+            MQTT_CLIENT_ID: iot-adapter
+            ORION_URL: http://orion-ld:1026
+        depends_on:
+            mqtt:
+                condition: service_healthy
+            orion-ld:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    # ==========================================
+    # EVENT CONSUMERS (Go)
+    # ==========================================
+    notification-consumer:
+        build:
+            context: ../../modules/NotificationConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-notification-consumer
+        environment:
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672/
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    analytics-consumer:
+        build:
+            context: ../../modules/AnalyticsConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-analytics-consumer
+        environment:
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672/
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    orion-sync-consumer:
+        build:
+            context: ../../modules/OrionSyncConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-orion-sync-consumer
+        environment:
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672/
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
     # ==========================================
     # APPLICATION SERVICES
     # ==========================================
@@ -335,13 +559,10 @@ services:
 
             MEDIA_SERVICE_URL: http://media-service:8004/api/v1
             NOTIFICATION_SERVICE_URL: http://notification-service:8006/api/v1
-            WALLET_SERVICE_URL: http://wallet-service:8005/api/v1
         volumes:
             - ../../modules/CoreAPI:/var/www/html
             - coreapi_storage:/var/www/html/storage
-            - /var/www/html/vendor
-            - /var/www/html/node_modules
-            - /var/www/html/public/build
+
         depends_on:
             mysql:
                 condition: service_healthy
@@ -436,35 +657,7 @@ services:
             - cityresq-network
         restart: unless-stopped
 
-    wallet-service:
-        build:
-            context: ../../modules/WalletService
-            dockerfile: Dockerfile
-        container_name: cityresq-wallet-service
-        ports:
-            - "8005:8005"
-        environment:
-            PORT: 8005
-            ENV: development
-            POSTGRES_HOST: postgres
-            POSTGRES_PORT: 5432
-            POSTGRES_USER: cityresq
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
-            POSTGRES_DB: wallet_db
-            REDIS_URL: redis://redis:6379
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
-            EVENT_EXCHANGE: cityresq.wallet
-        depends_on:
-            postgres:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
-        networks:
-            - cityresq-network
-        restart: unless-stopped
+
 
     incident-service:
         build:
@@ -578,17 +771,19 @@ services:
         environment:
             PORT: 8007
             ENV: development
-            OPENSEARCH_HOST: opensearch
-            OPENSEARCH_PORT: 9200
-            OPENSEARCH_INDEX_PREFIX: cityresq
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
-        volumes:
-            - ../../modules/SearchService:/app
+            # Meilisearch
+            MEILI_URL: http://meilisearch:7700
+            MEILI_MASTER_KEY: ${MEILISEARCH_MASTER_KEY:-cityresq_meili_master_key}
+            # MySQL (for data sync)
+            MYSQL_HOST: mysql
+            MYSQL_PORT: 3306
+            MYSQL_USER: cityresq
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+            MYSQL_DATABASE: cityresq_db
         depends_on:
-            opensearch:
+            meilisearch:
                 condition: service_healthy
-            rabbitmq:
+            mysql:
                 condition: service_healthy
         networks:
             - cityresq-network
@@ -698,6 +893,42 @@ services:
             - cityresq-network
         restart: unless-stopped
 
+    # ==========================================
+    # MONITORING
+    # ==========================================
+    prometheus:
+        image: prom/prometheus:latest
+        container_name: cityresq-prometheus
+        ports:
+            - "9091:9090"
+        volumes:
+            - ../../infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+            - prometheus_data:/prometheus
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+            - '--web.console.templates=/usr/share/prometheus/consoles'
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    grafana:
+        image: grafana/grafana:latest
+        container_name: cityresq-grafana
+        ports:
+            - "3001:3000"
+        environment:
+            - GF_SECURITY_ADMIN_USER=admin
+            - GF_SECURITY_ADMIN_PASSWORD=admin
+            - GF_USERS_ALLOW_SIGN_UP=false
+        volumes:
+            - grafana_data:/var/lib/grafana
+            - ../../infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
 volumes:
     mysql_data:
     mongodb_data:
@@ -705,15 +936,19 @@ volumes:
     postgres_incident_data:
     postgres_aiml_data:
     postgres_floodeye_data:
-    timescaledb_data:
     redis_data:
     minio_data:
-    rabbitmq_data:
     opensearch_data:
     clickhouse_data:
+    meilisearch_data:
+    rabbitmq_data:
+    timescaledb_data:
     coreapi_storage:
     media_uploads:
     aiml_models:
+    prometheus_data:
+    grafana_data:
+
 
 networks:
     cityresq-network:

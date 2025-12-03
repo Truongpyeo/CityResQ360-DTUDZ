@@ -28,6 +28,21 @@ Route::get('/test', function () {
     return Inertia::render('Test');
 });
 
+// Custom route to serve Swagger JSON directly (Bypasses SwaggerController generation logic)
+Route::get('api-docs-json', function () {
+    // We serve from public path because storage might be a separate docker volume
+    $path = public_path('api-docs.json');
+
+    if (!file_exists($path)) {
+        return response()->json(['error' => 'API Docs not found at ' . $path], 404);
+    }
+
+    return response()->file($path, [
+        'Content-Type' => 'application/json',
+        'Access-Control-Allow-Origin' => '*',
+    ]);
+})->name('l5-swagger.default.docs');
+
 // ==========================================
 // CLIENT AUTHENTICATION
 // ==========================================

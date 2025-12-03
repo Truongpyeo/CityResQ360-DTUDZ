@@ -76,6 +76,7 @@
 ### Bug Fixes
 
 * add db credentials for media service ([a060847](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a060847ed9ddbfd6ef0502623ad093657463ab54))
+* **api:** chuyển đổi report api sang dùng id và cập nhật tài liệu ([7b9a9c6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/7b9a9c6cb29dc59bdd7e320b87969bf65a0c2096))
 * **api:** Sửa lỗi giao diện API Keys, xoá dependency lỗi & đồng bộ hạ tầng ([e52c848](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e52c8489c14e916a0eb452b35714d4926fc55393))
 * **api:** Sửa lỗi Report API (SQL injection và priority mapping) ([2427602](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/242760233beb43769586029308f6ce7ab04b29e4))
 * **docker:** Expose MinIO ports and update Nginx proxy config ([7197899](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/719789958bab03536d1e0189ac8af9f7da2bbeb7))
@@ -92,8 +93,10 @@
 
 * **deploy:** Thêm quản lý env tự động & chuẩn hóa biến MAIL_* ([a494741](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a494741edfe1cde59db1e3393c081794268eed27))
 * **deploy:** Thêm quản lý env tự động & chuẩn hóa biến MAIL_* ([c0ccdd2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/c0ccdd23e1aca9586342b0942a7c70783574948d))
+* **iot:** tích hợp hệ thống IoT và kiến trúc event-driven với RabbitMQ ([8ee53c2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8ee53c29b9d88370af2dde23a11835aecbb1750b))
 * **media-service:** Implement dual authentication (Sanctum + JWT) với IP whitelisting ([ee9423e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/ee9423e0279667e62b220eb976202cf20910379e))
 * **service:** Thêm kiến trúc Hybrid cho MediaService với CORS và Nginx ([f5a62a3](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/f5a62a312b99615f3cb52b4850b3b885017dc2c2))
+* update mobile ([5006bfe](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/5006bfec465dd19faad2685b8cb80d81f3147359))
 
 
 

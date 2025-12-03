@@ -47,6 +47,12 @@ class DatabaseSeeder extends Seeder
 
             // System config
             CauHinhHeThongSeeder::class,
+
+            // Module definitions (for API Gateway)
+            ModuleDefinitionsSeeder::class,
+
+            // Rewards
+
         ]);
 
         $this->command->newLine();
@@ -76,7 +82,7 @@ class DatabaseSeeder extends Seeder
         $this->command->info('   - Categories: 6 (Traffic, Environment, Fire, Waste, Flood, Other)');
         $this->command->newLine();
         $this->command->info('🎯 All API endpoints now have test data!');
-        
+
         Model::reguard(); // Re-enable mass assignment protection
     }
 }

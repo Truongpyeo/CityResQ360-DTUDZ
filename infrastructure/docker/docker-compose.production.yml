@@ -89,10 +89,9 @@ services:
         environment:
             POSTGRES_USER: cityresq
             POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
-            POSTGRES_DB: wallet_db
+            POSTGRES_DB: shared_db
         volumes:
             - postgres_data:/var/lib/postgresql/data
-            - ../../modules/WalletService/migrations:/docker-entrypoint-initdb.d
         networks:
             - cityresq-network
         healthcheck:
@@ -324,7 +323,7 @@ services:
 
             MEDIA_SERVICE_URL: ${MEDIA_SERVICE_URL:-http://media-service:8004/api/v1}
             NOTIFICATION_SERVICE_URL: ${NOTIFICATION_SERVICE_URL:-http://notification-service:8006/api/v1}
-            WALLET_SERVICE_URL: ${WALLET_SERVICE_URL:-http://wallet-service:8005/api/v1}
+
         ports:
             - "8000:80"      # Nginx listens on port 80 inside container
         volumes:
@@ -421,35 +420,6 @@ services:
             - cityresq-network
         restart: unless-stopped
 
-    wallet-service:
-        build:
-            context: ../../modules/WalletService
-            dockerfile: Dockerfile
-        container_name: cityresq-wallet-service
-        ports:
-            - "8005:8005"
-        environment:
-            PORT: 8005
-            ENV: production
-            POSTGRES_HOST: postgres
-            POSTGRES_PORT: 5432
-            POSTGRES_USER: cityresq
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
-            POSTGRES_DB: wallet_db
-            REDIS_URL: redis://redis:6379
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
-            EVENT_EXCHANGE: cityresq.wallet
-        depends_on:
-            postgres:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
-        networks:
-            - cityresq-network
-        restart: unless-stopped
 
     incident-service:
         build:
@@ -457,31 +427,9 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-incident-service
         ports:
-            - "8001:8001"
+            - "8005:8005"
         environment:
-            PORT: 8001
-            NODE_ENV: production
-            POSTGRES_HOST: postgres-incident
-            POSTGRES_PORT: 5432
-            POSTGRES_USER: cityresq
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
-            POSTGRES_DB: incident_db
-            REDIS_URL: redis://redis:6379
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            CORE_API_URL: http://coreapi:80/api/v1
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
-        volumes:
-            - ../../modules/IncidentService:/app
-            - /app/node_modules
-        depends_on:
-            postgres-incident:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
-            coreapi:
-                condition: service_started
+            PORT: 8005
         networks:
             - cityresq-network
         restart: unless-stopped
@@ -492,29 +440,11 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-iot-service
         ports:
-            - "8002:8002"
+            - "8004:8004"
         environment:
-            PORT: 8002
-            NODE_ENV: production
-            POSTGRES_HOST: timescaledb
-            POSTGRES_PORT: 5432
-            POSTGRES_USER: cityresq
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
-            POSTGRES_DB: iot_db
-            MQTT_BROKER: mqtt://mqtt:1883
-            MQTT_WS_URL: ws://mqtt:9001
-            MQTT_TOPIC_PREFIX: cityresq/iot
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
-        volumes:
-            - ../../modules/IoTService:/app
-            - /app/node_modules
+            PORT: 8004
         depends_on:
-            timescaledb:
-                condition: service_healthy
             mqtt:
-                condition: service_healthy
-            rabbitmq:
                 condition: service_healthy
         networks:
             - cityresq-network
@@ -562,19 +492,6 @@ services:
             - "8007:8007"
         environment:
             PORT: 8007
-            ENV: production
-            OPENSEARCH_HOST: opensearch
-            OPENSEARCH_PORT: 9200
-            OPENSEARCH_INDEX_PREFIX: cityresq
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
-        volumes:
-            - ../../modules/SearchService:/app
-        depends_on:
-            opensearch:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
         networks:
             - cityresq-network
         restart: unless-stopped
@@ -585,27 +502,9 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-floodeye-service
         ports:
-            - "8008:8008"
+            - "8003:8003"
         environment:
-            PORT: 8008
-            ENV: production
-            POSTGRES_HOST: postgres-floodeye
-            POSTGRES_PORT: 5432
-            POSTGRES_USER: cityresq
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
-            POSTGRES_DB: floodeye_db
-            IOT_SERVICE_URL: http://iot-service:8002/api/v1
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            OSM_API_URL: https://nominatim.openstreetmap.org
-        volumes:
-            - ../../modules/FloodEyeService:/app
-        depends_on:
-            postgres-floodeye:
-                condition: service_healthy
-            iot-service:
-                condition: service_started
-            rabbitmq:
-                condition: service_healthy
+            PORT: 8003
         networks:
             - cityresq-network
         restart: unless-stopped
@@ -637,6 +536,132 @@ services:
                 condition: service_healthy
             coreapi:
                 condition: service_started
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    # ==========================================
+    # CONSUMER SERVICES
+    # ==========================================
+    analytics-consumer:
+        build:
+            context: ../../modules/AnalyticsConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-analytics-consumer
+        environment:
+            NODE_ENV: production
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            CLICKHOUSE_HOST: clickhouse
+            CLICKHOUSE_PORT: 8123
+            CLICKHOUSE_HTTP_PORT: 8123
+            CLICKHOUSE_DB: analytics_db
+            CLICKHOUSE_USER: cityresq
+            CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cityresq_password}
+            QUEUE_NAME: analytics.events
+            BATCH_SIZE: 100
+            FLUSH_INTERVAL: 5000
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            clickhouse:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    notification-consumer:
+        build:
+            context: ../../modules/NotificationConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-notification-consumer
+        environment:
+            NODE_ENV: production
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            NOTIFICATION_SERVICE_URL: http://notification-service:8006/api/v1
+            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017/notification_db?authSource=admin
+            QUEUE_NAME: notifications.events
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            notification-service:
+                condition: service_started
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    orion-sync-consumer:
+        build:
+            context: ../../modules/OrionSyncConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-orion-sync-consumer
+        environment:
+            NODE_ENV: production
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            ORION_URL: http://context-broker:1026
+            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017
+            QUEUE_NAME: orion.sync
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            context-broker:
+                condition: service_started
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    # ==========================================
+    # ADAPTER SERVICES
+    # ==========================================
+    context-broker-adapter:
+        build:
+            context: ../../modules/ContextBrokerAdapter
+            dockerfile: Dockerfile
+        container_name: cityresq-context-broker-adapter
+        ports:
+            - "8010:8010"
+        environment:
+            NODE_ENV: production
+            PORT: 8010
+            ORION_URL: http://context-broker:1026
+            COREAPI_URL: http://coreapi:80/api/v1
+            MYSQL_HOST: mysql
+            MYSQL_PORT: 3306
+            MYSQL_USER: cityresq
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+            MYSQL_DB: cityresq_db
+        depends_on:
+            context-broker:
+                condition: service_started
+            coreapi:
+                condition: service_started
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    iot-adapter:
+        build:
+            context: ../../modules/IoTAdapter
+            dockerfile: Dockerfile
+        container_name: cityresq-iot-adapter
+        ports:
+            - "8011:8011"
+        environment:
+            NODE_ENV: production
+            PORT: 8011
+            MQTT_URL: mqtt://mqtt:1883
+            IOT_SERVICE_URL: http://iot-service:8004/api/v1
+            TIMESCALEDB_HOST: timescaledb
+            TIMESCALEDB_PORT: 5432
+            TIMESCALEDB_USER: cityresq
+            TIMESCALEDB_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            TIMESCALEDB_DB: iot_db
+        depends_on:
+            mqtt:
+                condition: service_healthy
+            iot-service:
+                condition: service_started
+            timescaledb:
+                condition: service_healthy
         networks:
             - cityresq-network
         restart: unless-stopped
