@@ -580,7 +580,7 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-media-service
         ports:
-            - "8004:8004"
+            - "8002:8004"
         environment:
             NODE_ENV: development
             PORT: 8004
