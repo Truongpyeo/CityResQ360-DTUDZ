@@ -1,0 +1,24 @@
+{
+    "@context": {
+        "type": "@type",
+        "id": "@id",
+        "ngsi-ld": "https://uri.etsi.org/ngsi-ld/",
+        "fiware": "https://uri.fiware.org/ns/data-models#",
+        "schema": "https://schema.org/",
+        "Report": "fiware:Report",
+        "WeatherObserved": "fiware:WeatherObserved",
+        "precipitation": "fiware:precipitation",
+        "address": "schema:address",
+        "location": "ngsi-ld:location",
+        "dateObserved": "fiware:dateObserved",
+        "temperature": "fiware:temperature",
+        "relativeHumidity": "fiware:relativeHumidity",
+        "windSpeed": "fiware:windSpeed",
+        "airQualityIndex": "fiware:airQualityIndex",
+        "status": "fiware:status",
+        "category": "fiware:category",
+        "description": "schema:description",
+        "title": "schema:name",
+        "severity": "fiware:severity"
+    }
+}

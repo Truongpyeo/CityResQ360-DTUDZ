@@ -50,7 +50,8 @@ start_services() {
     
     # Start applications
     echo -e "${CYAN}Starting applications...${NC}"
-    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service wallet-service
+    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service wallet-service \
+        iot-service floodeye-service incident-service analytics-service search-service
     
     echo -e "${GREEN}✓ Services started${NC}"
     docker-compose -f "$COMPOSE_FILE" ps
@@ -100,7 +101,8 @@ clean_rebuild() {
     sleep 30
     
     echo -e "\n${YELLOW}[7/7] Starting applications...${NC}"
-    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service wallet-service
+    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service wallet-service \
+        iot-service floodeye-service incident-service analytics-service search-service
     sleep 10
     
     echo -e "\n${GREEN}✓ Clean rebuild complete${NC}"
@@ -117,8 +119,13 @@ view_logs() {
     echo "  3) MediaService"
     echo "  4) NotificationService"
     echo "  5) WalletService"
-    echo "  6) PostgreSQL"
-    echo "  7) MySQL"
+    echo "  6) IoTService"
+    echo "  7) FloodEyeService"
+    echo "  8) IncidentService"
+    echo "  9) AnalyticsService"
+    echo " 10) SearchService"
+    echo " 11) PostgreSQL"
+    echo " 12) MySQL"
     read -p "Choice: " choice
     
     case $choice in
@@ -127,8 +134,13 @@ view_logs() {
         3) docker-compose -f "$COMPOSE_FILE" logs -f media-service ;;
         4) docker-compose -f "$COMPOSE_FILE" logs -f notification-service ;;
         5) docker-compose -f "$COMPOSE_FILE" logs -f wallet-service ;;
-        6) docker-compose -f "$COMPOSE_FILE" logs -f postgres ;;
-        7) docker-compose -f "$COMPOSE_FILE" logs -f mysql ;;
+        6) docker-compose -f "$COMPOSE_FILE" logs -f iot-service ;;
+        7) docker-compose -f "$COMPOSE_FILE" logs -f floodeye-service ;;
+        8) docker-compose -f "$COMPOSE_FILE" logs -f incident-service ;;
+        9) docker-compose -f "$COMPOSE_FILE" logs -f analytics-service ;;
+        10) docker-compose -f "$COMPOSE_FILE" logs -f search-service ;;
+        11) docker-compose -f "$COMPOSE_FILE" logs -f postgres ;;
+        12) docker-compose -f "$COMPOSE_FILE" logs -f mysql ;;
         *) echo "Invalid choice" ;;
     esac
 }
@@ -167,11 +179,32 @@ test_endpoints() {
     echo -e "\n${YELLOW}WalletService:${NC}"
     curl -s http://localhost:8003/health || echo -e "${RED}✗ Failed${NC}"
     
+    echo -e "\n${YELLOW}FloodEyeService:${NC}"
+    curl -s http://localhost:8003/health || echo -e "${RED}✗ Failed${NC}"
+    
+    echo -e "\n${YELLOW}IoTService:${NC}"
+    curl -s http://localhost:8004/health || echo -e "${RED}✗ Failed${NC}"
+    
+    echo -e "\n${YELLOW}IncidentService:${NC}"
+    curl -s http://localhost:8005/health || echo -e "${RED}✗ Failed${NC}"
+    
+    echo -e "\n${YELLOW}AnalyticsService:${NC}"
+    curl -s http://localhost:8006/health || echo -e "${RED}✗ Failed${NC}"
+    
+    echo -e "\n${YELLOW}SearchService:${NC}"
+    curl -s http://localhost:8007/health || echo -e "${RED}✗ Failed${NC}
+    
     echo -e "\n${CYAN}URLs:${NC}"
-    echo -e "  CoreAPI:     ${GREEN}http://localhost:8000${NC}"
-    echo -e "  Admin:       ${GREEN}http://localhost:8000/admin${NC}"
-    echo -e "  MinIO:       ${GREEN}http://localhost:9001${NC}"
-    echo -e "  RabbitMQ:    ${GREEN}http://localhost:15672${NC}"
+    echo -e "  CoreAPI:         ${GREEN}http://localhost:8000${NC}"
+    echo -e "  Admin:           ${GREEN}http://localhost:8000/admin${NC}"
+    echo -e "  MediaService:    ${GREEN}http://localhost:8001${NC}"
+    echo -e "  FloodEyeService: ${GREEN}http://localhost:8003${NC}"
+    echo -e "  IoTService:      ${GREEN}http://localhost:8004${NC}"
+    echo -e "  IncidentService: ${GREEN}http://localhost:8005${NC}"
+    echo -e "  AnalyticsService:${GREEN}http://localhost:8006${NC}"
+    echo -e "  SearchService:   ${GREEN}http://localhost:8007${NC}"
+    echo -e "  MinIO:           ${GREEN}http://localhost:9001${NC}"
+    echo -e "  RabbitMQ:        ${GREEN}http://localhost:15672${NC}"
 }
 
 # Open shells

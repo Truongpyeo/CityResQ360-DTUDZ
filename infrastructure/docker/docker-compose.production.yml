@@ -457,31 +457,9 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-incident-service
         ports:
-            - "8001:8001"
+            - "8005:8005"
         environment:
-            PORT: 8001
-            NODE_ENV: production
-            POSTGRES_HOST: postgres-incident
-            POSTGRES_PORT: 5432
-            POSTGRES_USER: cityresq
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
-            POSTGRES_DB: incident_db
-            REDIS_URL: redis://redis:6379
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            CORE_API_URL: http://coreapi:80/api/v1
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
-        volumes:
-            - ../../modules/IncidentService:/app
-            - /app/node_modules
-        depends_on:
-            postgres-incident:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
-            coreapi:
-                condition: service_started
+            PORT: 8005
         networks:
             - cityresq-network
         restart: unless-stopped
@@ -492,29 +470,11 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-iot-service
         ports:
-            - "8002:8002"
+            - "8004:8004"
         environment:
-            PORT: 8002
-            NODE_ENV: production
-            POSTGRES_HOST: timescaledb
-            POSTGRES_PORT: 5432
-            POSTGRES_USER: cityresq
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
-            POSTGRES_DB: iot_db
-            MQTT_BROKER: mqtt://mqtt:1883
-            MQTT_WS_URL: ws://mqtt:9001
-            MQTT_TOPIC_PREFIX: cityresq/iot
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
-        volumes:
-            - ../../modules/IoTService:/app
-            - /app/node_modules
+            PORT: 8004
         depends_on:
-            timescaledb:
-                condition: service_healthy
             mqtt:
-                condition: service_healthy
-            rabbitmq:
                 condition: service_healthy
         networks:
             - cityresq-network
@@ -562,19 +522,6 @@ services:
             - "8007:8007"
         environment:
             PORT: 8007
-            ENV: production
-            OPENSEARCH_HOST: opensearch
-            OPENSEARCH_PORT: 9200
-            OPENSEARCH_INDEX_PREFIX: cityresq
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
-        volumes:
-            - ../../modules/SearchService:/app
-        depends_on:
-            opensearch:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
         networks:
             - cityresq-network
         restart: unless-stopped
@@ -585,27 +532,9 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-floodeye-service
         ports:
-            - "8008:8008"
+            - "8003:8003"
         environment:
-            PORT: 8008
-            ENV: production
-            POSTGRES_HOST: postgres-floodeye
-            POSTGRES_PORT: 5432
-            POSTGRES_USER: cityresq
-            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
-            POSTGRES_DB: floodeye_db
-            IOT_SERVICE_URL: http://iot-service:8002/api/v1
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            OSM_API_URL: https://nominatim.openstreetmap.org
-        volumes:
-            - ../../modules/FloodEyeService:/app
-        depends_on:
-            postgres-floodeye:
-                condition: service_healthy
-            iot-service:
-                condition: service_started
-            rabbitmq:
-                condition: service_healthy
+            PORT: 8003
         networks:
             - cityresq-network
         restart: unless-stopped
