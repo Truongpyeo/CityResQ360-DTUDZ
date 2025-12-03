@@ -20,6 +20,7 @@
 * **media-service:** Remove non-existent revoked_at and expires_at columns ([144ed00](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/144ed00c2ee7c59b3ce9a1540869c2b6ec2ea34f))
 * **media-service:** Return public URLs instead of internal MinIO URLs ([b6b0ac1](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b6b0ac1b0db58c3d062a26aa5919d8bbd29f3728))
 * **media:** Fix lỗi upload media và cài đặt sharp ([e0eca00](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e0eca005b96af259222dbec985d43423b395514a))
+* **nginx:** Fix nginx default ([b2d544a](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b2d544a61e47887212cb9a7da2424830f958622c))
 
 
 ### Features
