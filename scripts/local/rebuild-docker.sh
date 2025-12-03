@@ -57,7 +57,8 @@ echo -e "${GREEN}✓ Databases started${NC}"
 
 # Step 7: Start application services
 echo -e "\n${YELLOW}[7/7] Starting application services...${NC}"
-docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service wallet-service
+docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service wallet-service \
+    iot-service floodeye-service incident-service analytics-service search-service
 echo -e "${GREEN}✓ Application services started${NC}"
 
 # Wait a bit for services to start
@@ -86,7 +87,22 @@ echo -e "\n${YELLOW}CoreAPI:${NC}"
 curl -s http://localhost:8000/api/health | head -n 5 || echo -e "${RED}✗ CoreAPI not responding${NC}"
 
 echo -e "\n${YELLOW}MediaService:${NC}"
-curl -s http://localhost:8004/health | head -n 5 || echo -e "${RED}✗ MediaService not responding${NC}"
+curl -s http://localhost:8001/health | head -n 5 || echo -e "${RED}✗ MediaService not responding${NC}"
+
+echo -e "\n${YELLOW}FloodEyeService:${NC}"
+curl -s http://localhost:8003/health | head -n 5 || echo -e "${RED}✗ FloodEyeService not responding${NC}"
+
+echo -e "\n${YELLOW}IoTService:${NC}"
+curl -s http://localhost:8004/health | head -n 5 || echo -e "${RED}✗ IoTService not responding${NC}"
+
+echo -e "\n${YELLOW}IncidentService:${NC}"
+curl -s http://localhost:8005/health | head -n 5 || echo -e "${RED}✗ IncidentService not responding${NC}"
+
+echo -e "\n${YELLOW}AnalyticsService:${NC}"
+curl -s http://localhost:8006/health | head -n 5 || echo -e "${RED}✗ AnalyticsService not responding${NC}"
+
+echo -e "\n${YELLOW}SearchService:${NC}"
+curl -s http://localhost:8007/health | head -n 5 || echo -e "${RED}✗ SearchService not responding${NC}"
 
 # Instructions
 echo -e "\n${CYAN}========================================${NC}"

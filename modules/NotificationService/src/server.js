@@ -5,6 +5,7 @@ import dotenv from 'dotenv';
 import connectDB from './config/database.js';
 import initializeFirebase from './config/firebase.js';
 import notificationRoutes from './routes/notificationRoutes.js';
+import orionRoutes from './routes/orionRoutes.js';
 
 dotenv.config();
 
@@ -24,6 +25,7 @@ app.use(express.json());
 
 // Routes
 app.use('/api/v1/notifications', notificationRoutes);
+app.use('/api/v1/orion', orionRoutes);
 
 // Health Check
 app.get('/health', (_req, res) => {
