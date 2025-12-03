@@ -141,7 +141,7 @@ Sử dụng **FiWARE Smart Data Models** - Alert:
 - **location:** GeoProperty (GeoJSON Point)
 - **status:** pending, active, resolved, closed
 
-📚 **Documentation:** See [docs/NGSI-LD.md](docs/NGSI-LD.md) for detailed API guide
+📚 **Documentation:** Xem chi tiết tại [docs/NGSI-LD.md](docs/NGSI-LD.md)
 
 ---
 
