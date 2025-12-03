@@ -45,13 +45,6 @@ modules/CoreAPI/bootstrap/cache/*.php
 !modules/CoreAPI/storage/framework/.gitignore
 !modules/CoreAPI/storage/logs/.gitignore
 
-# Go specific (WalletService)
-modules/WalletService/*.exe
-modules/WalletService/*.exe~
-modules/WalletService/*.dll
-modules/WalletService/*.so
-modules/WalletService/*.dylib
-
 # Python specific
 modules/*/__pycache__/
 modules/*/*.py[cod]
@@ -87,18 +80,10 @@ infrastructure/docker/docker-compose.override.yml
 *~
 .sass-cache/
 
-# Local API testing scripts (development only)
-scripts/add_missing_api_to_postman.py
-scripts/test_100_percent.py
-scripts/test_after_fix.py
-scripts/test_all_apis.sh
-scripts/test_all_collection.py
-scripts/test_apis_complete.py
-scripts/test_apis.py
-scripts/test_complete_final.py
-scripts/test_final.py
-scripts/test_postman_collection.py
-scripts/test_protected_api.py
+# Test utilities (keep in repo but ignore outputs)
+scripts/test_production_api.py
+scripts/test_ngsi_ld_api.py
+ngsi-ld_test_report.txt
 
 # Testing
 modules/*/coverage/
@@ -123,9 +108,3 @@ OLP_TASKS.md
 # Demo Scenarios (local only)
 docs/DEMO_SCENARIO.md
 docs/DOCKER_CHEATSHEET.md
-
-# Postman Generation Scripts
-scripts/update_postman_collection.py
-scripts/generate_ngsi_ld_postman.py
-scripts/fix_postman_collection.py
-scripts/test_api_full.py

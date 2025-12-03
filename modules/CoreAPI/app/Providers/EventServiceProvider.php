@@ -28,6 +28,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         ReportStatusChanged::class => [
             PublishReportStatusChanged::class,
+            \App\Listeners\AwardPointsOnAdminConfirm::class, // ✅ NEW: Award points when admin confirms
         ],
     ];
 

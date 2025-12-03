@@ -49,13 +49,17 @@ SERVICE_MAP=(
     ["modules/CoreAPI"]="coreapi"
     ["modules/MediaService"]="media-service"
     ["modules/NotificationService"]="notification-service"
-    ["modules/WalletService"]="wallet-service"
     ["modules/IncidentService"]="incident-service"
     ["modules/IoTService"]="iot-service"
     ["modules/AIMLService"]="aiml-service"
     ["modules/SearchService"]="search-service"
     ["modules/FloodEyeService"]="floodeye-service"
     ["modules/AnalyticsService"]="analytics-service"
+    ["modules/AnalyticsConsumer"]="analytics-consumer"
+    ["modules/NotificationConsumer"]="notification-consumer"
+    ["modules/OrionSyncConsumer"]="orion-sync-consumer"
+    ["modules/ContextBrokerAdapter"]="context-broker-adapter"
+    ["modules/IoTAdapter"]="iot-adapter"
 )
 
 # Check for infrastructure changes (rebuild all if infra changes)
@@ -63,7 +67,7 @@ if echo "$CHANGES" | grep -q "infrastructure/docker"; then
     echo -e "${RED}⚠️  Infrastructure changes detected. Recommending full rebuild.${NC}"
     read -p "Do you want to rebuild ALL services? [y/N] " REBUILD_ALL
     if [[ "$REBUILD_ALL" =~ ^[Yy]$ ]]; then
-        SERVICES_TO_REBUILD="coreapi media-service notification-service wallet-service incident-service iot-service aiml-service search-service floodeye-service analytics-service"
+        SERVICES_TO_REBUILD="coreapi media-service notification-service incident-service iot-service aiml-service search-service floodeye-service analytics-service analytics-consumer notification-consumer orion-sync-consumer context-broker-adapter iot-adapter"
     fi
 fi
 
@@ -265,6 +269,12 @@ if [[ "$SERVICES_TO_REBUILD" == *"coreapi"* ]]; then
     # Restart container to ensure clean state
     echo -e "${CYAN}Restarting CoreAPI container...${NC}"
     docker restart cityresq-coreapi
+    
+    # Regenerate Swagger documentation
+    echo -e "${CYAN}Regenerating Swagger documentation...${NC}"
+    docker exec cityresq-coreapi php artisan l5-swagger:generate || echo "Swagger generation skipped"
+    docker exec cityresq-coreapi cp storage/api-docs/api-docs.json public/api-docs.json 2>/dev/null || echo "api-docs.json copy skipped"
+    echo -e "${GREEN}✅ Swagger docs updated${NC}"
     
     # Wait for container to be ready
     echo -e "${CYAN}Waiting for container to be ready...${NC}"

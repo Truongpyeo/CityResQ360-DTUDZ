@@ -488,6 +488,12 @@ docker exec cityresq-coreapi php artisan cache:clear
 docker exec cityresq-coreapi php artisan config:cache
 echo -e "${GREEN}✅ Laravel optimization complete!${NC}"
 
+# Generate Swagger documentation
+echo -e "${CYAN}Generating Swagger documentation...${NC}"
+docker exec cityresq-coreapi php artisan l5-swagger:generate || echo "Swagger generation skipped"
+docker exec cityresq-coreapi cp storage/api-docs/api-docs.json public/api-docs.json 2>/dev/null || echo "api-docs.json copy skipped"
+echo -e "${GREEN}✅ Swagger docs generated${NC}"
+
 # ============================================
 # STEP 6: CONFIGURE SSL (Domain mode only)
 # ============================================

@@ -39,7 +39,7 @@ class MapController extends BaseController
      * Get reports for map display
      * 
      * GET /api/v1/map/reports
-     * Query: ?bounds=min_lat,min_lon,max_lat,max_lon&danh_muc=0,1,4&trang_thai=0,1,2
+     * Query: ?min_lat=10.7&max_lat=10.9&min_lon=106.6&max_lon=106.8&danh_muc=0,1,4&trang_thai=0,1,2
      * 
      * @param Request $request
      * @return \Illuminate\Http\JsonResponse
@@ -52,20 +52,16 @@ class MapController extends BaseController
             ->whereNotNull('vi_do')
             ->whereNotNull('kinh_do');
 
-        // Filter by bounds (viewport)
-        if ($request->has('bounds')) {
-            $bounds = explode(',', $request->get('bounds'));
-            if (count($bounds) === 4) {
-                [$minLat, $minLon, $maxLat, $maxLon] = $bounds;
-                $query->whereBetween('vi_do', [$minLat, $maxLat])
-                      ->whereBetween('kinh_do', [$minLon, $maxLon]);
-            }
+        // Filter by viewport bounds (individual parameters)
+        if ($request->filled(['min_lat', 'max_lat', 'min_lon', 'max_lon'])) {
+            $query->whereBetween('vi_do', [$request->min_lat, $request->max_lat])
+                ->whereBetween('kinh_do', [$request->min_lon, $request->max_lon]);
         }
 
         // Filter by category
         if ($request->has('danh_muc')) {
-            $categories = is_array($request->danh_muc) 
-                ? $request->danh_muc 
+            $categories = is_array($request->danh_muc)
+                ? $request->danh_muc
                 : explode(',', $request->danh_muc);
             $query->whereIn('danh_muc_id', $categories);
         }
@@ -81,22 +77,37 @@ class MapController extends BaseController
         // Limit results for performance
         $reports = $query->limit(500)->get();
 
-        // Transform to lightweight format for map
-        $mapData = $reports->map(function ($report) {
+        // Transform to GeoJSON format
+        $features = $reports->map(function ($report) {
             return [
-                'id' => $report->id,
-                'vi_do' => (float) $report->vi_do,
-                'kinh_do' => (float) $report->kinh_do,
-                'tieu_de' => $report->tieu_de,
-                'danh_muc' => $report->danh_muc_id,
-                'danh_muc_text' => $report->danhMuc->ten_danh_muc ?? 'Khác',
-                'uu_tien' => $report->muc_uu_tien_id,
-                'trang_thai' => $report->trang_thai,
-                'marker_color' => $this->getMarkerColor($report->muc_uu_tien_id),
+                'type' => 'Feature',
+                'geometry' => [
+                    'type' => 'Point',
+                    'coordinates' => [(float) $report->kinh_do, (float) $report->vi_do] // [lon, lat] for GeoJSON
+                ],
+                'properties' => [
+                    'id' => $report->id,
+                    'tieu_de' => $report->tieu_de,
+                    'danh_muc' => $report->danh_muc_id,
+                    'danh_muc_text' => $report->danhMuc->ten_danh_muc ?? 'Khác',
+                    'uu_tien' => $report->muc_uu_tien_id,
+                    'trang_thai' => $report->trang_thai,
+                    'marker_color' => $this->getMarkerColor($report->muc_uu_tien_id),
+                    'nguoi_dung' => [
+                        'id' => $report->nguoiDung->id ?? null,
+                        'ho_ten' => $report->nguoiDung->ho_ten ?? 'Ẩn danh',
+                        'anh_dai_dien' => $report->nguoiDung->anh_dai_dien ?? null,
+                    ]
+                ]
             ];
         });
 
-        return $this->success($mapData, 'Lấy dữ liệu bản đồ thành công');
+        $geoJson = [
+            'type' => 'FeatureCollection',
+            'features' => $features
+        ];
+
+        return $this->success($geoJson, 'Lấy dữ liệu bản đồ thành công');
     }
 
     /**
@@ -123,7 +134,7 @@ class MapController extends BaseController
             if (count($bounds) === 4) {
                 [$minLat, $minLon, $maxLat, $maxLon] = $bounds;
                 $query->whereBetween('vi_do', [$minLat, $maxLat])
-                      ->whereBetween('kinh_do', [$minLon, $maxLon]);
+                    ->whereBetween('kinh_do', [$minLon, $maxLon]);
             }
         }
 
@@ -168,7 +179,7 @@ class MapController extends BaseController
     public function clusters(Request $request)
     {
         $zoom = $request->get('zoom', 12);
-        
+
         // Calculate precision for clustering based on zoom level
         // Higher zoom = more precision = smaller clusters
         $latPrecision = $this->getLatPrecision($zoom);
@@ -192,7 +203,7 @@ class MapController extends BaseController
             if (count($bounds) === 4) {
                 [$minLat, $minLon, $maxLat, $maxLon] = $bounds;
                 $query->whereBetween('vi_do', [$minLat, $maxLat])
-                      ->whereBetween('kinh_do', [$minLon, $maxLon]);
+                    ->whereBetween('kinh_do', [$minLon, $maxLon]);
             }
         }
 
@@ -221,7 +232,7 @@ class MapController extends BaseController
     {
         // TODO: Implement when GTFS data is available
         // For now, return empty array
-        
+
         $lat = $request->get('vi_do');
         $lon = $request->get('kinh_do');
         $radius = $request->get('radius', 2); // km
@@ -308,7 +319,7 @@ class MapController extends BaseController
         // 12-13: 0.01 degree (~1.1km)
         // 14-15: 0.001 degree (~110m)
         // 16+: 0.0001 degree (~11m)
-        
+
         $precisions = [
             10 => 0.1,
             11 => 0.1,

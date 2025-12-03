@@ -35,12 +35,16 @@ use Illuminate\Support\Facades\Route;
 |
 */
 
-Route::get('/explicit-test', function() { return 'Explicit OK'; });
+Route::get('/explicit-test', function () {
+    return 'Explicit OK';
+});
 
 Route::prefix('ngsi-ld/v1')->group(function () {
-    
+
     // Test route
-    Route::get('/test', function() { return 'OK'; });
+    Route::get('/test', function () {
+        return 'OK';
+    });
 
     // Entities management
     Route::get('/entities', [NgsiLdController::class, 'getEntities']);
@@ -48,7 +52,12 @@ Route::prefix('ngsi-ld/v1')->group(function () {
     Route::post('/entities', [NgsiLdController::class, 'createEntity']);
     Route::patch('/entities/{id}/attrs', [NgsiLdController::class, 'updateEntityAttrs']);
     Route::delete('/entities/{id}', [NgsiLdController::class, 'deleteEntity']);
-    
+
+    // Metadata endpoints (Discovery)
+    Route::get('/types', [NgsiLdController::class, 'getTypes']);
+    Route::get('/types/{type}', [NgsiLdController::class, 'getTypeSchema']);
+    Route::get('/attributes', [NgsiLdController::class, 'getAttributes']);
+
     // Note: Authentication optional for GET (open data)
     // POST/PATCH/DELETE should be authenticated in production
 });
