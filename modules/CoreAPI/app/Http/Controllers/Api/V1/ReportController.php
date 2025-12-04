@@ -100,9 +100,12 @@ class ReportController extends BaseController
             // Validate and link media with this report
             $mediaRecords = \App\Models\HinhAnhPhanAnh::whereIn('id', $request->media_ids)
                 ->where('nguoi_dung_id', $user->id)
+                ->whereNull('phan_anh_id') // Only attach unlinked media
                 ->get();
 
             foreach ($mediaRecords as $media) {
+                // UPDATE: Link media to this report
+                $media->update(['phan_anh_id' => $report->id]);
                 $mediaIds[] = $media->id;
             }
         }
