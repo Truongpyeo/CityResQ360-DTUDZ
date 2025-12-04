@@ -188,7 +188,7 @@ CityResQ360-DTUDZ/
 │   ├── SearchService/         # Python FastAPI - OpenSearch (Port 8009)
 │   ├── FloodEyeService/       # Python - Flood prediction (Port 8010)
 │   └── AnalyticsService/      # Python - Data analytics (Port 8011)
-├── infrastructure/             # ⚙️ Infrastructure configurations
+├── infrastructure/             # Infrastructure configurations
 │   ├── docker/                # Docker Compose files
 │   │   ├── docker-compose.yml              # Development
 │   │   └── docker-compose.production.yml   # Production
