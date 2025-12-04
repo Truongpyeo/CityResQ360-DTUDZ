@@ -83,6 +83,9 @@ infrastructure/docker/docker-compose.override.yml
 # Test utilities (keep in repo but ignore outputs)
 scripts/test_production_api.py
 scripts/test_ngsi_ld_api.py
+scripts/fix_postman_collection.py
+scripts/test_media_bug_fix.py
+scripts/test_media_bug_fix_local.py
 ngsi-ld_test_report.txt
 
 # Testing
