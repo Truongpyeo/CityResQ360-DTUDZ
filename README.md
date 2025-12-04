@@ -12,7 +12,7 @@
     <img src="https://img.shields.io/badge/🚀_Website-CityResQ360-00C853?style=for-the-badge" alt="Demo System"/>
   </a>
   <a href="https://nguyenthai11103.github.io/DTU-CityResQ360-documents/intro">
-    <img src="https://img.shields.io/badge/📚_Docs-CityResQ360-1976D2?style=for-the-badge" alt="Documentation"/>
+    <img src="https://img.shields.io/badge/📚_Documentation-CityResQ360-1976D2?style=for-the-badge" alt="Documentation"/>
   </a>
   <a href="https://api.cityresq360.io.vn/documents">
     <img src="https://img.shields.io/badge/🪛_Services-CityResQ360-edf037?style=for-the-badge" alt="Services"/>
@@ -254,7 +254,7 @@ docker exec -it cityresq-coreapi php artisan key:generate
 - 📦 MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
 - 🐰 RabbitMQ: http://localhost:15672 (cityresq/cityresq_password)
 
-> 📖 Xem file [Setup.md](Setup.md) để biết thêm chi tiết về cách cài đặt hệ thống.
+> 📖 Xem file [SETUP.md](SETUP.md) để biết thêm chi tiết về cách cài đặt hệ thống.
 
 ---
 
@@ -344,4 +344,4 @@ Xem [CHANGELOG.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/C
 
 Dự án này được phân phối dưới [GNU General Public License v3.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/LICENSE). Xem file `LICENSE` để biết thêm chi tiết.
 
-© 2025 CityResQ360 – Code with ❤️ by DTU-DZ Team
+© 2025 CityResQ360 – Code with ❤️ by DTU-DZ1 Team
