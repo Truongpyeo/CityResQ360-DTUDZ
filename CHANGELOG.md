@@ -1,6 +1,7 @@
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v) (2025-12-03)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v) (2025-12-04)
 
 
+* fix(apip)!: liên kết media với report qua phan_anh_id ([db668b2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/db668b204e04309ba55a5b24488ae1693a0edd9d))
 * fix(docker)!: sửa lỗi deployment và thêm script rebuild an toàn ([b2a0c64](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b2a0c64f01d5666be4e852529b85a6567b93e785))
 
 
@@ -35,6 +36,7 @@
 
 ### BREAKING CHANGES
 
+* 
 * Ports thay đổi cho media-service và iot-service
 
 
