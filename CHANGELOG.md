@@ -1,16 +1,48 @@
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v) (2025-12-01)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.0.0...v) (2025-12-04)
+
+
+
+# [2.0.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v2.0.0) (2025-12-04)
+
+
+* fix(apip)!: liên kết media với report qua phan_anh_id ([db668b2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/db668b204e04309ba55a5b24488ae1693a0edd9d))
+* fix(docker)!: sửa lỗi deployment và thêm script rebuild an toàn ([b2a0c64](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b2a0c64f01d5666be4e852529b85a6567b93e785))
 
 
 ### Bug Fixes
 
+* add db credentials for media service ([a060847](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a060847ed9ddbfd6ef0502623ad093657463ab54))
+* **api:** chuyển đổi report api sang dùng id và cập nhật tài liệu ([7b9a9c6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/7b9a9c6cb29dc59bdd7e320b87969bf65a0c2096))
+* **api:** replace l5-swagger class constant with hardcoded value for docker build ([9d90b34](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/9d90b340df57d1b3c6c512e1daf33b50b478c95c))
 * **api:** Sửa lỗi giao diện API Keys, xoá dependency lỗi & đồng bộ hạ tầng ([e52c848](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e52c8489c14e916a0eb452b35714d4926fc55393))
+* **api:** Sửa lỗi Report API (SQL injection và priority mapping) ([2427602](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/242760233beb43769586029308f6ce7ab04b29e4))
+* **api:** thêm 5 phương thức còn thiếu trong ReportController ([d65f96a](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/d65f96a0647b72820c45ea40d34912859eb55485))
+* **docker:** Expose MinIO ports and update Nginx proxy config ([7197899](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/719789958bab03536d1e0189ac8af9f7da2bbeb7))
+* **docker:** resolve port 8004 conflicts in production ([3b822ed](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/3b822ed767eaf5d2b090339005f5e551a3dcf8db))
+* **docker:** Sửa docker composer ([39e49df](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/39e49df98deca5331b9999390f5b5f2e386d22e5))
+* **media-service:** Bỏ IP whitelisting, chỉ giữ dual auth (Sanctum + JWT) ([bb0e24c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/bb0e24c20163dd820b77fcfb1bca37ffb4fe1a22))
+* **media-service:** Clean dual auth without IP whitelisting ([3d515ce](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/3d515cedb15403d456243156cc58b72782d4e023))
+* **media-service:** Hash only plaintext part of Sanctum token ([d55420b](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/d55420b3538a393c7fb926f5d7a59cfdd6a8e84f))
+* **media-service:** Remove non-existent revoked_at and expires_at columns ([144ed00](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/144ed00c2ee7c59b3ce9a1540869c2b6ec2ea34f))
+* **media-service:** Return public URLs instead of internal MinIO URLs ([b6b0ac1](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b6b0ac1b0db58c3d062a26aa5919d8bbd29f3728))
+* **media:** Fix lỗi upload media và cài đặt sharp ([e0eca00](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e0eca005b96af259222dbec985d43423b395514a))
+* **nginx:** Fix nginx default ([b2d544a](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b2d544a61e47887212cb9a7da2424830f958622c))
 
 
 ### Features
 
 * **deploy:** Thêm quản lý env tự động & chuẩn hóa biến MAIL_* ([a494741](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a494741edfe1cde59db1e3393c081794268eed27))
 * **deploy:** Thêm quản lý env tự động & chuẩn hóa biến MAIL_* ([c0ccdd2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/c0ccdd23e1aca9586342b0942a7c70783574948d))
+* **iot:** tích hợp hệ thống IoT và kiến trúc event-driven với RabbitMQ ([8ee53c2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8ee53c29b9d88370af2dde23a11835aecbb1750b))
+* **media-service:** Implement dual authentication (Sanctum + JWT) với IP whitelisting ([ee9423e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/ee9423e0279667e62b220eb976202cf20910379e))
 * **service:** Thêm kiến trúc Hybrid cho MediaService với CORS và Nginx ([f5a62a3](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/f5a62a312b99615f3cb52b4850b3b885017dc2c2))
+* update mobile ([5006bfe](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/5006bfec465dd19faad2685b8cb80d81f3147359))
+
+
+### BREAKING CHANGES
+
+* 
+* Ports thay đổi cho media-service và iot-service
 
 
 

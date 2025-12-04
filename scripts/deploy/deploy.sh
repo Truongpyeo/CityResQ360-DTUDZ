@@ -158,17 +158,23 @@ server {
     }
 }
 
-# MediaService
+# MediaService (proxies to MinIO for serving media files)
 server {
     listen 80;
     server_name media.$DOMAIN;
     
+    client_max_body_size 100M;
+    
     location / {
-        proxy_pass http://localhost:8004;
+        proxy_pass http://localhost:9000;
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
+        
+        # CORS headers for media files
+        add_header Access-Control-Allow-Origin * always;
+        add_header Access-Control-Allow-Methods 'GET, OPTIONS' always;
     }
 }
 
@@ -279,12 +285,48 @@ if [ ! -f "$ENV_FILE" ]; then
         echo ""
         echo -e "${BLUE}Enter SMTP details:${NC}"
         
-        read -p "SMTP Host [smtp.gmail.com]: " MAIL_HOST_INPUT
-        MAIL_HOST=${MAIL_HOST_INPUT:-smtp.gmail.com}
-        
-        read -p "SMTP Port [587]: " MAIL_PORT_INPUT
-        MAIL_PORT=${MAIL_PORT_INPUT:-587}
-        
+    # Prompt for SMTP configuration
+read -p "Configure email settings? [Y/n]: " CONFIGURE_MAIL
+if [[ ! "$CONFIGURE_MAIL" =~ ^[Nn]$ ]]; then
+    echo -e "${CYAN}Configuring email settings...${NC}"
+    
+    read -p "MAIL_MAILER [smtp]: " MAIL_MAILER
+    MAIL_MAILER=${MAIL_MAILER:-smtp}
+    
+    read -p "MAIL_HOST [smtp.gmail.com]: " MAIL_HOST
+    MAIL_HOST=${MAIL_HOST:-smtp.gmail.com}
+    
+    read -p "MAIL_PORT [587]: " MAIL_PORT
+    MAIL_PORT=${MAIL_PORT:-587}
+    
+    read -p "MAIL_USERNAME [thanhtruong23111999@gmail.com]: " MAIL_USERNAME
+    MAIL_USERNAME=${MAIL_USERNAME:-thanhtruong23111999@gmail.com}
+    
+    read -p "MAIL_PASSWORD [ztiblxrmjkjqfxfc]: " MAIL_PASSWORD
+    MAIL_PASSWORD=${MAIL_PASSWORD:-ztiblxrmjkjqfxfc}
+    
+    read -p "MAIL_FROM_ADDRESS [noreply@cityresq360.com]: " MAIL_FROM_ADDRESS
+    MAIL_FROM_ADDRESS=${MAIL_FROM_ADDRESS:-noreply@cityresq360.com}
+    
+    read -p "MAIL_FROM_NAME [CityResQ360]: " MAIL_FROM_NAME
+    MAIL_FROM_NAME=${MAIL_FROM_NAME:-CityResQ360}
+    
+    # Append to .env
+    cat >> modules/CoreAPI/.env <<EOF
+
+# Mail Configuration
+MAIL_MAILER=${MAIL_MAILER}
+MAIL_SCHEME=null
+MAIL_HOST=${MAIL_HOST}
+MAIL_PORT=${MAIL_PORT}
+MAIL_USERNAME=${MAIL_USERNAME}
+MAIL_PASSWORD=${MAIL_PASSWORD}
+MAIL_FROM_ADDRESS="${MAIL_FROM_ADDRESS}"
+MAIL_FROM_NAME="${MAIL_FROM_NAME}"
+EOF
+    
+    echo -e "${GREEN}✅ Email configured successfully${NC}"
+fi
         read -p "SMTP Username (email): " MAIL_USERNAME
         
         echo -e "${YELLOW}For Gmail, use App Password: https://myaccount.google.com/apppasswords${NC}"
@@ -481,6 +523,12 @@ docker exec cityresq-coreapi php artisan config:clear
 docker exec cityresq-coreapi php artisan cache:clear
 docker exec cityresq-coreapi php artisan config:cache
 echo -e "${GREEN}✅ Laravel optimization complete!${NC}"
+
+# Generate Swagger documentation
+echo -e "${CYAN}Generating Swagger documentation...${NC}"
+docker exec cityresq-coreapi php artisan l5-swagger:generate || echo "Swagger generation skipped"
+docker exec cityresq-coreapi cp storage/api-docs/api-docs.json public/api-docs.json 2>/dev/null || echo "api-docs.json copy skipped"
+echo -e "${GREEN}✅ Swagger docs generated${NC}"
 
 # ============================================
 # STEP 6: CONFIGURE SSL (Domain mode only)

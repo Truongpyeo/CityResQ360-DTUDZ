@@ -2,9 +2,22 @@ FROM node:20-alpine
 
 WORKDIR /app
 
+# Install runtime dependencies for Sharp
+RUN apk add --no-cache vips-cpp
+
+# Install build dependencies
+RUN apk add --no-cache --virtual .build-deps \
+    python3 \
+    make \
+    g++ \
+    vips-dev
+
 # Install dependencies
 COPY package*.json ./
 RUN npm install --omit=dev
+
+# Remove build dependencies to keep image small
+RUN apk del .build-deps
 
 # Copy source code
 COPY . .

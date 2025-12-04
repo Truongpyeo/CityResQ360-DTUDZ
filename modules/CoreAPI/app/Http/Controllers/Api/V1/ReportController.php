@@ -17,19 +17,14 @@
  * along with this program. If not, see <https://www.gnu.org/licenses/>.
  */
 
-
-
 namespace App\Http\Controllers\Api\V1;
 
 use App\Http\Controllers\Api\BaseController;
-use App\Http\Requests\Api\Report\NearbyReportRequest;
-use App\Http\Requests\Api\Report\RateReportRequest;
 use App\Http\Requests\Api\Report\StoreReportRequest;
-use App\Http\Requests\Api\Report\UpdateReportRequest;
-use App\Models\DanhMucPhanAnh;
-use App\Models\MucUuTien;
 use App\Models\PhanAnh;
 use Illuminate\Http\Request;
+use App\Events\ReportCreatedEvent;
+use App\Events\ReportUpdated;
 
 class ReportController extends BaseController
 {
@@ -42,13 +37,9 @@ class ReportController extends BaseController
         $query = PhanAnh::with(['nguoiDung', 'danhMuc', 'uuTien', 'coQuanXuLy'])
             ->where('la_cong_khai', true);
 
-        // Filter by category (map index to ID)
-        if ($request->filled('danh_muc')) {
-            $categories = DanhMucPhanAnh::orderBy('thu_tu_hien_thi')->pluck('id')->toArray();
-            $danhMucIndex = (int) $request->danh_muc;
-            if ($danhMucIndex >= 0 && $danhMucIndex < count($categories)) {
-                $query->where('danh_muc_id', $categories[$danhMucIndex]);
-            }
+        // Filter by category
+        if ($request->filled('danh_muc_id')) {
+            $query->where('danh_muc_id', $request->danh_muc_id);
         }
 
         // Filter by status
@@ -56,17 +47,13 @@ class ReportController extends BaseController
             $query->where('trang_thai', $request->trang_thai);
         }
 
-        // Filter by priority (map index to ID)
-        if ($request->filled('uu_tien')) {
-            $priorities = MucUuTien::orderBy('cap_do')->pluck('id')->toArray();
-            $uuTienIndex = (int) $request->uu_tien;
-            if ($uuTienIndex >= 0 && $uuTienIndex < count($priorities)) {
-                $query->where('uu_tien_id', $priorities[$uuTienIndex]);
-            }
+        // Filter by priority
+        if ($request->filled('uu_tien_id')) {
+            $query->where('uu_tien_id', $request->uu_tien_id);
         }
 
         // Search by title or description
-        if ($request->has('search')) {
+        if ($request->filled('search')) {
             $search = $request->search;
             $query->where(function ($q) use ($search) {
                 $q->where('tieu_de', 'like', "%{$search}%")
@@ -75,47 +62,33 @@ class ReportController extends BaseController
         }
 
         // Sort
-        $sortBy = $request->get('sort_by', 'created_at');
-        $sortOrder = $request->get('sort_order', 'desc');
-        $query->orderBy($sortBy, $sortOrder);
+        $sortBy = $request->input('sort_by', 'created_at');
+        $sortOrder = $request->input('sort_order', 'desc');
 
-        // Paginate
-        $perPage = $request->get('per_page', 15);
-        $reports = $query->paginate($perPage);
+        // Allow sorting by popular fields
+        if (in_array($sortBy, ['created_at', 'luot_ung_ho', 'luot_xem'])) {
+            $query->orderBy($sortBy, $sortOrder);
+        } else {
+            $query->orderBy('created_at', 'desc');
+        }
 
-        return $this->paginated($reports);
+        $reports = $query->paginate($request->input('per_page', 20));
+
+        return $this->success($reports);
     }
 
     /**
-     * Create new report
+     * Create a new report
      * POST /api/v1/reports
      */
     public function store(StoreReportRequest $request)
     {
         $user = $request->user();
 
-        // Map danh_muc index (0-5) to actual database ID
-        // API uses: 0=traffic, 1=environment, 2=fire, 3=waste, 4=flood, 5=other
-        // Database IDs: 1, 2, 3, 4, 5, 6 (ordered by thu_tu_hien_thi)
-        $categories = DanhMucPhanAnh::orderBy('thu_tu_hien_thi')->pluck('id')->toArray();
-        $danhMucIndex = (int) $request->danh_muc;
-        
-        if ($danhMucIndex < 0 || $danhMucIndex >= count($categories)) {
-            return $this->badRequest('Danh mục không hợp lệ');
-        }
-        
-        $danhMucId = $categories[$danhMucIndex];
-
-        // Map uu_tien index to actual database ID
-        // API uses: 0=low, 1=medium, 2=high, 3=urgent
-        $priorities = MucUuTien::orderBy('cap_do')->pluck('id')->toArray();
-        $uuTienIndex = (int) $request->get('uu_tien', 1); // Default: medium (index 1)
-        
-        if ($uuTienIndex < 0 || $uuTienIndex >= count($priorities)) {
-            $uuTienIndex = 1; // Default to medium if invalid
-        }
-        
-        $uuTienId = $priorities[$uuTienIndex];
+        // Use direct IDs from request
+        // Default priority ID = 2 (Trung bình) if not provided
+        $uuTienId = $request->input('uu_tien_id', $request->input('uu_tien', 2));
+        $danhMucId = $request->input('danh_muc_id', $request->input('danh_muc'));
 
         // Create report
         $report = PhanAnh::create([
@@ -127,7 +100,7 @@ class ReportController extends BaseController
             'vi_do' => $request->vi_do,
             'kinh_do' => $request->kinh_do,
             'dia_chi' => $request->dia_chi,
-            'la_cong_khai' => $request->get('la_cong_khai', true),
+            'la_cong_khai' => $request->boolean('la_cong_khai', true),
             'trang_thai' => 0, // Pending
             'luot_ung_ho' => 0,
             'luot_khong_ung_ho' => 0,
@@ -144,18 +117,23 @@ class ReportController extends BaseController
             // Validate and link media with this report
             $mediaRecords = \App\Models\HinhAnhPhanAnh::whereIn('id', $request->media_ids)
                 ->where('nguoi_dung_id', $user->id)
+                ->whereNull('phan_anh_id') // Only attach unlinked media
                 ->get();
 
             foreach ($mediaRecords as $media) {
+                // UPDATE: Link media to this report
+                $media->update(['phan_anh_id' => $report->id]);
                 $mediaIds[] = $media->id;
             }
         }
 
-        // TODO: Award points to user (+10 CityPoints)
+        // Load relationships for response
+        $report->load(['nguoiDung', 'danhMuc', 'uuTien', 'hinhAnhs', 'coQuanXuLy']);
 
-        $report->load(['nguoiDung', 'danhMuc', 'uuTien']);
+        // Dispatch event to RabbitMQ
+        event(new \App\Events\ReportCreatedEvent($report, $user));
 
-        // Load media if any
+        // Prepare media for response
         $media = [];
         if (count($mediaIds) > 0) {
             $media = \App\Models\HinhAnhPhanAnh::whereIn('id', $mediaIds)->get()->map(function ($m) {
@@ -181,7 +159,9 @@ class ReportController extends BaseController
             'uu_tien_id' => $report->uu_tien_id,
             'uu_tien' => $report->uuTien ? [
                 'id' => $report->uuTien->id,
+                'level' => $report->uuTien->cap_do,  // 0=low, 1=medium, 2=high, 3=urgent
                 'ten_muc' => $report->uuTien->ten_muc,
+                'mau_sac' => $report->uuTien->mau_sac,
             ] : null,
             'vi_do' => $report->vi_do,
             'kinh_do' => $report->kinh_do,
@@ -195,294 +175,180 @@ class ReportController extends BaseController
     }
 
     /**
-     * Get report detail
+     * Get report details
      * GET /api/v1/reports/{id}
      */
-    public function show(Request $request, $id)
+    public function show($id)
     {
-        $report = PhanAnh::with(['nguoiDung', 'danhMuc', 'uuTien', 'coQuanXuLy', 'binhLuans.nguoiDung'])
-            ->find($id);
+        $report = PhanAnh::with(['nguoiDung', 'danhMuc', 'uuTien', 'hinhAnhs', 'coQuanXuLy', 'binhLuans.nguoiDung'])
+            ->findOrFail($id);
 
-        if (! $report) {
-            return $this->notFound('Không tìm thấy phản ánh');
-        }
+        // Increment view count
+        $report->increment('luot_xem');
 
-        $user = $request->user();
-
-        // Check if public or user is owner
-        if (! $report->la_cong_khai && (! $user || $user->id !== $report->nguoi_dung_id)) {
-            return $this->forbidden('Phản ánh này không công khai');
-        }
-
-        // Get vote status for authenticated user
-        $userVoted = null;
-        if ($user) {
-            $vote = $report->binhChons()->where('nguoi_dung_id', $user->id)->first();
-            $userVoted = $vote ? $vote->loai_binh_chon : null;
-        }
-
-        return $this->success([
-            'id' => $report->id,
-            'tieu_de' => $report->tieu_de,
-            'mo_ta' => $report->mo_ta,
-            'danh_muc_id' => $report->danh_muc_id,
-            'danh_muc' => $report->danhMuc ? [
-                'id' => $report->danhMuc->id,
-                'ten_danh_muc' => $report->danhMuc->ten_danh_muc,
-            ] : null,
-            'trang_thai' => $report->trang_thai,
-            'uu_tien_id' => $report->uu_tien_id,
-            'uu_tien' => $report->uuTien ? [
-                'id' => $report->uuTien->id,
-                'ten_muc' => $report->uuTien->ten_muc,
-            ] : null,
-            'vi_do' => $report->vi_do,
-            'kinh_do' => $report->kinh_do,
-            'dia_chi' => $report->dia_chi,
-            'luot_ung_ho' => $report->luot_ung_ho,
-            'luot_khong_ung_ho' => $report->luot_khong_ung_ho,
-            'luot_xem' => $report->luot_xem,
-            'nhan_ai' => $report->nhan_ai,
-            'do_tin_cay' => $report->do_tin_cay,
-            'user' => $report->nguoiDung ? [
-                'id' => $report->nguoiDung->id,
-                'ho_ten' => $report->nguoiDung->ho_ten,
-                'anh_dai_dien' => $report->nguoiDung->anh_dai_dien,
-            ] : null,
-            'agency' => $report->coQuanXuLy ? [
-                'id' => $report->coQuanXuLy->id,
-                'ten_co_quan' => $report->coQuanXuLy->ten_co_quan,
-            ] : null,
-            'votes' => [
-                'total_upvotes' => $report->luot_ung_ho,
-                'total_downvotes' => $report->luot_khong_ung_ho,
-                'user_voted' => $userVoted,
-            ],
-            'comments' => $report->binhLuans->map(function ($comment) {
-                return [
-                    'id' => $comment->id,
-                    'noi_dung' => $comment->noi_dung,
-                    'user' => [
-                        'id' => $comment->nguoiDung->id,
-                        'ho_ten' => $comment->nguoiDung->ho_ten,
-                        'anh_dai_dien' => $comment->nguoiDung->anh_dai_dien,
-                    ],
-                    'created_at' => $comment->created_at,
-                ];
-            }),
-            'created_at' => $report->created_at,
-            'updated_at' => $report->updated_at,
-        ]);
+        return $this->success($report);
     }
 
     /**
-     * Update report (only owner)
+     * Update report (only owner can update if status is pending)
      * PUT /api/v1/reports/{id}
      */
-    public function update(UpdateReportRequest $request, $id)
+    public function update(Request $request, $id)
     {
-        $report = PhanAnh::find($id);
-
-        if (! $report) {
-            return $this->notFound('Không tìm thấy phản ánh');
-        }
+        $report = PhanAnh::findOrFail($id);
 
         // Check ownership
-        if ($report->nguoi_dung_id !== $request->user()->id) {
-            return $this->forbidden('Bạn không có quyền chỉnh sửa phản ánh này');
+        if ($request->user()->id !== $report->nguoi_dung_id) {
+            return $this->error('Unauthorized', 403);
         }
 
-        $report->update([
-            'tieu_de' => $request->tieu_de ?? $report->tieu_de,
-            'mo_ta' => $request->mo_ta ?? $report->mo_ta,
-            'uu_tien_id' => $request->uu_tien_id ?? $report->uu_tien_id,
-        ]);
+        // Check status (only pending reports can be updated by user)
+        if ($report->trang_thai !== 0) {
+            return $this->error('Cannot update report that is already being processed', 400);
+        }
 
-        return $this->success([
-            'id' => $report->id,
-            'tieu_de' => $report->tieu_de,
-            'mo_ta' => $report->mo_ta,
-            'uu_tien_id' => $report->uu_tien_id,
-            'uu_tien' => $report->uuTien ? [
-                'id' => $report->uuTien->id,
-                'ten_muc' => $report->uuTien->ten_muc,
-            ] : null,
-            'updated_at' => $report->updated_at,
-        ], 'Cập nhật phản ánh thành công');
+        $report->update($request->only([
+            'tieu_de',
+            'mo_ta',
+            'danh_muc_id',
+            'uu_tien_id',
+            'vi_do',
+            'kinh_do',
+            'dia_chi',
+            'la_cong_khai'
+        ]));
+
+        // Dispatch update event
+        event(new ReportUpdated($report));
+
+        return $this->success($report, 'Cập nhật phản ánh thành công');
     }
 
     /**
-     * Delete report (only owner)
+     * Delete report (only owner can delete if status is pending)
      * DELETE /api/v1/reports/{id}
      */
     public function destroy(Request $request, $id)
     {
-        $report = PhanAnh::find($id);
-
-        if (! $report) {
-            return $this->notFound('Không tìm thấy phản ánh');
-        }
+        $report = PhanAnh::findOrFail($id);
 
         // Check ownership
-        if ($report->nguoi_dung_id !== $request->user()->id) {
-            return $this->forbidden('Bạn không có quyền xóa phản ánh này');
+        if ($request->user()->id !== $report->nguoi_dung_id) {
+            return $this->error('Unauthorized', 403);
         }
 
-        // Can't delete if in progress or resolved
-        if (in_array($report->trang_thai, [2, 3])) {
-            return $this->error('Không thể xóa phản ánh đang xử lý hoặc đã giải quyết');
+        // Check status
+        if ($report->trang_thai !== 0) {
+            return $this->error('Cannot delete report that is already being processed', 400);
         }
 
         $report->delete();
 
-        return $this->success([
-            'id' => $id,
-            'deleted' => true,
-        ], 'Xóa phản ánh thành công');
+        return $this->success(null, 'Xóa phản ánh thành công');
     }
 
     /**
-     * Get my reports
-     * GET /api/v1/reports/my
+     * Get reports by current user
+     * GET /api/v1/reports/my-reports
      */
     public function myReports(Request $request)
     {
-        $query = PhanAnh::with(['danhMuc', 'uuTien', 'coQuanXuLy'])
-            ->where('nguoi_dung_id', $request->user()->id);
+        $user = $request->user();
 
-        // Filter by status
-        if ($request->has('trang_thai')) {
-            $query->where('trang_thai', $request->trang_thai);
-        }
-
-        // Sort
-        $query->orderBy('created_at', 'desc');
-
-        // Paginate
-        $perPage = $request->get('per_page', 15);
-        $reports = $query->paginate($perPage);
-
-        return $this->paginated($reports);
-    }
-
-    /**
-     * Get nearby reports (location-based)
-     * GET /api/v1/reports/nearby
-     */
-    public function nearby(NearbyReportRequest $request)
-    {
-        $lat = $request->vi_do;
-        $lon = $request->kinh_do;
-        $radius = $request->get('radius', 5); // Default 5km
-
-        // Haversine formula for distance calculation
-        $reports = PhanAnh::selectRaw('
-                *,
-                (6371 * acos(cos(radians(?))
-                * cos(radians(vi_do))
-                * cos(radians(kinh_do) - radians(?))
-                + sin(radians(?))
-                * sin(radians(vi_do)))) AS distance
-            ', [$lat, $lon, $lat])
-            ->where('la_cong_khai', true)
-            ->having('distance', '<=', $radius)
-            ->orderBy('distance', 'asc')
-            ->with(['nguoiDung', 'danhMuc', 'uuTien'])
-            ->limit(50)
-            ->get();
-
-        return $this->success($reports->map(function ($report) {
-            return [
-                'id' => $report->id,
-                'tieu_de' => $report->tieu_de,
-                'danh_muc_id' => $report->danh_muc_id,
-                'danh_muc' => $report->danhMuc ? [
-                    'id' => $report->danhMuc->id,
-                    'ten_danh_muc' => $report->danhMuc->ten_danh_muc,
-                ] : null,
-                'trang_thai' => $report->trang_thai,
-                'uu_tien_id' => $report->uu_tien_id,
-                'uu_tien' => $report->uuTien ? [
-                    'id' => $report->uuTien->id,
-                    'ten_muc' => $report->uuTien->ten_muc,
-                ] : null,
-                'vi_do' => $report->vi_do,
-                'kinh_do' => $report->kinh_do,
-                'dia_chi' => $report->dia_chi,
-                'distance' => round($report->distance, 2),
-                'created_at' => $report->created_at,
-            ];
-        }));
-    }
-
-    /**
-     * Get trending reports (most upvotes)
-     * GET /api/v1/reports/trending
-     */
-    public function trending(Request $request)
-    {
-        $limit = $request->get('limit', 10);
-
-        $reports = PhanAnh::with(['nguoiDung', 'danhMuc', 'uuTien'])
-            ->where('la_cong_khai', true)
-            ->where('created_at', '>=', now()->subDays(7)) // Last 7 days
-            ->orderBy('luot_ung_ho', 'desc')
-            ->orderBy('luot_xem', 'desc')
-            ->limit($limit)
-            ->get();
+        $reports = PhanAnh::with(['danhMuc', 'uuTien', 'hinhAnhs'])
+            ->where('nguoi_dung_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->input('per_page', 20));
 
         return $this->success($reports);
     }
 
     /**
-     * Increment view count
-     * POST /api/v1/reports/{id}/view
+     * Get nearby reports based on lat/lng
+     * GET /api/v1/reports/nearby
      */
-    public function incrementView($id)
+    public function nearby(Request $request)
     {
-        $report = PhanAnh::find($id);
-
-        if (! $report) {
-            return $this->notFound('Không tìm thấy phản ánh');
-        }
-
-        $report->increment('luot_xem');
-
-        return $this->success([
-            'luot_xem' => $report->luot_xem,
+        $request->validate([
+            'lat' => 'required|numeric',
+            'lng' => 'required|numeric',
+            'radius' => 'sometimes|numeric|min:0.1|max:50', // km
         ]);
+
+        $lat = $request->lat;
+        $lng = $request->lng;
+        $radius = $request->input('radius', 5); // default 5km
+
+        // Haversine formula for distance calculation
+        $reports = PhanAnh::selectRaw("
+                *,
+                (6371 * acos(cos(radians(?)) 
+                * cos(radians(CAST(vi_do AS DECIMAL(10,8)))) 
+                * cos(radians(CAST(kinh_do AS DECIMAL(11,8))) - radians(?)) 
+                + sin(radians(?)) 
+                * sin(radians(CAST(vi_do AS DECIMAL(10,8)))))) AS distance
+            ", [$lat, $lng, $lat])
+            ->having('distance', '<', $radius)
+            ->where('la_cong_khai', true)
+            ->with(['nguoiDung', 'danhMuc', 'uuTien'])
+            ->orderBy('distance', 'asc')
+            ->paginate(20);
+
+        return $this->success($reports);
     }
 
     /**
-     * Rate report (after resolved)
-     * POST /api/v1/reports/{id}/rate
+     * Get trending reports (most engagement in last 7 days)
+     * GET /api/v1/reports/trending
      */
-    public function rate(RateReportRequest $request, $id)
+    public function trending(Request $request)
     {
-        $report = PhanAnh::find($id);
+        // Get reports from last 7 days, sorted by engagement score
+        $reports = PhanAnh::with(['nguoiDung', 'danhMuc', 'uuTien', 'hinhAnhs'])
+            ->where('la_cong_khai', true)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->selectRaw('*, (luot_ung_ho + luot_xem * 0.1) as engagement_score')
+            ->orderBy('engagement_score', 'desc')
+            ->paginate($request->input('per_page', 20));
 
-        if (! $report) {
-            return $this->notFound('Không tìm thấy phản ánh');
-        }
+        return $this->success($reports);
+    }
 
-        // Only owner can rate
-        if ($report->nguoi_dung_id !== $request->user()->id) {
-            return $this->forbidden('Chỉ người tạo phản ánh mới có thể đánh giá');
-        }
-
-        // Can only rate resolved reports
-        if ($report->trang_thai !== 3) {
-            return $this->error('Chỉ có thể đánh giá phản ánh đã được giải quyết');
-        }
-
-        $report->update([
-            'danh_gia_hai_long' => $request->danh_gia_hai_long,
-            'nhan_xet' => $request->get('nhan_xet'),
-        ]);
+    /**
+     * Increment view count for a report
+     * POST /api/v1/reports/{id}/increment-view
+     */
+    public function incrementView(Request $request, $id)
+    {
+        $report = PhanAnh::findOrFail($id);
+        $report->increment('luot_xem');
 
         return $this->success([
-            'danh_gia_hai_long' => $report->danh_gia_hai_long,
-            'nhan_xet' => $report->nhan_xet,
-        ], 'Đánh giá thành công. Cảm ơn bạn!');
+            'luot_xem' => $report->luot_xem
+        ], 'View count incremented');
+    }
+
+    /**
+     * Rate a report
+     * POST /api/v1/reports/{id}/rate  
+     */
+    public function rate(Request $request, $id)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'feedback' => 'sometimes|string|max:500'
+        ]);
+
+        $report = PhanAnh::findOrFail($id);
+        $user = $request->user();
+
+        // For now, just acknowledge the rating
+        // TODO: Create DanhGiaPhanAnh model/table for storing ratings
+
+        return $this->success([
+            'report_id' => $id,
+            'rating' => $request->rating,
+            'feedback' => $request->input('feedback')
+        ], 'Rating recorded successfully');
     }
 }

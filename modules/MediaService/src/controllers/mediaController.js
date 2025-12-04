@@ -1,3 +1,21 @@
+/*
+ * CityResQ360-DTUDZ - Smart City Emergency Response System
+ * Copyright (C) 2025 DTU-DZ Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
+
 const Media = require('../models/Media');
 const storageService = require('../services/storageService');
 const imageProcessor = require('../services/imageProcessor');
@@ -39,29 +57,47 @@ class MediaController {
 
         processedData = await imageProcessor.processImage(file.path, outputDir);
 
-        // Upload original
-        const originalUrl = await storageService.uploadFile(
-          processedData.original,
-          storagePath,
-          file.mimetype
-        );
+        if (processedData) {
+          // Upload original
+          const originalUrl = await storageService.uploadFile(
+            processedData.original,
+            storagePath,
+            file.mimetype
+          );
 
-        // Upload thumbnail
-        const thumbnailPath = `${dateFolder}/thumb_${uniqueFilename}`;
-        thumbnailUrl = await storageService.uploadFile(
-          processedData.thumbnail,
-          thumbnailPath,
-          'image/jpeg'
-        );
+          // Upload thumbnail
+          const thumbnailPath = `${dateFolder}/thumb_${uniqueFilename}`;
+          thumbnailUrl = await storageService.uploadFile(
+            processedData.thumbnail,
+            thumbnailPath,
+            'image/jpeg'
+          );
 
-        // Cleanup temp files
-        await imageProcessor.cleanup([
-          file.path,
-          processedData.original,
-          processedData.thumbnail
-        ]);
+          // Cleanup temp files
+          await imageProcessor.cleanup([
+            file.path,
+            processedData.original,
+            processedData.thumbnail
+          ]);
 
-        processedData.url = originalUrl;
+          processedData.url = originalUrl;
+        } else {
+          // Fallback when Sharp is missing: Upload original only
+          console.warn('⚠️ Sharp missing, skipping optimization');
+          const originalUrl = await storageService.uploadFile(
+            file.path,
+            storagePath,
+            file.mimetype
+          );
+
+          // Cleanup temp file
+          await fs.unlink(file.path);
+
+          processedData = {
+            url: originalUrl,
+            metadata: {}
+          };
+        }
       } else {
         // Video upload (simple version)
         const videoUrl = await storageService.uploadFile(

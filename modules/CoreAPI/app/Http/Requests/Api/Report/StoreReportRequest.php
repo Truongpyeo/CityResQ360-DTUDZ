@@ -1,4 +1,21 @@
 <?php
+/*
+ * CityResQ360-DTUDZ - Smart City Emergency Response System
+ * Copyright (C) 2025 DTU-DZ Team
+ *
+ * This program is free software: you can redistribute it and/or modify
+ * it under the terms of the GNU General Public License as published by
+ * the Free Software Foundation, either version 3 of the License, or
+ * (at your option) any later version.
+ *
+ * This program is distributed in the hope that it will be useful,
+ * but WITHOUT ANY WARRANTY; without even the implied warranty of
+ * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
+ * GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License
+ * along with this program. If not, see <https://www.gnu.org/licenses/>.
+ */
 
 namespace App\Http\Requests\Api\Report;
 
@@ -18,8 +35,10 @@ class StoreReportRequest extends FormRequest
         return [
             'tieu_de' => 'required|string|max:255',
             'mo_ta' => 'required|string',
-            'danh_muc' => 'required|integer|min:0|max:10',
-            'uu_tien' => 'sometimes|integer|min:0|max:3',
+            'danh_muc_id' => 'required_without:danh_muc|exists:danh_muc_phan_anhs,id',
+            'danh_muc' => 'sometimes|exists:danh_muc_phan_anhs,id',
+            'uu_tien_id' => 'sometimes|exists:muc_uu_tiens,id',
+            'uu_tien' => 'sometimes|exists:muc_uu_tiens,id',
             'vi_do' => 'required|numeric|between:-90,90',
             'kinh_do' => 'required|numeric|between:-180,180',
             'dia_chi' => 'required|string',
