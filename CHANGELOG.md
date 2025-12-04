@@ -12,6 +12,7 @@
 * **api:** replace l5-swagger class constant with hardcoded value for docker build ([9d90b34](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/9d90b340df57d1b3c6c512e1daf33b50b478c95c))
 * **api:** Sửa lỗi giao diện API Keys, xoá dependency lỗi & đồng bộ hạ tầng ([e52c848](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e52c8489c14e916a0eb452b35714d4926fc55393))
 * **api:** Sửa lỗi Report API (SQL injection và priority mapping) ([2427602](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/242760233beb43769586029308f6ce7ab04b29e4))
+* **api:** thêm 5 phương thức còn thiếu trong ReportController ([d65f96a](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/d65f96a0647b72820c45ea40d34912859eb55485))
 * **docker:** Expose MinIO ports and update Nginx proxy config ([7197899](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/719789958bab03536d1e0189ac8af9f7da2bbeb7))
 * **docker:** resolve port 8004 conflicts in production ([3b822ed](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/3b822ed767eaf5d2b090339005f5e551a3dcf8db))
 * **docker:** Sửa docker composer ([39e49df](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/39e49df98deca5331b9999390f5b5f2e386d22e5))
