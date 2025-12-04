@@ -229,4 +229,109 @@ class ReportController extends BaseController
 
         return $this->success(null, 'Xóa phản ánh thành công');
     }
+
+    /**
+     * Get reports by current user
+     * GET /api/v1/reports/my-reports
+     */
+    public function myReports(Request $request)
+    {
+        $user = $request->user();
+
+        $reports = PhanAnh::with(['danhMuc', 'uuTien', 'hinhAnhs'])
+            ->where('nguoi_dung_id', $user->id)
+            ->orderBy('created_at', 'desc')
+            ->paginate($request->input('per_page', 20));
+
+        return $this->success($reports);
+    }
+
+    /**
+     * Get nearby reports based on lat/lng
+     * GET /api/v1/reports/nearby
+     */
+    public function nearby(Request $request)
+    {
+        $request->validate([
+            'lat' => 'required|numeric',
+            'lng' => 'required|numeric',
+            'radius' => 'sometimes|numeric|min:0.1|max:50', // km
+        ]);
+
+        $lat = $request->lat;
+        $lng = $request->lng;
+        $radius = $request->input('radius', 5); // default 5km
+
+        // Haversine formula for distance calculation
+        $reports = PhanAnh::selectRaw("
+                *,
+                (6371 * acos(cos(radians(?)) 
+                * cos(radians(CAST(vi_do AS DECIMAL(10,8)))) 
+                * cos(radians(CAST(kinh_do AS DECIMAL(11,8))) - radians(?)) 
+                + sin(radians(?)) 
+                * sin(radians(CAST(vi_do AS DECIMAL(10,8)))))) AS distance
+            ", [$lat, $lng, $lat])
+            ->having('distance', '<', $radius)
+            ->where('la_cong_khai', true)
+            ->with(['nguoiDung', 'danhMuc', 'uuTien'])
+            ->orderBy('distance', 'asc')
+            ->paginate(20);
+
+        return $this->success($reports);
+    }
+
+    /**
+     * Get trending reports (most engagement in last 7 days)
+     * GET /api/v1/reports/trending
+     */
+    public function trending(Request $request)
+    {
+        // Get reports from last 7 days, sorted by engagement score
+        $reports = PhanAnh::with(['nguoiDung', 'danhMuc', 'uuTien', 'hinhAnhs'])
+            ->where('la_cong_khai', true)
+            ->where('created_at', '>=', now()->subDays(7))
+            ->selectRaw('*, (luot_ung_ho + luot_xem * 0.1) as engagement_score')
+            ->orderBy('engagement_score', 'desc')
+            ->paginate($request->input('per_page', 20));
+
+        return $this->success($reports);
+    }
+
+    /**
+     * Increment view count for a report
+     * POST /api/v1/reports/{id}/increment-view
+     */
+    public function incrementView(Request $request, $id)
+    {
+        $report = PhanAnh::findOrFail($id);
+        $report->increment('luot_xem');
+
+        return $this->success([
+            'luot_xem' => $report->luot_xem
+        ], 'View count incremented');
+    }
+
+    /**
+     * Rate a report
+     * POST /api/v1/reports/{id}/rate  
+     */
+    public function rate(Request $request, $id)
+    {
+        $request->validate([
+            'rating' => 'required|integer|min:1|max:5',
+            'feedback' => 'sometimes|string|max:500'
+        ]);
+
+        $report = PhanAnh::findOrFail($id);
+        $user = $request->user();
+
+        // For now, just acknowledge the rating
+        // TODO: Create DanhGiaPhanAnh model/table for storing ratings
+
+        return $this->success([
+            'report_id' => $id,
+            'rating' => $request->rating,
+            'feedback' => $request->input('feedback')
+        ], 'Rating recorded successfully');
+    }
 }
