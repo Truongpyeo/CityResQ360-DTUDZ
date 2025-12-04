@@ -1,4 +1,8 @@
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v) (2025-12-04)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.0.0...v) (2025-12-04)
+
+
+
+# [2.0.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v2.0.0) (2025-12-04)
 
 
 * fix(apip)!: liên kết media với report qua phan_anh_id ([db668b2](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/db668b204e04309ba55a5b24488ae1693a0edd9d))

@@ -409,10 +409,13 @@ docker compose logs -f notification-service
 | ------------------------- | --------------------------------------- | ---------------------------- |
 | **CoreAPI**               | http://localhost:8000                   | -                            |
 | **API Documentation**     | http://localhost:8000/api/documentation | -                            |
-| **Web App**               | http://localhost:3000                   | -                            |
+| **Web App (Mobile)**      | http://localhost:3000                   | -                            |
 | **MinIO Console**         | http://localhost:9001                   | minioadmin / minioadmin      |
 | **RabbitMQ Management**   | http://localhost:15672                  | cityresq / cityresq_password |
 | **OpenSearch Dashboards** | http://localhost:5601                   | -                            |
+| **Grafana**               | http://localhost:3001                   | admin / admin                |
+| **Prometheus**            | http://localhost:9091                   | -                            |
+| **Meilisearch**           | http://localhost:7700                   | -                            |
 
 ### 4. Test API endpoints
 
@@ -420,14 +423,29 @@ docker compose logs -f notification-service
 # Health check CoreAPI
 curl http://localhost:8000/api/health
 
-# Health check MediaService
-curl http://localhost:8004/health
+# Health check MediaService (port 8002 external, 8004 internal)
+curl http://localhost:8002/health
 
 # Health check NotificationService
 curl http://localhost:8006/health
 
-# Health check WalletService
-curl http://localhost:8005/health
+# Health check IncidentService
+curl http://localhost:8001/health
+
+# Health check IoTService
+curl http://localhost:8002/health
+
+# Health check AIMLService
+curl http://localhost:8003/health
+
+# Health check SearchService
+curl http://localhost:8007/health
+
+# Health check FloodEyeService
+curl http://localhost:8008/health
+
+# Health check AnalyticsService
+curl http://localhost:8009/health
 ```
 
 Nếu các API trả về response (không lỗi connection), nghĩa là hệ thống đã chạy thành công!
@@ -505,11 +523,11 @@ bash scripts/local/rebuild-docker.sh
 
    ```bash
    # Windows
-   netstat -ano | findstr :3306
+   netstat -ano | findstr :3307
    netstat -ano | findstr :8000
 
    # Linux/macOS
-   lsof -i :3306
+   lsof -i :3307
    lsof -i :8000
    ```
 
@@ -519,11 +537,14 @@ bash scripts/local/rebuild-docker.sh
    - Hoặc thay đổi port trong `docker-compose.yml`
 
 3. **Thay đổi port trong docker-compose.yml** (nếu cần):
+
    ```yaml
    mysql:
      ports:
-       - "3307:3306" # Đổi từ 3306 sang 3307
+       - "3308:3306" # MySQL đã dùng 3307, có thể đổi sang 3308 nếu cần
    ```
+
+   **Lưu ý**: MySQL trong docker-compose.yml hiện đang dùng port `3307:3306` để tránh xung đột với MySQL local.
 
 ### Lỗi: Container unhealthy hoặc không khởi động
 
