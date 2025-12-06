@@ -1,6 +1,11 @@
 # [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.0.0...v) (2025-12-06)
 
 
+### Bug Fixes
+
+* **templates:** thêm PHP closing tag còn thiếu trong blade templates ([11fedea](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/11fedea20d1a74e26a03fd9ff2cb27fce84f95c9))
+
+
 
 # [2.0.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v2.0.0) (2025-12-04)
 
