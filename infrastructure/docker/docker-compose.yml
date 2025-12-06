@@ -689,7 +689,7 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-aiml-service
         ports:
-            - "8003:8003"
+            - "8013:8003"  # Changed to avoid port conflict
         environment:
             PORT: 8003
             ENV: development
