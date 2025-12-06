@@ -10,6 +10,11 @@
 * **templates:** thêm PHP closing tag còn thiếu trong blade templates ([11fedea](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/11fedea20d1a74e26a03fd9ff2cb27fce84f95c9))
 
 
+### Features
+
+* **api:** Add frontend build step to deployment script ([7a61b13](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/7a61b136465a2085a086e78b5a6f184b2bc73c98))
+
+
 
 # [2.0.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v1.1.0...v2.0.0) (2025-12-04)
 
