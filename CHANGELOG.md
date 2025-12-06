@@ -4,6 +4,7 @@
 ### Bug Fixes
 
 * **docker:** sửa deployment và blade template errors ([5778b2c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/5778b2c291fcc2273e93477a2011c32f47e2c314))
+* **docker:** sửa deployment, blade templates và MQTT port conflict ([e48e46e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e48e46ef98321224a23f830568a36f521782a3e9))
 * **templates:** thêm PHP closing tag còn thiếu trong blade templates ([11fedea](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/11fedea20d1a74e26a03fd9ff2cb27fce84f95c9))
 
 
