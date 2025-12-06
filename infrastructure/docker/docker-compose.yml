@@ -77,7 +77,7 @@ services:
         restart: unless-stopped
 
     mongodb:
-        image: mongo:5.0
+        image: mongo:7.0
         container_name: cityresq-mongodb
         ports:
             - "27018:27017"  # External port 27018 to avoid conflict with local MongoDB
@@ -89,7 +89,7 @@ services:
         networks:
             - cityresq-network
         healthcheck:
-            test: ["CMD", "mongo", "--eval", "db.adminCommand('ping')"]
+            test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
             interval: 10s
             timeout: 5s
             retries: 5
