@@ -559,6 +559,11 @@ sleep 10
 docker exec cityresq-coreapi php artisan migrate --force || true
 docker exec cityresq-coreapi php artisan db:seed --force || true
 
+# Build frontend assets
+echo -e "${CYAN}Building frontend assets (Vite)...${NC}"
+docker exec cityresq-coreapi bash -c "cd /var/www && npm install && npm run build" || echo "Frontend build skipped"
+echo -e "${GREEN}✅ Frontend assets built!${NC}"
+
 # Ensure APP_KEY is generated and configuration is cached
 echo -e "${CYAN}Optimizing Laravel configuration...${NC}"
 docker exec cityresq-coreapi php artisan key:generate --force || true
