@@ -3,11 +3,6 @@
 <div align="center">
   <img src="./static/logo21.png" alt="CityResQ360 Logo" width="250"/>
 
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
-
-[🤝 Đóng Góp](CONTRIBUTING.md) •
-[📜 Changelog](CHANGELOG.md)
-
   <a href="https://api.cityresq360.io.vn/">
     <img src="https://img.shields.io/badge/🚀_Website-CityResQ360-00C853?style=for-the-badge" alt="Demo System"/>
   </a>
@@ -17,6 +12,11 @@
   <a href="https://api.cityresq360.io.vn/documents">
     <img src="https://img.shields.io/badge/🪛_Services-CityResQ360-edf037?style=for-the-badge" alt="Services"/>
   </a>
+
+[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
+
+[🤝 Đóng Góp](CONTRIBUTING.md) •
+[📜 Changelog](CHANGELOG.md)
 
 </div>
 
@@ -343,5 +343,15 @@ Xem [CHANGELOG.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/C
 ## 📄 Giấy Phép
 
 Dự án này được phân phối dưới [GNU General Public License v3.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/LICENSE). Xem file `LICENSE` để biết thêm chi tiết.
+
+## 📱 CityResQ360 Application
+
+<div align="start">
+  <img src="./static/img/qrios.png" alt="CityResQ360 Logo" width="150"/>
+  <br/>
+  <img src="https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="iOS App"/>
+</div>
+
+---
 
 © 2025 CityResQ360 – Code with ❤️ by DTU-DZ1 Team
