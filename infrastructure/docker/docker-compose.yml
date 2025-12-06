@@ -80,7 +80,7 @@ services:
         image: mongo:5.0
         container_name: cityresq-mongodb
         ports:
-            - "27017:27017"
+            - "27018:27017"  # External port 27018 to avoid conflict with local MongoDB
         environment:
             MONGO_INITDB_ROOT_USERNAME: cityresq
             MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-cityresq_password}
@@ -199,7 +199,7 @@ services:
         image: redis:7-alpine
         container_name: cityresq-redis
         ports:
-            - "6379:6379"
+            - "6380:6379"  # External port 6380 to avoid conflict with local Redis
         volumes:
             - redis_data:/data
         networks:
@@ -480,51 +480,6 @@ services:
         restart: unless-stopped
 
     # ==========================================
-    # EVENT CONSUMERS (Go)
-    # ==========================================
-    notification-consumer:
-        build:
-            context: ../../modules/NotificationConsumer
-            dockerfile: Dockerfile
-        container_name: cityresq-notification-consumer
-        environment:
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672/
-        depends_on:
-            rabbitmq:
-                condition: service_healthy
-        networks:
-            - cityresq-network
-        restart: unless-stopped
-
-    analytics-consumer:
-        build:
-            context: ../../modules/AnalyticsConsumer
-            dockerfile: Dockerfile
-        container_name: cityresq-analytics-consumer
-        environment:
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672/
-        depends_on:
-            rabbitmq:
-                condition: service_healthy
-        networks:
-            - cityresq-network
-        restart: unless-stopped
-
-    orion-sync-consumer:
-        build:
-            context: ../../modules/OrionSyncConsumer
-            dockerfile: Dockerfile
-        container_name: cityresq-orion-sync-consumer
-        environment:
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672/
-        depends_on:
-            rabbitmq:
-                condition: service_healthy
-        networks:
-            - cityresq-network
-        restart: unless-stopped
-
-    # ==========================================
     # APPLICATION SERVICES
     # ==========================================
     coreapi:
@@ -580,7 +535,7 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-media-service
         ports:
-            - "8002:8004"
+            - "8001:8004"
         environment:
             NODE_ENV: development
             PORT: 8004
@@ -626,7 +581,7 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-notification-service
         ports:
-            - "8006:8006"
+            - "8002:8006"
         environment:
             NODE_ENV: development
             PORT: 8006
@@ -665,7 +620,7 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-incident-service
         ports:
-            - "8001:8001"
+            - "8005:8001"
         environment:
             PORT: 8001
             NODE_ENV: development
@@ -700,7 +655,7 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-iot-service
         ports:
-            - "8002:8002"
+            - "8004:8002"
         environment:
             PORT: 8002
             NODE_ENV: development
@@ -826,7 +781,7 @@ services:
             dockerfile: Dockerfile
         container_name: cityresq-analytics-service
         ports:
-            - "8009:8009"
+            - "8006:8009"
         environment:
             PORT: 8009
             ENV: development

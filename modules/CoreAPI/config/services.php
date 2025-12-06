@@ -62,4 +62,12 @@ return [
         'base_url' => 'https://api.openweathermap.org/data/2.5',
     ],
 
+    /*
+    |--------------------------------------------------------------------------
+    | Internal Microservices Communication
+    |--------------------------------------------------------------------------
+    */
+
+    'internal_api_key' => env('INTERNAL_API_KEY', 'change-this-in-production'),
+
 ];

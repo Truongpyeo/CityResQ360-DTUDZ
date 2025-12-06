@@ -45,8 +45,8 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install
 
-# Build assets
-RUN npm run build
+# Build assets (skip in Docker build, can be done at runtime)
+# RUN npm run build
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \

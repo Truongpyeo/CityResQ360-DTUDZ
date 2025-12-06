@@ -48,7 +48,7 @@ class ModuleDefinitionsSeeder extends Seeder
                 'module_name' => 'NotificationService',
                 'description' => 'Dịch vụ gửi thông báo (Push, Email, SMS)',
                 'icon' => 'Bell',
-                'is_active' => false, // Coming soon
+                'is_active' => true, // Activated
                 'is_public' => true,
                 'base_url' => 'https://notification.cityresq360.io.vn',
                 'docs_url' => '/documents/notification-service',
@@ -57,14 +57,14 @@ class ModuleDefinitionsSeeder extends Seeder
                 'sort_order' => 2,
             ],
             [
-                'module_key' => 'wallet',
-                'module_name' => 'WalletService',
-                'description' => 'Dịch vụ quản lý ví điện tử và giao dịch',
-                'icon' => 'Wallet',
-                'is_active' => false, // Coming soon
+                'module_key' => 'search',
+                'module_name' => 'SearchService',
+                'description' => 'Dịch vụ tìm kiếm reports/incidents đô thị',
+                'icon' => 'Search',
+                'is_active' => true, // Activated
                 'is_public' => true,
-                'base_url' => 'https://wallet.cityresq360.io.vn',
-                'docs_url' => '/documents/wallet-service',
+                'base_url' => 'https://search.cityresq360.io.vn',
+                'docs_url' => '/documents/search-service',
                 'default_max_storage_mb' => 0,
                 'default_max_requests_per_day' => 100000,
                 'sort_order' => 3,
@@ -72,9 +72,9 @@ class ModuleDefinitionsSeeder extends Seeder
             [
                 'module_key' => 'iot',
                 'module_name' => 'IoTService',
-                'description' => 'Dịch vụ quản lý thiết bị IoT và telemetry',
+                'description' => 'Dịch vụ thu thập dữ liệu IoT đô thị',
                 'icon' => 'Cpu',
-                'is_active' => false, // Coming soon
+                'is_active' => true, // Activated
                 'is_public' => true,
                 'base_url' => 'https://iot.cityresq360.io.vn',
                 'docs_url' => '/documents/iot-service',
@@ -83,43 +83,56 @@ class ModuleDefinitionsSeeder extends Seeder
                 'sort_order' => 4,
             ],
             [
-                'module_key' => 'incident',
-                'module_name' => 'IncidentService',
-                'description' => 'Dịch vụ quản lý sự cố và phân công xử lý',
-                'icon' => 'AlertTriangle',
-                'is_active' => false, // Coming soon
-                'is_public' => true,
-                'base_url' => 'https://incident.cityresq360.io.vn',
-                'docs_url' => '/documents/incident-service',
-                'default_max_storage_mb' => 500,
-                'default_max_requests_per_day' => 50000,
-                'sort_order' => 5,
-            ],
-            [
                 'module_key' => 'analytics',
                 'module_name' => 'AnalyticsService',
-                'description' => 'Dịch vụ phân tích dữ liệu và báo cáo',
+                'description' => 'Dịch vụ phân tích dữ liệu civic engagement',
                 'icon' => 'BarChart',
-                'is_active' => false, // Coming soon
+                'is_active' => true, // Activated
                 'is_public' => true,
                 'base_url' => 'https://analytics.cityresq360.io.vn',
                 'docs_url' => '/documents/analytics-service',
                 'default_max_storage_mb' => 0,
                 'default_max_requests_per_day' => 10000,
+                'sort_order' => 5,
+            ],
+            [
+                'module_key' => 'floodeye',
+                'module_name' => 'FloodEyeService',
+                'description' => 'Dịch vụ dự báo và cảnh báo ngập lụt đô thị',
+                'icon' => 'Droplets',
+                'is_active' => true,
+                'is_public' => true,
+                'base_url' => 'https://floodeye.cityresq360.io.vn',
+                'docs_url' => '/documents/floodeye-service',
+                'default_max_storage_mb' => 100,
+                'default_max_requests_per_day' => 10000,
                 'sort_order' => 6,
             ],
             [
-                'module_key' => 'search',
-                'module_name' => 'SearchService',
-                'description' => 'Dịch vụ tìm kiếm toàn văn (OpenSearch)',
-                'icon' => 'Search',
-                'is_active' => false, // Coming soon
+                'module_key' => 'incident',
+                'module_name' => 'IncidentService',
+                'description' => 'Dịch vụ quản lý và điều phối sự cố đô thị',
+                'icon' => 'AlertTriangle',
+                'is_active' => true, // Activated
                 'is_public' => true,
-                'base_url' => 'https://search.cityresq360.io.vn',
-                'docs_url' => '/documents/search-service',
-                'default_max_storage_mb' => 0,
-                'default_max_requests_per_day' => 100000,
+                'base_url' => 'https://incident.cityresq360.io.vn',
+                'docs_url' => '/documents/incident-service',
+                'default_max_storage_mb' => 500,
+                'default_max_requests_per_day' => 50000,
                 'sort_order' => 7,
+            ],
+            [
+                'module_key' => 'aiml',
+                'module_name' => 'AIMLService',
+                'description' => 'Dịch vụ AI/ML phân loại sự cố đô thị',
+                'icon' => 'Brain',
+                'is_active' => true,
+                'is_public' => true,
+                'base_url' => 'https://aiml.cityresq360.io.vn',
+                'docs_url' => '/documents/aiml-service',
+                'default_max_storage_mb' => 50,
+                'default_max_requests_per_day' => 50000,
+                'sort_order' => 8,
             ],
         ];
 
@@ -130,6 +143,6 @@ class ModuleDefinitionsSeeder extends Seeder
             );
         }
 
-        $this->command->info('✅ Seeded 7 module definitions successfully!');
+        $this->command->info('✅ Seeded 8 module definitions successfully!');
     }
 }
