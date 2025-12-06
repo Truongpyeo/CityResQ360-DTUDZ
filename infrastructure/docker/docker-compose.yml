@@ -37,7 +37,7 @@ services:
         image: eclipse-mosquitto:2.0
         container_name: cityresq-mqtt
         ports:
-            - "1883:1883"    # MQTT
+            - "1885:1883"    # MQTT (changed to avoid conflict with greenedumap-emqx)
             - "9002:9001"    # WebSocket
         volumes:
             - ../../infrastructure/mosquitto/config:/mosquitto/config
