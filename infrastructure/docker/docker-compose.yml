@@ -824,29 +824,33 @@ services:
             - cityresq-network
         restart: unless-stopped
 
-    app-mobile:
-        build:
-            context: ../../modules/AppMobile
-            dockerfile: Dockerfile
-        container_name: cityresq-app-mobile
-        ports:
-            - "3000:3000"
-        environment:
-            NODE_ENV: development
-            PORT: 3000
-            NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
-            API_URL: http://coreapi:80/api/v1
-            DATABASE_URL: postgresql://cityresq:${POSTGRES_PASSWORD:-cityresq_password}@postgres:5432/wallet_db?schema=public
-        volumes:
-            - ../../modules/AppMobile:/app
-            - /app/node_modules
-            - /app/.next
-        depends_on:
-            coreapi:
-                condition: service_started
-        networks:
-            - cityresq-network
-        restart: unless-stopped
+    # ==========================================
+    # MOBILE APP (Run locally, not in Docker)
+    # ==========================================
+    # app-mobile:
+    #     build:
+    #         context: ../../modules/AppMobile
+    #         dockerfile: Dockerfile
+    #     container_name: cityresq-app-mobile
+    #     ports:
+    #         - "3000:3000"
+    #     environment:
+    #         NODE_ENV: development
+    #         PORT: 3000
+    #         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+    #         API_URL: http://coreapi:80/api/v1
+    #         DATABASE_URL: postgresql://cityresq:${POSTGRES_PASSWORD:-cityresq_password}@postgres:5432/wallet_db?schema=public
+    #     volumes:
+    #         - ../../modules/AppMobile:/app
+    #         - /app/node_modules
+    #         - /app/.next
+    #     depends_on:
+    #         coreapi:
+    #             condition: service_started
+    #     networks:
+    #         - cityresq-network
+    #     restart: unless-stopped
+    # Note: React Native app should run locally with: npm start / npx expo start
 
     # ==========================================
     # MONITORING
