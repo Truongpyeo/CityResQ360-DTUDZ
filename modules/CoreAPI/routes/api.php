@@ -188,3 +188,22 @@ Route::prefix('v1')->group(function () {
         });
     });
 });
+
+/*
+|--------------------------------------------------------------------------
+| Internal API Routes
+|--------------------------------------------------------------------------
+|
+| API endpoints for internal microservice communication
+| Protected by X-Internal-Key header
+| Not accessible from external clients
+|
+*/
+
+Route::prefix('internal')->middleware(\App\Http\Middleware\InternalApiMiddleware::class)->group(function () {
+    // Verify client credentials for JWT authentication
+    Route::get('/verify-credential', [\App\Http\Controllers\InternalApiController::class, 'verifyCredential']);
+
+    // Log API usage (optional)
+    Route::post('/log-usage', [\App\Http\Controllers\InternalApiController::class, 'logUsage']);
+});

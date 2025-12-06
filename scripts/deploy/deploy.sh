@@ -31,9 +31,29 @@ fi
 PROJECT_DIR="/opt/CityResQ360"
 DOCKER_DIR="${PROJECT_DIR}/infrastructure/docker"
 BACKUP_DIR="/opt/backups/cityresq360"
+COMPOSE_FILE="docker-compose.yml"
 
 # ============================================
-# STEP 1: DEPLOYMENT MODE SELECTION
+# STEP 1: FRESH DEPLOYMENT OPTION
+# ============================================
+echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
+echo -e "${CYAN}Deployment type:${NC}"
+echo "1) 🔄 Update (keep existing data)"
+echo "2) 🗑️  Fresh (delete all containers & databases)"
+echo ""
+read -p "Enter choice [1-2]: " FRESH_DEPLOY
+
+if [ "$FRESH_DEPLOY" = "2" ]; then
+    CLEAN_INSTALL=true
+    echo -e "${RED}⚠️  WARNING: All data will be deleted!${NC}"
+else
+    CLEAN_INSTALL=false
+    echo -e "${GREEN}✅ Existing data will be preserved${NC}"
+fi
+echo ""
+
+# ============================================
+# STEP 2: DEPLOYMENT MODE SELECTION
 # ============================================
 echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo -e "${CYAN}Select deployment mode:${NC}"
@@ -96,7 +116,7 @@ fi
 echo ""
 
 # ============================================
-# STEP 2: INSTALL DEPENDENCIES
+# STEP 3: INSTALL DEPENDENCIES
 # ============================================
 echo -e "${YELLOW}[Step 1/8] System Update${NC}"
 apt-get update -qq
@@ -220,7 +240,7 @@ else
 fi
 
 # ============================================
-# STEP 3: CLONE/UPDATE REPOSITORY
+# STEP 4: CLONE/UPDATE REPOSITORY
 # ============================================
 echo -e "${YELLOW}[Step 5/8] Repository Setup${NC}"
 
@@ -245,7 +265,7 @@ else
 fi
 
 # ============================================
-# STEP 4: CONFIGURE ENVIRONMENT
+# STEP 5: CONFIGURE ENVIRONMENT
 # ============================================
 echo -e "${YELLOW}[Step 6/8] Environment Configuration${NC}"
 
@@ -473,40 +493,63 @@ else
 fi
 
 # ============================================
-# STEP 5: DEPLOY WITH DOCKER
+# STEP 6: DEPLOY WITH DOCKER
 # ============================================
 echo -e "${YELLOW}[Step 7/8] Docker Deployment${NC}"
 
 cd "$DOCKER_DIR"
 
-# Backup existing deployment
-if docker ps -q --filter name=cityresq- | grep -q .; then
-    echo -e "${CYAN}Backing up current deployment...${NC}"
-    mkdir -p "$BACKUP_DIR"
-    BACKUP_NAME="backup_$(date +%Y%m%d_%H%M%S)"
+# Handle fresh deployment
+if [ "$CLEAN_INSTALL" = true ]; then
+    echo -e "${RED}🗑️  Performing fresh deployment...${NC}"
     
-    # Backup MySQL
-    docker exec cityresq-mysql mysqldump -u root -p${MYSQL_PASSWORD} --all-databases > "${BACKUP_DIR}/${BACKUP_NAME}_mysql.sql" 2>/dev/null || true
+    # Stop all containers
+    echo -e "${CYAN}[1/5] Stopping containers...${NC}"
+    docker-compose -f "$COMPOSE_FILE" down 2>/dev/null || true
     
-    echo -e "${GREEN}✅ Backup created${NC}"
+    # Remove all cityresq volumes
+    echo -e "${CYAN}[2/5] Removing volumes...${NC}"
+    docker volume ls | grep cityresq | awk '{print $2}' | xargs -r docker volume rm 2>/dev/null || true
     
-    # Stop containers
-    echo -e "${CYAN}Stopping current containers...${NC}"
-    docker-compose -f docker-compose.production.yml down
+    # Remove cityresq images
+    echo -e "${CYAN}[3/5] Removing images...${NC}"
+    docker images | grep cityresq | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || true
+    
+    # Clean docker system
+    echo -e "${CYAN}[4/5] Cleaning Docker system...${NC}"
+    docker system prune -f --volumes
+    
+    echo -e "${GREEN}✅ Fresh deployment prepared${NC}"
+else
+    # Backup existing deployment
+    if docker ps -q --filter name=cityresq- | grep -q .; then
+        echo -e "${CYAN}Backing up current deployment...${NC}"
+        mkdir -p "$BACKUP_DIR"
+        BACKUP_NAME="backup_$(date +%Y%m%d_%H%M%S)"
+        
+        # Backup MySQL
+        docker exec cityresq-mysql mysqldump -u root -p${MYSQL_PASSWORD} --all-databases > "${BACKUP_DIR}/${BACKUP_NAME}_mysql.sql" 2>/dev/null || true
+        
+        echo -e "${GREEN}✅ Backup created${NC}"
+        
+        # Stop containers
+        echo -e "${CYAN}Stopping current containers...${NC}"
+        docker-compose -f "$COMPOSE_FILE" down
+    fi
 fi
 
 # Build and start
 echo -e "${CYAN}Building services...${NC}"
-docker-compose -f docker-compose.production.yml build --no-cache
+docker-compose -f "$COMPOSE_FILE" build --no-cache
 
 echo -e "${CYAN}Starting infrastructure...${NC}"
-docker-compose -f docker-compose.production.yml up -d mysql mongodb postgres redis rabbitmq minio
+docker-compose -f "$COMPOSE_FILE" up -d mysql mongodb postgres redis rabbitmq minio
 
 echo -e "${YELLOW}⏳ Waiting for databases (30s)...${NC}"
 sleep 30
 
 echo -e "${CYAN}Starting application services...${NC}"
-docker-compose -f docker-compose.production.yml up -d coreapi media-service
+docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service iot-service incident-service analytics-service search-service aiml-service floodeye-service
 
 echo -e "${GREEN}✅ Docker deployment complete!${NC}"
 
@@ -531,7 +574,7 @@ docker exec cityresq-coreapi cp storage/api-docs/api-docs.json public/api-docs.j
 echo -e "${GREEN}✅ Swagger docs generated${NC}"
 
 # ============================================
-# STEP 6: CONFIGURE SSL (Domain mode only)
+# STEP 7: CONFIGURE SSL (Domain mode only)
 # ============================================
 if [ "$USE_DOMAIN" = true ]; then
     echo -e "${YELLOW}[Step 8/8] SSL Configuration${NC}"
@@ -571,6 +614,11 @@ echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━�
 echo -e "${BLUE}🎉 Deployment Complete!${NC}"
 echo -e "${BLUE}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
 echo ""
+echo -e "${CYAN}📋 Deployment Configuration:${NC}"
+echo -e "  Docker Compose: ${GREEN}docker-compose.yml${NC}"
+echo -e "  Deployment Type: ${GREEN}$([ "$CLEAN_INSTALL" = true ] && echo "Fresh (all data cleared)" || echo "Update (data preserved)")${NC}"
+echo -e "  Mode: ${GREEN}$([ "$USE_DOMAIN" = true ] && echo "Domain-based with SSL" || echo "IP-only")${NC}"
+echo ""
 echo -e "${GREEN}📊 Service URLs:${NC}"
 
 if [ "$USE_DOMAIN" = true ]; then
@@ -593,9 +641,9 @@ echo -e "  Environment:   $ENV_FILE"
 echo -e "  Backups:       $BACKUP_DIR"
 echo ""
 echo -e "${CYAN}🔧 Useful Commands:${NC}"
-echo -e "  View logs:     docker-compose -f $DOCKER_DIR/docker-compose.production.yml logs -f"
-echo -e "  Restart:       docker-compose -f $DOCKER_DIR/docker-compose.production.yml restart coreapi"
-echo -e "  Stop all:      docker-compose -f $DOCKER_DIR/docker-compose.production.yml down"
+echo -e "  View logs:     docker-compose -f $DOCKER_DIR/docker-compose.yml logs -f"
+echo -e "  Restart:       docker-compose -f $DOCKER_DIR/docker-compose.yml restart coreapi"
+echo -e "  Stop all:      docker-compose -f $DOCKER_DIR/docker-compose.yml down"
 echo ""
 echo -e "${YELLOW}⚠️  Next Steps:${NC}"
 echo -e "  1. Save passwords from: $ENV_FILE"

@@ -50,8 +50,8 @@ start_services() {
     
     # Start applications
     echo -e "${CYAN}Starting applications...${NC}"
-    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service wallet-service \
-        iot-service floodeye-service incident-service analytics-service search-service
+    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service \
+        iot-service floodeye-service incident-service analytics-service search-service aiml-service
     
     echo -e "${GREEN}✓ Services started${NC}"
     docker-compose -f "$COMPOSE_FILE" ps
@@ -101,8 +101,8 @@ clean_rebuild() {
     sleep 30
     
     echo -e "\n${YELLOW}[7/7] Starting applications...${NC}"
-    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service wallet-service \
-        iot-service floodeye-service incident-service analytics-service search-service
+    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service \
+        iot-service floodeye-service incident-service analytics-service search-service aiml-service
     sleep 10
     
     echo -e "\n${GREEN}✓ Clean rebuild complete${NC}"
@@ -118,7 +118,7 @@ view_logs() {
     echo "  2) CoreAPI"
     echo "  3) MediaService"
     echo "  4) NotificationService"
-    echo "  5) WalletService"
+    echo "  5) AIMLService"
     echo "  6) IoTService"
     echo "  7) FloodEyeService"
     echo "  8) IncidentService"
@@ -133,7 +133,7 @@ view_logs() {
         2) docker-compose -f "$COMPOSE_FILE" logs -f coreapi ;;
         3) docker-compose -f "$COMPOSE_FILE" logs -f media-service ;;
         4) docker-compose -f "$COMPOSE_FILE" logs -f notification-service ;;
-        5) docker-compose -f "$COMPOSE_FILE" logs -f wallet-service ;;
+        5) docker-compose -f "$COMPOSE_FILE" logs -f aiml-service ;;
         6) docker-compose -f "$COMPOSE_FILE" logs -f iot-service ;;
         7) docker-compose -f "$COMPOSE_FILE" logs -f floodeye-service ;;
         8) docker-compose -f "$COMPOSE_FILE" logs -f incident-service ;;
@@ -176,8 +176,8 @@ test_endpoints() {
     echo -e "\n${YELLOW}NotificationService:${NC}"
     curl -s http://localhost:8002/health || echo -e "${RED}✗ Failed${NC}"
     
-    echo -e "\n${YELLOW}WalletService:${NC}"
-    curl -s http://localhost:8003/health || echo -e "${RED}✗ Failed${NC}"
+    echo -e "\n${YELLOW}AIMLService:${NC}"
+    curl -s http://localhost:8008/health || echo -e "${RED}✗ Failed${NC}"
     
     echo -e "\n${YELLOW}FloodEyeService:${NC}"
     curl -s http://localhost:8003/health || echo -e "${RED}✗ Failed${NC}"
@@ -192,7 +192,7 @@ test_endpoints() {
     curl -s http://localhost:8006/health || echo -e "${RED}✗ Failed${NC}"
     
     echo -e "\n${YELLOW}SearchService:${NC}"
-    curl -s http://localhost:8007/health || echo -e "${RED}✗ Failed${NC}
+    curl -s http://localhost:8007/health || echo -e "${RED}✗ Failed${NC}"
     
     echo -e "\n${CYAN}URLs:${NC}"
     echo -e "  CoreAPI:         ${GREEN}http://localhost:8000${NC}"
@@ -220,7 +220,7 @@ open_shells() {
     case $choice in
         1) docker exec -it cityresq-coreapi bash ;;
         2) docker exec -it cityresq-media-service sh ;;
-        3) docker exec -it cityresq-postgres psql -U cityresq -d cityresq_wallet ;;
+        3) docker exec -it cityresq-postgres psql -U cityresq -d cityresq_db ;;
         4) docker exec -it cityresq-mysql mysql -u cityresq -pcityresq_password cityresq ;;
         5) docker exec -it cityresq-redis redis-cli ;;
         *) echo "Invalid choice" ;;
