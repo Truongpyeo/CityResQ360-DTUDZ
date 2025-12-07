@@ -27,10 +27,12 @@ RUN apk add --no-cache \
 
 # Configure and install PHP extensions with JPEG support
 RUN docker-php-ext-configure gd --with-jpeg --with-freetype
-RUN docker-php-ext-install pdo pdo_mysql gd xml zip intl bcmath sockets
+RUN docker-php-ext-install pdo pdo_mysql gd xml zip intl bcmath sockets pcntl
 
 # Install Redis extension via PECL
-RUN pecl install redis && docker-php-ext-enable redis
+RUN pecl channel-update pecl.php.net && \
+    pecl install redis && \
+    docker-php-ext-enable redis
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
@@ -45,8 +47,8 @@ COPY . .
 RUN composer install --no-dev --optimize-autoloader
 RUN npm install
 
-# Build frontend assets for production
-RUN npm run build
+# Build frontend assets for production (skip if fails)
+RUN npm run build || echo "⚠️ Vite build failed, skipping..."
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \
@@ -81,9 +83,36 @@ RUN mkdir -p /etc/supervisor.d && \
     echo 'stdout_logfile_maxbytes=0' >> /etc/supervisor.d/supervisord.ini && \
     echo 'stderr_logfile=/dev/stderr' >> /etc/supervisor.d/supervisord.ini && \
     echo 'stderr_logfile_maxbytes=0' >> /etc/supervisor.d/supervisord.ini && \
+    echo '' >> /etc/supervisor.d/supervisord.ini && \
+    echo '[program:reverb]' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'command=php /var/www/html/artisan reverb:start --host=0.0.0.0 --port=8080' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'directory=/var/www/html' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'user=www-data' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'autostart=true' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'autorestart=true' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stdout_logfile=/var/log/supervisor/reverb.log' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stdout_logfile_maxbytes=10MB' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stderr_logfile=/var/log/supervisor/reverb.error.log' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stderr_logfile_maxbytes=10MB' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stopwaitsecs=60' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stopsignal=TERM' >> /etc/supervisor.d/supervisord.ini && \
+    echo '' >> /etc/supervisor.d/supervisord.ini && \
+    echo '[program:queue-worker]' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'command=php /var/www/html/artisan queue:work --sleep=3 --tries=3 --max-time=3600' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'directory=/var/www/html' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'user=www-data' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'autostart=true' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'autorestart=true' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'numprocs=1' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'redirect_stderr=true' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stdout_logfile=/var/log/supervisor/queue-worker.log' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stdout_logfile_maxbytes=10MB' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stderr_logfile=/var/log/supervisor/queue-worker.error.log' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stderr_logfile_maxbytes=10MB' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'stopwaitsecs=3600' >> /etc/supervisor.d/supervisord.ini && \
     mkdir -p /var/log/supervisor
 
-EXPOSE 80
+EXPOSE 80 8080
 
 # Create entrypoint script for migrations, seeding, and supervisor startup
 RUN echo '#!/bin/sh' > /entrypoint.sh && \

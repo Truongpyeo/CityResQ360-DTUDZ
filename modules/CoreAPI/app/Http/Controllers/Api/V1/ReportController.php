@@ -24,6 +24,7 @@ use App\Http\Requests\Api\Report\StoreReportRequest;
 use App\Models\PhanAnh;
 use Illuminate\Http\Request;
 use App\Events\ReportCreatedEvent;
+use App\Events\NewReportForAdmins;
 use App\Events\ReportUpdated;
 
 class ReportController extends BaseController
@@ -132,6 +133,9 @@ class ReportController extends BaseController
 
         // Dispatch event to RabbitMQ
         event(new \App\Events\ReportCreatedEvent($report, $user));
+
+        // 🔥 Broadcast to all admins for realtime monitoring
+        broadcast(new NewReportForAdmins($report, $user))->toOthers();
 
         // Prepare media for response
         $media = [];
@@ -282,10 +286,10 @@ class ReportController extends BaseController
         // Haversine formula for distance calculation
         $reports = PhanAnh::selectRaw("
                 *,
-                (6371 * acos(cos(radians(?)) 
-                * cos(radians(CAST(vi_do AS DECIMAL(10,8)))) 
-                * cos(radians(CAST(kinh_do AS DECIMAL(11,8))) - radians(?)) 
-                + sin(radians(?)) 
+                (6371 * acos(cos(radians(?))
+                * cos(radians(CAST(vi_do AS DECIMAL(10,8))))
+                * cos(radians(CAST(kinh_do AS DECIMAL(11,8))) - radians(?))
+                + sin(radians(?))
                 * sin(radians(CAST(vi_do AS DECIMAL(10,8)))))) AS distance
             ", [$lat, $lng, $lat])
             ->having('distance', '<', $radius)
@@ -330,7 +334,7 @@ class ReportController extends BaseController
 
     /**
      * Rate a report
-     * POST /api/v1/reports/{id}/rate  
+     * POST /api/v1/reports/{id}/rate
      */
     public function rate(Request $request, $id)
     {

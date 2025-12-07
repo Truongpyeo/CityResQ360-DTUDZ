@@ -28,6 +28,7 @@ use App\Listeners\PublishReportCreatedToRabbitMQ;
 use App\Listeners\PublishReportUpdatedToRabbitMQ;
 use App\Listeners\PublishReportStatusChanged;
 use App\Listeners\CreateIncidentFromReport;
+use App\Listeners\NotifyAdminsOfNewReport;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 
@@ -44,6 +45,7 @@ class EventServiceProvider extends ServiceProvider
         ],
         ReportCreatedEvent::class => [
             PublishReportCreatedToRabbitMQ::class,
+            NotifyAdminsOfNewReport::class, // 🔥 Notify admins of new reports
         ],
         ReportStatusChanged::class => [
             PublishReportStatusChanged::class,

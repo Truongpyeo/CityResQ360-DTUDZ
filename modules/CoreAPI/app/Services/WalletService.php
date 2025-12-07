@@ -24,6 +24,7 @@ use App\Models\NguoiDung;
 use App\Models\PhanThuong;
 use App\Models\DoiPhanThuong;
 use App\Services\NotificationService;
+use App\Events\PointsUpdated;
 use Illuminate\Support\Facades\DB;
 
 class WalletService
@@ -80,6 +81,9 @@ class WalletService
             // 🔥 Send notification about points earned
             try {
                 $this->notificationService->sendPointsEarned($userId, $points, $reason);
+
+                // Broadcast realtime points update
+                broadcast(new PointsUpdated($userId, $points, $balanceAfter, $reason))->toOthers();
             } catch (\Exception $e) {
                 \Log::error("Failed to send points notification to user #{$userId}: " . $e->getMessage());
             }

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CityResQ360 - Realtime Test</title>
+    <script src="https://js.pusher.com/8.2.0/pusher.min.js"></script>
+    <style>
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+            background: #f5f5f5;
+        }
+        .container {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        h1 {
+            color: #2563eb;
+            margin-top: 0;
+        }
+        h2 {
+            color: #1e40af;
+            border-bottom: 2px solid #2563eb;
+            padding-bottom: 10px;
+        }
+        .status {
+            padding: 10px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        .status.connected {
+            background: #d1fae5;
+            color: #065f46;
+        }
+        .status.disconnected {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+        .event {
+            background: #f3f4f6;
+            border-left: 4px solid #2563eb;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 4px;
+        }
+        .event-title {
+            font-weight: bold;
+            color: #1e40af;
+            margin-bottom: 5px;
+        }
+        .event-data {
+            background: #1e293b;
+            color: #e2e8f0;
+            padding: 10px;
+            border-radius: 4px;
+            overflow-x: auto;
+            font-family: monospace;
+            font-size: 12px;
+        }
+        .channel {
+            display: inline-block;
+            background: #dbeafe;
+            color: #1e40af;
+            padding: 4px 12px;
+            border-radius: 12px;
+            font-size: 12px;
+            margin: 5px 5px 5px 0;
+        }
+        button {
+            background: #2563eb;
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            margin: 5px;
+        }
+        button:hover {
+            background: #1e40af;
+        }
+        button:disabled {
+            background: #9ca3af;
+            cursor: not-allowed;
+        }
+        .config {
+            background: #fef3c7;
+            border: 1px solid #f59e0b;
+            padding: 15px;
+            border-radius: 4px;
+            margin: 10px 0;
+        }
+        input {
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            width: 300px;
+            margin: 5px;
+        }
+        .timestamp {
+            color: #6b7280;
+            font-size: 12px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🔥 CityResQ360 - Realtime Broadcasting Test</h1>
+
+        <div class="config">
+            <h3>⚙️ Configuration</h3>
+            <div>
+                <label>WebSocket Host:</label>
+                <input type="text" id="wsHost" value="localhost" />
+            </div>
+            <div>
+                <label>WebSocket Port:</label>
+                <input type="text" id="wsPort" value="8080" />
+            </div>
+            <div>
+                <label>Auth Token (Optional):</label>
+                <input type="text" id="authToken" placeholder="Bearer token for private channels" />
+            </div>
+            <div>
+                <button onclick="connect()">🔌 Connect</button>
+                <button onclick="disconnect()">❌ Disconnect</button>
+            </div>
+        </div>
+
+        <div id="status" class="status disconnected">
+            ⚫ Disconnected
+        </div>
+
+        <h2>📡 Subscribed Channels</h2>
+        <div id="channels"></div>
+
+        <div>
+            <button onclick="subscribeAdminReports()">Subscribe: admin-reports</button>
+            <button onclick="subscribeUserReports()">Subscribe: user-reports</button>
+            <button onclick="subscribePrivateUser(1)">Subscribe: private-user.1</button>
+        </div>
+    </div>
+
+    <div class="container">
+        <h2>📨 Realtime Events</h2>
+        <button onclick="clearEvents()">🗑️ Clear Events</button>
+        <div id="events"></div>
+    </div>
+
+    <script>
+        let pusher = null;
+        let channels = {};
+
+        function connect() {
+            const wsHost = document.getElementById('wsHost').value;
+            const wsPort = document.getElementById('wsPort').value;
+            const authToken = document.getElementById('authToken').value;
+
+            const config = {
+                wsHost: wsHost,
+                wsPort: parseInt(wsPort),
+                forceTLS: false,
+                cluster: 'mt1',
+                enabledTransports: ['ws', 'wss'],
+                disableStats: true,
+            };
+
+            if (authToken) {
+                config.authEndpoint = `http://${wsHost}:8000/broadcasting/auth`;
+                config.auth = {
+                    headers: {
+                        'Authorization': authToken.startsWith('Bearer ') ? authToken : `Bearer ${authToken}`
+                    }
+                };
+            }
+
+            pusher = new Pusher('local-key', config);
+
+            pusher.connection.bind('connected', function() {
+                updateStatus('connected', '🟢 Connected');
+                addLog('info', 'Connected to Reverb server');
+            });
+
+            pusher.connection.bind('disconnected', function() {
+                updateStatus('disconnected', '⚫ Disconnected');
+                addLog('error', 'Disconnected from server');
+            });
+
+            pusher.connection.bind('error', function(err) {
+                addLog('error', 'Connection error: ' + JSON.stringify(err));
+            });
+        }
+
+        function disconnect() {
+            if (pusher) {
+                pusher.disconnect();
+                channels = {};
+                updateChannels();
+                updateStatus('disconnected', '⚫ Disconnected');
+            }
+        }
+
+        function subscribeAdminReports() {
+            if (!pusher) {
+                alert('Please connect first!');
+                return;
+            }
+
+            const channelName = 'admin-reports';
+            if (channels[channelName]) {
+                alert('Already subscribed to ' + channelName);
+                return;
+            }
+
+            const channel = pusher.subscribe(channelName);
+            channels[channelName] = channel;
+
+            channel.bind('new.report', function(data) {
+                addEvent('admin-reports', 'new.report', data);
+            });
+
+            channel.bind('pusher:subscription_succeeded', function() {
+                addLog('success', `Subscribed to ${channelName}`);
+                updateChannels();
+            });
+
+            channel.bind('pusher:subscription_error', function(status) {
+                addLog('error', `Failed to subscribe to ${channelName}: ${status}`);
+            });
+        }
+
+        function subscribeUserReports() {
+            if (!pusher) {
+                alert('Please connect first!');
+                return;
+            }
+
+            const channelName = 'user-reports';
+            if (channels[channelName]) {
+                alert('Already subscribed to ' + channelName);
+                return;
+            }
+
+            const channel = pusher.subscribe(channelName);
+            channels[channelName] = channel;
+
+            channel.bind('report.status.updated', function(data) {
+                addEvent('user-reports', 'report.status.updated', data);
+            });
+
+            channel.bind('pusher:subscription_succeeded', function() {
+                addLog('success', `Subscribed to ${channelName}`);
+                updateChannels();
+            });
+
+            channel.bind('pusher:subscription_error', function(status) {
+                addLog('error', `Failed to subscribe to ${channelName}: ${status}`);
+            });
+        }
+
+        function subscribePrivateUser(userId) {
+            if (!pusher) {
+                alert('Please connect first!');
+                return;
+            }
+
+            const channelName = `private-user.${userId}`;
+            if (channels[channelName]) {
+                alert('Already subscribed to ' + channelName);
+                return;
+            }
+
+            const channel = pusher.subscribe(channelName);
+            channels[channelName] = channel;
+
+            channel.bind('notification.sent', function(data) {
+                addEvent(channelName, 'notification.sent', data);
+            });
+
+            channel.bind('points.updated', function(data) {
+                addEvent(channelName, 'points.updated', data);
+            });
+
+            channel.bind('pusher:subscription_succeeded', function() {
+                addLog('success', `Subscribed to ${channelName}`);
+                updateChannels();
+            });
+
+            channel.bind('pusher:subscription_error', function(status) {
+                addLog('error', `Failed to subscribe to ${channelName}: ${status}`);
+            });
+        }
+
+        function updateStatus(className, text) {
+            const status = document.getElementById('status');
+            status.className = `status ${className}`;
+            status.textContent = text;
+        }
+
+        function updateChannels() {
+            const channelsDiv = document.getElementById('channels');
+            if (Object.keys(channels).length === 0) {
+                channelsDiv.innerHTML = '<p style="color: #6b7280;">No channels subscribed</p>';
+            } else {
+                channelsDiv.innerHTML = Object.keys(channels)
+                    .map(name => `<span class="channel">${name}</span>`)
+                    .join('');
+            }
+        }
+
+        function addEvent(channel, eventName, data) {
+            const eventsDiv = document.getElementById('events');
+            const timestamp = new Date().toLocaleTimeString('vi-VN');
+
+            const eventHtml = `
+                <div class="event">
+                    <div class="event-title">
+                        📡 ${eventName} <span class="timestamp">${timestamp}</span>
+                    </div>
+                    <div style="margin: 5px 0;">
+                        <span class="channel">${channel}</span>
+                    </div>
+                    <div class="event-data">${JSON.stringify(data, null, 2)}</div>
+                </div>
+            `;
+
+            eventsDiv.insertAdjacentHTML('afterbegin', eventHtml);
+        }
+
+        function addLog(type, message) {
+            console.log(`[${type}] ${message}`);
+        }
+
+        function clearEvents() {
+            document.getElementById('events').innerHTML = '';
+        }
+
+        // Auto-connect on load
+        window.addEventListener('load', function() {
+            updateChannels();
+        });
+    </script>
+</body>
+</html>

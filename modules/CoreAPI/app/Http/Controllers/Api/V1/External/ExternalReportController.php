@@ -22,6 +22,8 @@ namespace App\Http\Controllers\Api\V1\External;
 use App\Http\Controllers\Api\BaseController;
 use App\Models\PhanAnh;
 use App\Models\NguoiDung;
+use App\Events\ReportCreatedEvent;
+use App\Events\NewReportForAdmins;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Support\Facades\Log;
@@ -109,7 +111,10 @@ class ExternalReportController extends BaseController
         $report->load(['nguoiDung', 'danhMuc', 'uuTien']);
 
         // Dispatch event (same as mobile app)
-        event(new \App\Events\ReportCreatedEvent($report, $user));
+        event(new ReportCreatedEvent($report, $user));
+
+        // 🔥 Broadcast to all admins for realtime monitoring
+        broadcast(new NewReportForAdmins($report, $user))->toOthers();
 
         Log::info('External report created via JWT', [
             'report_id' => $report->id,

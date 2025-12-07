@@ -19,11 +19,13 @@
 
 namespace App\Events;
 
+use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
+use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ReportCreatedEvent
+class ReportCreatedEvent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
@@ -37,5 +39,36 @@ class ReportCreatedEvent
     {
         $this->report = $report;
         $this->user = $user;
+    }
+
+    /**
+     * Get the channels the event should broadcast on.
+     */
+    public function broadcastOn(): array
+    {
+        return [
+            new Channel('reports'),
+        ];
+    }
+
+    /**
+     * The event's broadcast name.
+     */
+    public function broadcastAs(): string
+    {
+        return 'report.created';
+    }
+
+    /**
+     * Get the data to broadcast.
+     */
+    public function broadcastWith(): array
+    {
+        return [
+            'report_id' => $this->report->id,
+            'title' => $this->report->tieu_de,
+            'status' => $this->report->trang_thai,
+            'created_at' => $this->report->created_at->toISOString(),
+        ];
     }
 }
