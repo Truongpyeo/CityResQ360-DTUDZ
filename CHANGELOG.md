@@ -1,61 +1,8 @@
-# CHANGELOG
-
-## 07/12/2025 - 18h20
-
-### Release v2.1.0
-
-**✨ New Features:**
-- tích hợp Laravel Reverb cho thông báo realtime admin
-- !: tích hợp FCM push notifications vào CoreAPI
-- Cập nhật IncidentService với direct incident creation
-- Thêm IncidentService vào web documentation với JWT authentication
-- Add frontend build step to deployment script
-
-**🐛 Bug Fixes:**
-- admin FE
-- Sửa Build FE Admin
-- AIML Service external port: 8003 → 8013
-- Sửa ver mongoDB
-- sửa deployment, blade templates và MQTT port conflict
-- sửa deployment và blade template errors
-- thêm PHP closing tag còn thiếu trong blade templates
-
-**📚 Documentation:**
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update CHANGELOG.md [skip ci]
-- update qr ios
-- update readme
-- update setup
-- update CHANGELOG.md [skip ci]
-- update readme
-
-**⚠️ BREAKING CHANGES:**
-- feat(notifications)!: tích hợp FCM push notifications vào CoreAPI
-
-**Technical Details:**
-- Tag: v2.1.0
-- Commits: 33
-- Released from: master branch
-- Release URL: https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/releases/tag/v2.1.0
-
----
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.1.0...v) (2025-12-07)
 
 
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.0.0...v) (2025-12-07)
+
+# [2.1.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.0.0...v2.1.0) (2025-12-07)
 
 
 * feat(notifications)!: tích hợp FCM push notifications vào CoreAPI ([b7d54c4](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b7d54c479274b10125513c36c1c929439136faf0))
@@ -239,3 +186,6 @@ Kiểm tra bởi: Manual curl testing + Python scripts
 * **docker:** Xóa duplicate volumes key gây lỗi YAML parse ([668bf83](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/668bf8307ee3d8e197198d32820909909c9b692a))
 * **mysql:** Bỏ init.sql mount vì syntax không tương thích MySQL 8.0 ([fb31d5e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/fb31d5ece3ac016bd68fcb5fd033ec4953101dd3))
 * readme ([a9585e5](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/a9585e5d3e275aa0ee68923e0cdf25ae943a8d6b))
+
+
+
