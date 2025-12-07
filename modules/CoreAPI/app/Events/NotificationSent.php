@@ -19,6 +19,7 @@
 
 namespace App\Events;
 
+use App\Models\ThongBao;
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
@@ -26,34 +27,29 @@ use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ReportStatusChanged implements ShouldBroadcast
+class NotificationSent implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $report;
-    public $oldStatus;
-    public $newStatus;
-    public $user;
+    public $notification;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($report, $oldStatus, $newStatus, $user = null)
+    public function __construct(ThongBao $notification)
     {
-        $this->report = $report;
-        $this->oldStatus = $oldStatus;
-        $this->newStatus = $newStatus;
-        $this->user = $user;
+        $this->notification = $notification;
     }
 
     /**
      * Get the channels the event should broadcast on.
+     *
+     * @return array<int, \Illuminate\Broadcasting\Channel>
      */
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('user.' . $this->report->nguoi_dung_id),
-            new Channel('reports'),
+            new PrivateChannel('user.' . $this->notification->nguoi_dung_id),
         ];
     }
 
@@ -62,7 +58,7 @@ class ReportStatusChanged implements ShouldBroadcast
      */
     public function broadcastAs(): string
     {
-        return 'report.status.changed';
+        return 'notification.sent';
     }
 
     /**
@@ -71,10 +67,12 @@ class ReportStatusChanged implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'report_id' => $this->report->id,
-            'old_status' => $this->oldStatus,
-            'new_status' => $this->newStatus,
-            'updated_at' => $this->report->updated_at->toISOString(),
+            'id' => $this->notification->id,
+            'title' => $this->notification->tieu_de,
+            'content' => $this->notification->noi_dung,
+            'type' => $this->notification->loai,
+            'data' => $this->notification->du_lieu_mo_rong,
+            'created_at' => $this->notification->created_at->toISOString(),
         ];
     }
 }

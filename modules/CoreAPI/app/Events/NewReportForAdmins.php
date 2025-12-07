@@ -21,39 +21,36 @@ namespace App\Events;
 
 use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
-use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ReportStatusChanged implements ShouldBroadcast
+class NewReportForAdmins implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
     public $report;
-    public $oldStatus;
-    public $newStatus;
     public $user;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($report, $oldStatus, $newStatus, $user = null)
+    public function __construct($report, $user)
     {
         $this->report = $report;
-        $this->oldStatus = $oldStatus;
-        $this->newStatus = $newStatus;
         $this->user = $user;
     }
 
     /**
      * Get the channels the event should broadcast on.
+     *
+     * Broadcast to public 'admin-reports' channel
+     * All admins can subscribe to this channel
      */
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('user.' . $this->report->nguoi_dung_id),
-            new Channel('reports'),
+            new Channel('admin-reports'),
         ];
     }
 
@@ -62,7 +59,7 @@ class ReportStatusChanged implements ShouldBroadcast
      */
     public function broadcastAs(): string
     {
-        return 'report.status.changed';
+        return 'new.report';
     }
 
     /**
@@ -71,10 +68,24 @@ class ReportStatusChanged implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'report_id' => $this->report->id,
-            'old_status' => $this->oldStatus,
-            'new_status' => $this->newStatus,
-            'updated_at' => $this->report->updated_at->toISOString(),
+            'report' => [
+                'id' => $this->report->id,
+                'tieu_de' => $this->report->tieu_de,
+                'mo_ta' => $this->report->mo_ta,
+                'trang_thai' => $this->report->trang_thai,
+                'dia_chi' => $this->report->dia_chi,
+                'vi_do' => $this->report->vi_do,
+                'kinh_do' => $this->report->kinh_do,
+                'danh_muc' => $this->report->danhMuc ? [
+                    'id' => $this->report->danhMuc->id,
+                    'ten' => $this->report->danhMuc->ten_danh_muc,
+                ] : null,
+                'created_at' => $this->report->created_at->toISOString(),
+            ],
+            'user' => [
+                'id' => $this->user->id,
+                'ho_ten' => $this->user->ho_ten,
+            ],
         ];
     }
 }

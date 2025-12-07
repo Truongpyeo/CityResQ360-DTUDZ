@@ -19,31 +19,30 @@
 
 namespace App\Events;
 
-use Illuminate\Broadcasting\Channel;
 use Illuminate\Broadcasting\InteractsWithSockets;
 use Illuminate\Broadcasting\PrivateChannel;
 use Illuminate\Contracts\Broadcasting\ShouldBroadcast;
 use Illuminate\Foundation\Events\Dispatchable;
 use Illuminate\Queue\SerializesModels;
 
-class ReportStatusChanged implements ShouldBroadcast
+class PointsUpdated implements ShouldBroadcast
 {
     use Dispatchable, InteractsWithSockets, SerializesModels;
 
-    public $report;
-    public $oldStatus;
-    public $newStatus;
-    public $user;
+    public $userId;
+    public $points;
+    public $newBalance;
+    public $reason;
 
     /**
      * Create a new event instance.
      */
-    public function __construct($report, $oldStatus, $newStatus, $user = null)
+    public function __construct(int $userId, int $points, int $newBalance, string $reason)
     {
-        $this->report = $report;
-        $this->oldStatus = $oldStatus;
-        $this->newStatus = $newStatus;
-        $this->user = $user;
+        $this->userId = $userId;
+        $this->points = $points;
+        $this->newBalance = $newBalance;
+        $this->reason = $reason;
     }
 
     /**
@@ -52,8 +51,7 @@ class ReportStatusChanged implements ShouldBroadcast
     public function broadcastOn(): array
     {
         return [
-            new PrivateChannel('user.' . $this->report->nguoi_dung_id),
-            new Channel('reports'),
+            new PrivateChannel('user.' . $this->userId),
         ];
     }
 
@@ -62,7 +60,7 @@ class ReportStatusChanged implements ShouldBroadcast
      */
     public function broadcastAs(): string
     {
-        return 'report.status.changed';
+        return 'points.updated';
     }
 
     /**
@@ -71,10 +69,9 @@ class ReportStatusChanged implements ShouldBroadcast
     public function broadcastWith(): array
     {
         return [
-            'report_id' => $this->report->id,
-            'old_status' => $this->oldStatus,
-            'new_status' => $this->newStatus,
-            'updated_at' => $this->report->updated_at->toISOString(),
+            'points' => $this->points,
+            'new_balance' => $this->newBalance,
+            'reason' => $this->reason,
         ];
     }
 }

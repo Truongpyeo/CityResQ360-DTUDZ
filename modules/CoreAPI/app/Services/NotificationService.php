@@ -22,6 +22,7 @@ namespace App\Services;
 use App\Models\ThongBao;
 use App\Models\CaiDatThongBao;
 use App\Models\NguoiDung;
+use App\Events\NotificationSent;
 use Kreait\Firebase\Factory;
 use Kreait\Firebase\Messaging\CloudMessage;
 use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
@@ -80,6 +81,9 @@ class NotificationService
         if ($settings->push_enabled && $this->shouldSendPush($type, $settings)) {
             $this->sendPush($userId, $title, $content, $data);
         }
+
+        // Broadcast realtime notification
+        broadcast(new NotificationSent($notification))->toOthers();
 
         return $notification;
     }
