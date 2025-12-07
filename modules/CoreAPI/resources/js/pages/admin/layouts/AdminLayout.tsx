@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { Link, router } from '@inertiajs/react';
 import {
   LayoutDashboard,
@@ -13,8 +13,11 @@ import {
   X,
   ChevronDown,
   BarChart3,
-  Cpu
+  Cpu,
+  Bell
 } from 'lucide-react';
+import Pusher from 'pusher-js';
+import Swal from 'sweetalert2';
 
 interface AdminLayoutProps {
   children: React.ReactNode;
@@ -23,6 +26,120 @@ interface AdminLayoutProps {
 export default function AdminLayout({ children }: AdminLayoutProps) {
   const [sidebarOpen, setSidebarOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const [notificationCount, setNotificationCount] = useState(0);
+  const [wsConnected, setWsConnected] = useState(false);
+
+  // WebSocket connection for realtime notifications (global for all admin pages)
+  useEffect(() => {
+    console.log('🔌 Initializing global WebSocket connection for Admin...');
+
+    // Request notification permission
+    if ('Notification' in window && Notification.permission === 'default') {
+      Notification.requestPermission().then(permission => {
+        console.log('Notification permission:', permission);
+      });
+    }
+
+    // Initialize Pusher
+    const pusher = new Pusher(import.meta.env.VITE_REVERB_APP_KEY || 'lwf6joghdvbowg9hb7p4', {
+      wsHost: window.location.hostname,
+      wsPort: 8080,
+      wssPort: 8080,
+      forceTLS: false,
+      enabledTransports: ['ws', 'wss'],
+      disableStats: true,
+      cluster: 'mt1',
+      authEndpoint: '/broadcasting/auth',
+    });
+
+    pusher.connection.bind('connected', () => {
+      console.log('✅ WebSocket connected');
+      setWsConnected(true);
+    });
+
+    pusher.connection.bind('disconnected', () => {
+      console.log('❌ WebSocket disconnected');
+      setWsConnected(false);
+    });
+
+    // Subscribe to admin-reports channel
+    const channel = pusher.subscribe('admin-reports');
+
+    channel.bind('pusher:subscription_succeeded', () => {
+      console.log('✅ Subscribed to admin-reports');
+    });
+
+    channel.bind('new.report', (data: any) => {
+      console.log('📢 New report:', data);
+
+      setNotificationCount(prev => prev + 1);
+
+      // Show SweetAlert2 popup
+      Swal.fire({
+        title: '📢 Phản ánh mới!',
+        html: `
+          <div style="text-align: left;">
+            <p><strong>Từ:</strong> ${data.user?.ho_ten || 'N/A'}</p>
+            <p><strong>Tiêu đề:</strong> ${data.report?.tieu_de || 'N/A'}</p>
+            <p><strong>Danh mục:</strong> ${data.report?.danh_muc?.ten || 'N/A'}</p>
+            <p><strong>Mô tả:</strong> ${(data.report?.mo_ta || '').substring(0, 100)}${(data.report?.mo_ta || '').length > 100 ? '...' : ''}</p>
+          </div>
+        `,
+        icon: 'info',
+        showCancelButton: true,
+        confirmButtonText: '👁️ Xem chi tiết',
+        cancelButtonText: 'Đóng',
+        confirmButtonColor: '#3085d6',
+        cancelButtonColor: '#d33',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.visit(`/admin/reports/${data.report.id}`);
+        }
+      });
+
+      // Play notification sound
+      try {
+        const audioContext = new (window.AudioContext || (window as any).webkitAudioContext)();
+        const playTone = (frequency: number, startTime: number, duration: number) => {
+          const oscillator = audioContext.createOscillator();
+          const gainNode = audioContext.createGain();
+          oscillator.connect(gainNode);
+          gainNode.connect(audioContext.destination);
+          oscillator.frequency.value = frequency;
+          oscillator.type = 'sine';
+          gainNode.gain.setValueAtTime(0.15, startTime);
+          gainNode.gain.exponentialRampToValueAtTime(0.01, startTime + duration);
+          oscillator.start(startTime);
+          oscillator.stop(startTime + duration);
+        };
+        playTone(800, audioContext.currentTime, 0.15);
+        playTone(1000, audioContext.currentTime + 0.2, 0.15);
+      } catch (e) {
+        console.log('Could not play sound');
+      }
+
+      // Browser notification
+      if ('Notification' in window && Notification.permission === 'granted') {
+        new Notification('Phản ánh mới!', {
+          body: `${data.user?.ho_ten || 'Người dùng'}: ${data.report?.tieu_de || ''}`,
+          icon: '/favicon.ico',
+          tag: `report-${data.report.id}`,
+        });
+      }
+
+      // Reload data if on dashboard or reports page
+      if (window.location.pathname === '/admin/dashboard' || window.location.pathname === '/admin/reports') {
+        setTimeout(() => router.reload({ only: ['stats', 'reports', 'recentReports'] }), 1000);
+      }
+    });
+
+    return () => {
+      console.log('🔌 Cleaning up WebSocket...');
+      channel.unbind_all();
+      pusher.unsubscribe('admin-reports');
+      pusher.disconnect();
+    };
+  }, []);
 
   const navigation = [
     { name: 'Dashboard', href: '/admin/dashboard', icon: LayoutDashboard },
@@ -147,6 +264,20 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
           <div className="flex flex-1 gap-x-4 self-stretch lg:gap-x-6">
             <div className="flex flex-1"></div>
             <div className="flex items-center gap-x-4 lg:gap-x-6">
+              {/* WebSocket status & Notification indicator */}
+              <div className="flex items-center gap-x-2">
+                <div className={`h-2 w-2 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'}`}
+                     title={wsConnected ? 'Connected' : 'Disconnected'} />
+                <Link href="/admin/reports" className="relative">
+                  <Bell className="h-5 w-5 text-gray-600 hover:text-gray-900" />
+                  {notificationCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex h-4 w-4 items-center justify-center rounded-full bg-red-500 text-xs text-white">
+                      {notificationCount > 9 ? '9+' : notificationCount}
+                    </span>
+                  )}
+                </Link>
+              </div>
+
               {/* User menu */}
               <div className="relative">
                 <button

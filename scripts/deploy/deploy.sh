@@ -174,6 +174,19 @@ server {
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
         proxy_set_header X-Forwarded-Proto \$scheme;
     }
+    
+    # WebSocket for Laravel Reverb
+    location /app {
+        proxy_pass http://localhost:8080;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade \$http_upgrade;
+        proxy_set_header Connection "upgrade";
+        proxy_set_header Host \$host;
+        proxy_set_header X-Real-IP \$remote_addr;
+        proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_read_timeout 86400;
+    }
 }
 
 # MediaService (proxies to MinIO for serving media files)
@@ -280,6 +293,11 @@ if [ ! -f "$ENV_FILE" ]; then
     MINIO_PASS=$(openssl rand -hex 32)
     JWT_SECRET=$(openssl rand -hex 64)
     APP_KEY="base64:$(openssl rand -base64 32)"
+    
+    # Use fixed Reverb credentials from local development
+    REVERB_APP_ID=808212
+    REVERB_APP_KEY=lwf6joghdvbowg9hb7p4
+    REVERB_APP_SECRET=yh8dts6nhxqzn2i77yim
     
     # Determine MAIL_FROM_DOMAIN early for SMTP prompt
     if [ "$USE_DOMAIN" = true ]; then
@@ -448,6 +466,22 @@ JWT_SECRET=${JWT_SECRET}
 JWT_TTL=60
 
 # ============================================
+# Broadcasting & Reverb
+# ============================================
+BROADCAST_CONNECTION=reverb
+REVERB_APP_ID=${REVERB_APP_ID}
+REVERB_APP_KEY=${REVERB_APP_KEY}
+REVERB_APP_SECRET=${REVERB_APP_SECRET}
+REVERB_HOST=$([ "$USE_DOMAIN" = true ] && echo "api.$DOMAIN" || echo "localhost")
+REVERB_PORT=8080
+REVERB_SCHEME=$([ "$USE_DOMAIN" = true ] && echo "https" || echo "http")
+
+VITE_REVERB_APP_KEY=\${REVERB_APP_KEY}
+VITE_REVERB_HOST=$([ "$USE_DOMAIN" = true ] && echo "api.$DOMAIN" || echo "localhost")
+VITE_REVERB_PORT=$([ "$USE_DOMAIN" = true ] && echo "443" || echo "8080")
+VITE_REVERB_SCHEME=$([ "$USE_DOMAIN" = true ] && echo "https" || echo "http")
+
+# ============================================
 # Microservices URLs (Internal)
 # ============================================
 MEDIA_SERVICE_URL=http://media-service:8004/api/v1
@@ -576,6 +610,11 @@ docker exec cityresq-coreapi php artisan cache:clear
 docker exec cityresq-coreapi php artisan config:cache
 echo -e "${GREEN}✅ Laravel optimization complete!${NC}"
 
+# Configure Reverb for realtime notifications
+echo -e "${CYAN}Configuring Laravel Reverb for realtime...${NC}"
+docker exec cityresq-coreapi php artisan reverb:install --no-interaction 2>/dev/null || echo "Reverb already installed"
+echo -e "${GREEN}✅ Reverb configured (managed by supervisor)${NC}"
+
 # Generate Swagger documentation
 echo -e "${CYAN}Generating Swagger documentation...${NC}"
 docker exec cityresq-coreapi php artisan l5-swagger:generate || echo "Swagger generation skipped"
@@ -633,10 +672,12 @@ if [ "$USE_DOMAIN" = true ]; then
     echo -e "  CoreAPI:       https://$API_URL"
     echo -e "  Admin Panel:   https://$API_URL/admin"
     echo -e "  MediaService:  https://$MEDIA_URL"
+    echo -e "  WebSocket:     wss://$API_URL/app (Reverb)"
 else
     echo -e "  CoreAPI:       $API_URL"
     echo -e "  Admin Panel:   $API_URL/admin"
     echo -e "  MediaService:  $MEDIA_URL"
+    echo -e "  WebSocket:     ws://$SERVER_IP:8080/app (Reverb)"
     echo -e "  RabbitMQ:      http://$SERVER_IP:15672"
     echo -e "  MinIO:         http://$SERVER_IP:9001"
 fi
@@ -657,7 +698,10 @@ echo -e "${YELLOW}⚠️  Next Steps:${NC}"
 echo -e "  1. Save passwords from: $ENV_FILE"
 
 if [ "$USE_DOMAIN" = false ]; then
-    echo -e "  2. Configure firewall: ufw allow 8000,8004,9001,15672/tcp"
+    echo -e "  2. Configure firewall: ufw allow 8000,8004,8080,9001,15672/tcp"
+    echo -e "  3. Note: Port 8080 is for WebSocket (Reverb) - required for realtime notifications"
+else
+    echo -e "  2. WebSocket runs through Nginx SSL proxy (no need to expose port 8080)"
 fi
 
 echo ""

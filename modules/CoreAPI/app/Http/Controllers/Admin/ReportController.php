@@ -28,6 +28,7 @@ use App\Models\DanhMucPhanAnh;
 use App\Models\MucUuTien;
 use App\Models\NhatKyHeThong;
 use App\Events\ReportApprovedEvent;
+use App\Events\ReportStatusUpdatedForUsers;
 use App\Services\NotificationService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
@@ -86,21 +87,21 @@ class ReportController extends Controller
         $reports = $query->paginate(20)->through(function ($report) {
             return [
                 'id' => $report->id,
-                'tieu_de' => $report->tieu_de,
-                'mo_ta' => substr($report->mo_ta, 0, 100) . '...',
-                'danh_muc' => $report->danhMuc?->ten_danh_muc,
+                'tieu_de' => mb_convert_encoding($report->tieu_de ?? '', 'UTF-8', 'UTF-8'),
+                'mo_ta' => mb_convert_encoding(substr($report->mo_ta ?? '', 0, 100), 'UTF-8', 'UTF-8') . '...',
+                'danh_muc' => mb_convert_encoding($report->danhMuc?->ten_danh_muc ?? '', 'UTF-8', 'UTF-8'),
                 'trang_thai' => $report->trang_thai,
                 'trang_thai_text' => $report->getStatusName(),
-                'uu_tien' => $report->uuTien?->ten_muc,
-                'dia_chi' => $report->dia_chi,
+                'uu_tien' => mb_convert_encoding($report->uuTien?->ten_muc ?? '', 'UTF-8', 'UTF-8'),
+                'dia_chi' => mb_convert_encoding($report->dia_chi ?? '', 'UTF-8', 'UTF-8'),
                 'vi_do' => $report->vi_do,
                 'kinh_do' => $report->kinh_do,
                 'do_tin_cay' => $report->do_tin_cay,
                 'luot_ung_ho' => $report->luot_ung_ho,
                 'luot_khong_ung_ho' => $report->luot_khong_ung_ho,
                 'luot_xem' => $report->luot_xem,
-                'nguoi_dung' => $report->nguoiDung?->ho_ten,
-                'co_quan' => $report->coQuanXuLy?->ten_co_quan,
+                'nguoi_dung' => mb_convert_encoding($report->nguoiDung?->ho_ten ?? '', 'UTF-8', 'UTF-8'),
+                'co_quan' => mb_convert_encoding($report->coQuanXuLy?->ten_co_quan ?? '', 'UTF-8', 'UTF-8'),
                 'created_at' => $report->created_at->format('d/m/Y H:i'),
                 'updated_at' => $report->updated_at->format('d/m/Y H:i'),
             ];
@@ -150,19 +151,19 @@ class ReportController extends Controller
         return Inertia::render('admin/reports/Show', [
             'report' => [
                 'id' => $report->id,
-                'tieu_de' => $report->tieu_de,
-                'mo_ta' => $report->mo_ta,
+                'tieu_de' => mb_convert_encoding($report->tieu_de ?? '', 'UTF-8', 'UTF-8'),
+                'mo_ta' => mb_convert_encoding($report->mo_ta ?? '', 'UTF-8', 'UTF-8'),
                 'danh_muc' => [
                     'id' => $report->danhMuc?->id,
-                    'ten_danh_muc' => $report->danhMuc?->ten_danh_muc,
+                    'ten_danh_muc' => mb_convert_encoding($report->danhMuc?->ten_danh_muc ?? '', 'UTF-8', 'UTF-8'),
                 ],
                 'trang_thai' => $report->trang_thai,
                 'trang_thai_text' => $report->getStatusName(),
                 'uu_tien' => [
                     'id' => $report->uuTien?->id,
-                    'ten_muc' => $report->uuTien?->ten_muc,
+                    'ten_muc' => mb_convert_encoding($report->uuTien?->ten_muc ?? '', 'UTF-8', 'UTF-8'),
                 ],
-                'dia_chi' => $report->dia_chi,
+                'dia_chi' => mb_convert_encoding($report->dia_chi ?? '', 'UTF-8', 'UTF-8'),
                 'vi_do' => $report->vi_do,
                 'kinh_do' => $report->kinh_do,
                 'nhan_ai' => $report->nhan_ai,
@@ -172,10 +173,10 @@ class ReportController extends Controller
                 'luot_khong_ung_ho' => $report->luot_khong_ung_ho,
                 'luot_xem' => $report->luot_xem,
                 'the_tags' => $report->the_tags,
-                'du_lieu_mo_rong' => $report->du_lieu_mo_rong,
+                'du_lieu_mo_rong' => $report->du_lieu_mo_rong ? json_decode(json_encode($report->du_lieu_mo_rong), true) : null,
                 'nguoi_dung' => [
                     'id' => $report->nguoiDung->id,
-                    'ho_ten' => $report->nguoiDung->ho_ten,
+                    'ho_ten' => mb_convert_encoding($report->nguoiDung->ho_ten ?? '', 'UTF-8', 'UTF-8'),
                     'email' => $report->nguoiDung->email,
                     'so_dien_thoai' => $report->nguoiDung->so_dien_thoai,
                     'diem_uy_tin' => $report->nguoiDung->diem_uy_tin,
@@ -183,17 +184,17 @@ class ReportController extends Controller
                 ],
                 'co_quan' => $report->coQuanXuLy ? [
                     'id' => $report->coQuanXuLy->id,
-                    'ten_co_quan' => $report->coQuanXuLy->ten_co_quan,
+                    'ten_co_quan' => mb_convert_encoding($report->coQuanXuLy->ten_co_quan ?? '', 'UTF-8', 'UTF-8'),
                     'email_lien_he' => $report->coQuanXuLy->email_lien_he,
                     'so_dien_thoai' => $report->coQuanXuLy->so_dien_thoai,
                 ] : null,
                 'binh_luans' => $report->binhLuans->map(function ($comment) {
                     return [
                         'id' => $comment->id,
-                        'noi_dung' => $comment->noi_dung,
+                        'noi_dung' => mb_convert_encoding($comment->noi_dung ?? '', 'UTF-8', 'UTF-8'),
                         'la_chinh_thuc' => $comment->la_chinh_thuc,
                         'nguoi_dung' => [
-                            'ho_ten' => $comment->nguoiDung->ho_ten,
+                            'ho_ten' => mb_convert_encoding($comment->nguoiDung->ho_ten ?? '', 'UTF-8', 'UTF-8'),
                         ],
                         'created_at' => $comment->created_at->format('d/m/Y H:i'),
                     ];
@@ -242,6 +243,9 @@ class ReportController extends Controller
         } catch (\Exception $e) {
             \Log::error("Failed to send notification for report #{$report->id}: " . $e->getMessage());
         }
+
+        // 🔥 Broadcast to all users for map refresh
+        broadcast(new ReportStatusUpdatedForUsers($report, $oldStatus, $request->trang_thai))->toOthers();
 
         // 🔥 NEW: Trigger event when report is approved (PENDING → VERIFIED)
         if ($oldStatus === PhanAnh::TRANG_THAI_PENDING &&
