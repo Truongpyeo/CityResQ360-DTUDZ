@@ -1,6 +1,11 @@
 # [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.1.0...v) (2025-12-07)
 
 
+### Bug Fixes
+
+* **docker:** Fix docker file ([b5906d8](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b5906d80bdc6d1bd8d5e4b1967b15185e94d7378))
+
+
 
 # [2.1.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.0.0...v2.1.0) (2025-12-07)
 
