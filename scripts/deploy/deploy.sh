@@ -282,6 +282,12 @@ echo -e "${YELLOW}[Step 6/8] Environment Configuration${NC}"
 
 ENV_FILE="${DOCKER_DIR}/.env"
 
+# Remove old .env if fresh deployment
+if [ "$CLEAN_INSTALL" = true ] && [ -f "$ENV_FILE" ]; then
+    echo -e "${YELLOW}Removing old .env for fresh deployment...${NC}"
+    rm -f "$ENV_FILE"
+fi
+
 # Generate passwords
 if [ ! -f "$ENV_FILE" ]; then
     echo -e "${CYAN}Generating secure passwords...${NC}"
