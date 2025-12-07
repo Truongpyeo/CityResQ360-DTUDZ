@@ -5,6 +5,7 @@
 
 * **docker:** Fix docker file ([b5906d8](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b5906d80bdc6d1bd8d5e4b1967b15185e94d7378))
 * **docker:** fix docker script ([dd7a237](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/dd7a237b3bb59fb3a6b1253a1a669449f8e7d643))
+* **docker:** Fix script docker ([982bbab](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/982bbabd44f4da48ec4835b4ca0d503fe06a136e))
 * **script:** fix docker ([d478085](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/d478085e47ea823c4d51a48c9bb0d46bfff568c3))
 * **script:** fix script ([340b42d](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/340b42d4b6d0258b6db11c501953720ab1325a62))
 
