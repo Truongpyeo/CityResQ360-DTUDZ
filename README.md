@@ -1,8 +1,10 @@
 # 🌆 CityResQ360 — Chung tay vì một đô thị thông minh & an toàn
 
 <div align="center">
-  <img src="./static/logo21.png" alt="CityResQ360 Logo" width="250"/>
-
+  <img src="./static/logo21.png" alt="CityResQ360 Logo" width="200"/>
+  
+  <br/>
+  
   <a href="https://api.cityresq360.io.vn/">
     <img src="https://img.shields.io/badge/🚀_Website-CityResQ360-00C853?style=for-the-badge" alt="Demo System"/>
   </a>
@@ -12,11 +14,17 @@
   <a href="https://api.cityresq360.io.vn/documents">
     <img src="https://img.shields.io/badge/🪛_Services-CityResQ360-edf037?style=for-the-badge" alt="Services"/>
   </a>
-
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
-
-[🤝 Đóng Góp](CONTRIBUTING.md) •
-[📜 Changelog](CHANGELOG.md)
+  
+  <br/>
+  
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="License: GPL-3.0"/>
+  </a>
+  
+  <br/>
+  
+  <a href="CONTRIBUTING.md">🤝 Đóng Góp</a> •
+  <a href="CHANGELOG.md">📜 Changelog</a>
 
 </div>
 
@@ -346,10 +354,17 @@ Dự án này được phân phối dưới [GNU General Public License v3.0](ht
 
 ## 📱 CityResQ360 Application
 
-<div align="start">
-  <img src="./static/img/qrios.png" alt="CityResQ360 Logo" width="150"/>
-  <br/>
-  <img src="https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="iOS App"/>
+<div align="center">
+  <div style="display: inline-block; text-align: center; margin: 0 20px;">
+    <img src="./static/img/qrios.png" alt="iOS QR Code" width="150"/>
+    <br/>
+    <img src="https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="iOS App"/>
+  </div>
+  <div style="display: inline-block; text-align: center; margin: 0 20px;">
+    <img src="./static/img/qrios.png" alt="Android QR Code" width="150"/>
+    <br/>
+    <img src="https://img.shields.io/badge/Download-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android App"/>
+  </div>
 </div>
 
 ---
