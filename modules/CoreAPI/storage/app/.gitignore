@@ -2,3 +2,6 @@
 !private/
 !public/
 !.gitignore
+!firebase-credentials.json
+!firebase-credentials.json.example
+!FIREBASE_CREDENTIALS_README.md

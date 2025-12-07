@@ -23,13 +23,20 @@ use App\Models\GiaoDichDiem;
 use App\Models\NguoiDung;
 use App\Models\PhanThuong;
 use App\Models\DoiPhanThuong;
+use App\Services\NotificationService;
 use Illuminate\Support\Facades\DB;
 
 class WalletService
 {
+    protected $notificationService;
+
+    public function __construct(NotificationService $notificationService)
+    {
+        $this->notificationService = $notificationService;
+    }
     /**
      * Add points to user wallet
-     * 
+     *
      * @param int $userId
      * @param int $points
      * @param string $reason
@@ -38,26 +45,26 @@ class WalletService
      * @return GiaoDichDiem
      */
     public function addPoints(
-        int $userId, 
-        int $points, 
-        string $reason, 
-        string $linkedType = null, 
+        int $userId,
+        int $points,
+        string $reason,
+        string $linkedType = null,
         int $linkedId = null
     ): GiaoDichDiem {
         return DB::transaction(function () use ($userId, $points, $reason, $linkedType, $linkedId) {
             $user = NguoiDung::lockForUpdate()->findOrFail($userId);
-            
+
             $balanceBefore = $user->diem_thanh_pho ?? 0;
             $balanceAfter = $balanceBefore + $points;
-            
+
             // Update user balance
             $user->diem_thanh_pho = $balanceAfter;
-            
+
             // Update badge level if needed
             $user->cap_huy_hieu = $this->calculateBadgeLevel($balanceAfter);
-            
+
             $user->save();
-            
+
             // Create transaction record
             $transaction = GiaoDichDiem::create([
                 'nguoi_dung_id' => $userId,
@@ -69,14 +76,21 @@ class WalletService
                 'lien_ket_loai' => $linkedType,
                 'lien_ket_id' => $linkedId,
             ]);
-            
+
+            // 🔥 Send notification about points earned
+            try {
+                $this->notificationService->sendPointsEarned($userId, $points, $reason);
+            } catch (\Exception $e) {
+                \Log::error("Failed to send points notification to user #{$userId}: " . $e->getMessage());
+            }
+
             return $transaction;
         });
     }
-    
+
     /**
      * Deduct points from user wallet
-     * 
+     *
      * @param int $userId
      * @param int $points
      * @param string $reason
@@ -86,27 +100,27 @@ class WalletService
      * @throws \Exception
      */
     public function deductPoints(
-        int $userId, 
-        int $points, 
+        int $userId,
+        int $points,
         string $reason,
         string $linkedType = null,
         int $linkedId = null
     ): GiaoDichDiem {
         return DB::transaction(function () use ($userId, $points, $reason, $linkedType, $linkedId) {
             $user = NguoiDung::lockForUpdate()->findOrFail($userId);
-            
+
             $balanceBefore = $user->diem_thanh_pho ?? 0;
-            
+
             if ($balanceBefore < $points) {
                 throw new \Exception('Số điểm không đủ');
             }
-            
+
             $balanceAfter = $balanceBefore - $points;
-            
+
             // Update user balance
             $user->diem_thanh_pho = $balanceAfter;
             $user->save();
-            
+
             // Create transaction record
             $transaction = GiaoDichDiem::create([
                 'nguoi_dung_id' => $userId,
@@ -118,31 +132,31 @@ class WalletService
                 'lien_ket_loai' => $linkedType,
                 'lien_ket_id' => $linkedId,
             ]);
-            
+
             return $transaction;
         });
     }
-    
+
     /**
      * Get wallet balance
-     * 
+     *
      * @param int $userId
      * @return array
      */
     public function getBalance(int $userId): array
     {
         $user = NguoiDung::findOrFail($userId);
-        
+
         return [
             'diem_thanh_pho' => $user->diem_thanh_pho ?? 0,
             'diem_uy_tin' => $user->diem_uy_tin ?? 0,
             'cap_huy_hieu' => $user->cap_huy_hieu ?? 0,
         ];
     }
-    
+
     /**
      * Get transaction history
-     * 
+     *
      * @param int $userId
      * @param array $filters
      * @return \Illuminate\Contracts\Pagination\LengthAwarePaginator
@@ -150,18 +164,18 @@ class WalletService
     public function getTransactions(int $userId, array $filters = [])
     {
         $query = GiaoDichDiem::where('nguoi_dung_id', $userId);
-        
+
         if (isset($filters['loai_giao_dich'])) {
             $query->where('loai_giao_dich', $filters['loai_giao_dich']);
         }
-        
+
         return $query->orderBy('created_at', 'desc')
                     ->paginate($filters['per_page'] ?? 15);
     }
-    
+
     /**
      * Calculate badge level based on total points
-     * 
+     *
      * @param int $totalPoints
      * @return int
      */
@@ -173,10 +187,10 @@ class WalletService
         if ($totalPoints >= 100) return 1;  // Silver
         return 0; // Bronze
     }
-    
+
     /**
      * Check if user can redeem points
-     * 
+     *
      * @param int $userId
      * @param int $requiredPoints
      * @return bool
@@ -186,10 +200,10 @@ class WalletService
         $user = NguoiDung::find($userId);
         return $user && ($user->diem_thanh_pho ?? 0) >= $requiredPoints;
     }
-    
+
     /**
      * Process reward redemption
-     * 
+     *
      * @param int $userId
      * @param int $rewardId
      * @return DoiPhanThuong
@@ -199,17 +213,17 @@ class WalletService
     {
         return DB::transaction(function () use ($userId, $rewardId) {
             $reward = PhanThuong::lockForUpdate()->findOrFail($rewardId);
-            
+
             // Check availability
             if (!$reward->isAvailable()) {
                 throw new \Exception('Phần thưởng không khả dụng');
             }
-            
+
             // Check user balance
             if (!$this->canRedeem($userId, $reward->so_diem_can)) {
                 throw new \Exception('Số điểm không đủ');
             }
-            
+
             // Deduct points
             $this->deductPoints(
                 $userId,
@@ -218,11 +232,11 @@ class WalletService
                 'doi_phan_thuong',
                 null
             );
-            
+
             // Decrease reward quantity
             $reward->so_luong_con_lai--;
             $reward->save();
-            
+
             // Create redemption record
             $redemption = DoiPhanThuong::create([
                 'nguoi_dung_id' => $userId,
@@ -231,35 +245,35 @@ class WalletService
                 'ma_voucher' => $this->generateVoucherCode(),
                 'trang_thai' => 1, // approved
             ]);
-            
+
             // Update transaction link
             $lastTransaction = GiaoDichDiem::where('nguoi_dung_id', $userId)
                 ->where('loai_giao_dich', 1)
                 ->latest()
                 ->first();
-            
+
             if ($lastTransaction) {
                 $lastTransaction->lien_ket_id = $redemption->id;
                 $lastTransaction->save();
             }
-            
+
             return $redemption;
         });
     }
-    
+
     /**
      * Generate unique voucher code
-     * 
+     *
      * @return string
      */
     private function generateVoucherCode(): string
     {
         return 'CITY' . date('Y') . strtoupper(substr(md5(uniqid(mt_rand(), true)), 0, 8));
     }
-    
+
     /**
      * Get next level points requirement
-     * 
+     *
      * @param int $currentBadge
      * @return int
      */
@@ -272,7 +286,7 @@ class WalletService
             3 => 2000, // Platinum → Diamond
             4 => 0,    // Diamond (max level)
         ];
-        
+
         return $levels[$currentBadge] ?? 100;
     }
 }

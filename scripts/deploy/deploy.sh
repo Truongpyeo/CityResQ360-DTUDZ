@@ -85,7 +85,6 @@ if [ "$DEPLOY_MODE" = "1" ]; then
     # Subdomains for microservices
     API_URL="api.$DOMAIN"
     MEDIA_URL="media.$DOMAIN"
-    NOTIFICATION_URL="notification.$DOMAIN"
     WALLET_URL="wallet.$DOMAIN"
     INCIDENT_URL="incident.$DOMAIN"
     IOT_URL="iot.$DOMAIN"
@@ -103,7 +102,6 @@ else
     # IP-based URLs
     API_URL="http://$SERVER_IP:8000"
     MEDIA_URL="http://$SERVER_IP:8004"
-    NOTIFICATION_URL="http://$SERVER_IP:8006"
     WALLET_URL="http://$SERVER_IP:8005"
     INCIDENT_URL="http://$SERVER_IP:8001"
     IOT_URL="http://$SERVER_IP:8002"
@@ -453,7 +451,6 @@ JWT_TTL=60
 # Microservices URLs (Internal)
 # ============================================
 MEDIA_SERVICE_URL=http://media-service:8004/api/v1
-NOTIFICATION_SERVICE_URL=http://notification-service:8006/api/v1
 WALLET_SERVICE_URL=http://wallet-service:8005/api/v1
 INCIDENT_SERVICE_URL=http://incident-service:8001/api/v1
 IOT_SERVICE_URL=http://iot-service:8002/api/v1
@@ -549,7 +546,7 @@ echo -e "${YELLOW}⏳ Waiting for databases (30s)...${NC}"
 sleep 30
 
 echo -e "${CYAN}Starting application services...${NC}"
-docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service iot-service incident-service analytics-service search-service aiml-service floodeye-service
+docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service iot-service incident-service analytics-service search-service aiml-service floodeye-service
 
 echo -e "${GREEN}✅ Docker deployment complete!${NC}"
 
@@ -559,8 +556,17 @@ sleep 10
 docker exec cityresq-coreapi php artisan migrate --force || true
 docker exec cityresq-coreapi php artisan db:seed --force || true
 
-# Frontend assets already built in Docker image during build
-echo -e "${GREEN}✅ Frontend assets built during Docker image creation${NC}"
+# Build frontend assets
+echo -e "${CYAN}Building frontend assets (Vite)...${NC}"
+if docker exec cityresq-coreapi which npm > /dev/null 2>&1; then
+    echo -e "${YELLOW}Installing npm dependencies...${NC}"
+    docker exec cityresq-coreapi sh -c "cd /var/www/html && npm install --no-audit --no-fund"
+    echo -e "${YELLOW}Building production assets...${NC}"
+    docker exec cityresq-coreapi sh -c "cd /var/www/html && npm run build"
+    echo -e "${GREEN}✅ Frontend assets built successfully!${NC}"
+else
+    echo -e "${RED}⚠️  npm not found in container, skipping frontend build${NC}"
+fi
 
 # Ensure APP_KEY is generated and configuration is cached
 echo -e "${CYAN}Optimizing Laravel configuration...${NC}"
@@ -588,8 +594,7 @@ if [ "$USE_DOMAIN" = true ]; then
     echo "$(curl -s ifconfig.me)"
     echo "A     api            → $(curl -s ifconfig.me)"
     echo "A     media          → $(curl -s ifconfig.me)"
-    echo "A     notification   → $(curl -s ifconfig.me)"
-   echo "A     wallet         → $(curl -s ifconfig.me)"
+    echo "A     wallet         → $(curl -s ifconfig.me)"
     echo -e "${CYAN}━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━${NC}"
     echo ""
     
