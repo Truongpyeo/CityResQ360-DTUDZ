@@ -1,6 +1,9 @@
 # [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.0.0...v) (2025-12-07)
 
 
+* feat(notifications)!: tích hợp FCM push notifications vào CoreAPI ([b7d54c4](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b7d54c479274b10125513c36c1c929439136faf0))
+
+
 ### Bug Fixes
 
 * **api:** admin FE ([28292b3](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/28292b36a3680a52b75fbb8d478f7824f23a34cb))
@@ -17,6 +20,12 @@
 * **api:** Add frontend build step to deployment script ([7a61b13](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/7a61b136465a2085a086e78b5a6f184b2bc73c98))
 * **service:** Cập nhật IncidentService với direct incident creation ([5ba7965](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/5ba79653115d226b6a2b516a6b71cc2d3f96e613))
 * **service:** Thêm IncidentService vào web documentation với JWT authentication ([162b379](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/162b37927b380c03e77ee0ad9dd6aa7f0dff7f43))
+
+
+### BREAKING CHANGES
+
+* - Xóa NotificationService microservice (không sử dụng)
+- Xóa biến môi trường NOTIFICATION_SERVICE_URL
 
 
 
