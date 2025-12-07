@@ -2,7 +2,9 @@
 
 <div align="center">
   <img src="./static/logo21.png" alt="CityResQ360 Logo" width="200"/>
-
+  
+  <br/>
+  
   <a href="https://api.cityresq360.io.vn/">
     <img src="https://img.shields.io/badge/🚀_Website-CityResQ360-00C853?style=for-the-badge" alt="Demo System"/>
   </a>
@@ -12,11 +14,17 @@
   <a href="https://api.cityresq360.io.vn/documents">
     <img src="https://img.shields.io/badge/🪛_Services-CityResQ360-edf037?style=for-the-badge" alt="Services"/>
   </a>
-
-[![License: GPL-3.0](https://img.shields.io/badge/License-GPL%203.0-blue.svg)](LICENSE)
-
-[🤝 Đóng Góp](CONTRIBUTING.md) •
-[📜 Changelog](CHANGELOG.md)
+  
+  <br/>
+  
+  <a href="LICENSE">
+    <img src="https://img.shields.io/badge/License-GPL%203.0-blue.svg" alt="License: GPL-3.0"/>
+  </a>
+  
+  <br/>
+  
+  <a href="CONTRIBUTING.md">🤝 Đóng Góp</a> •
+  <a href="CHANGELOG.md">📜 Changelog</a>
 
 </div>
 
