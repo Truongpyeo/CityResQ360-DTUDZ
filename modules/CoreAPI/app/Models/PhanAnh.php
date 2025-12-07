@@ -40,6 +40,7 @@ class PhanAnh extends Model
      */
     protected $fillable = [
         'nguoi_dung_id',
+        'incident_id',
         'tieu_de',
         'mo_ta',
         'danh_muc_id',

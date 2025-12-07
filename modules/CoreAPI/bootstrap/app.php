@@ -34,7 +34,7 @@ return Application::configure(basePath: dirname(__DIR__))
         then: function () {
             Route::middleware('web')
                 ->group(base_path('routes/admin.php'));
-            
+
             // NGSI-LD API routes (for OLP 2025 - Linked Open Data requirement)
             Route::middleware('api')
                 ->group(base_path('routes/ngsi-ld.php'));
@@ -58,6 +58,7 @@ return Application::configure(basePath: dirname(__DIR__))
             'admin.guest' => \App\Http\Middleware\AdminAuthenticate::class.':guest',
             'admin.track' => \App\Http\Middleware\AdminAuthenticate::class.':track',
             'admin.role' => \App\Http\Middleware\CheckAdminRole::class,
+            'jwt.auth' => \App\Http\Middleware\JwtAuthenticate::class,
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

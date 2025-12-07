@@ -23,9 +23,11 @@ use Illuminate\Foundation\Support\Providers\EventServiceProvider as ServiceProvi
 use App\Events\ReportCreatedEvent;
 use App\Events\ReportUpdated;
 use App\Events\ReportStatusChanged;
+use App\Events\ReportApprovedEvent;
 use App\Listeners\PublishReportCreatedToRabbitMQ;
 use App\Listeners\PublishReportUpdatedToRabbitMQ;
 use App\Listeners\PublishReportStatusChanged;
+use App\Listeners\CreateIncidentFromReport;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Auth\Listeners\SendEmailVerificationNotification;
 
@@ -46,6 +48,9 @@ class EventServiceProvider extends ServiceProvider
         ReportStatusChanged::class => [
             PublishReportStatusChanged::class,
             \App\Listeners\AwardPointsOnAdminConfirm::class, // ✅ NEW: Award points when admin confirms
+        ],
+        ReportApprovedEvent::class => [
+            CreateIncidentFromReport::class, // ✅ Auto-create incident in IncidentService
         ],
     ];
 

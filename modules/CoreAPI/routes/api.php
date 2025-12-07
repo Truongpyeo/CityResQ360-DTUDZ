@@ -191,6 +191,38 @@ Route::prefix('v1')->group(function () {
 
 /*
 |--------------------------------------------------------------------------
+| External API Routes (JWT Authentication)
+|--------------------------------------------------------------------------
+|
+| API endpoints for external systems and third-party integrations
+| Authentication: JWT Bearer Token
+| Use this for service-to-service communication or external clients
+|
+*/
+
+Route::prefix('v1/external')->middleware(\App\Http\Middleware\JwtAuthenticate::class)->group(function () {
+    // External Reports API
+    Route::prefix('reports')->group(function () {
+        Route::post('/', [\App\Http\Controllers\Api\V1\External\ExternalReportController::class, 'store']);
+        Route::get('/', [\App\Http\Controllers\Api\V1\External\ExternalReportController::class, 'index']);
+        Route::get('{id}', [\App\Http\Controllers\Api\V1\External\ExternalReportController::class, 'show']);
+    });
+
+    // External Categories (read-only)
+    Route::get('categories', [\App\Http\Controllers\Api\V1\CategoryController::class, 'index']);
+
+    // External Priorities (read-only)
+    Route::get('priorities', [\App\Http\Controllers\Api\V1\CategoryController::class, 'priorities']);
+
+    // External Agencies (read-only)
+    Route::prefix('agencies')->group(function () {
+        Route::get('/', [\App\Http\Controllers\Api\V1\AgencyController::class, 'index']);
+        Route::get('{id}', [\App\Http\Controllers\Api\V1\AgencyController::class, 'show']);
+    });
+});
+
+/*
+|--------------------------------------------------------------------------
 | Internal API Routes
 |--------------------------------------------------------------------------
 |
