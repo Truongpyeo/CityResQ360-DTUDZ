@@ -563,9 +563,9 @@ docker exec cityresq-coreapi php artisan db:seed --force || true
 echo -e "${CYAN}Building frontend assets (Vite)...${NC}"
 if docker exec cityresq-coreapi which npm > /dev/null 2>&1; then
     echo -e "${YELLOW}Installing npm dependencies...${NC}"
-    docker exec cityresq-coreapi sh -c "cd /var/www && npm install --no-audit --no-fund"
+    docker exec cityresq-coreapi sh -c "cd /var/www/html && npm install --no-audit --no-fund"
     echo -e "${YELLOW}Building production assets...${NC}"
-    docker exec cityresq-coreapi sh -c "cd /var/www && npm run build"
+    docker exec cityresq-coreapi sh -c "cd /var/www/html && npm run build"
     echo -e "${GREEN}✅ Frontend assets built successfully!${NC}"
 else
     echo -e "${RED}⚠️  npm not found in container, skipping frontend build${NC}"
