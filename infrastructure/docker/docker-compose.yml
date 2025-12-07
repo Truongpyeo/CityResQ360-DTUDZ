@@ -380,31 +380,6 @@ services:
             - cityresq-network
         restart: unless-stopped
 
-    notification-consumer:
-        build:
-            context: ../../modules/NotificationConsumer
-            dockerfile: Dockerfile
-        container_name: cityresq-notification-consumer
-        environment:
-            NODE_ENV: development
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            NOTIFICATION_SERVICE_URL: http://notification-service:8006/api/v1
-            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017/notification_db?authSource=admin
-            QUEUE_NAME: notifications.events
-        ports:
-            - "9101:9229"  # Node.js debug port
-        volumes:
-            - ../../modules/NotificationConsumer:/app
-            - /app/node_modules
-        depends_on:
-            rabbitmq:
-                condition: service_healthy
-            notification-service:
-                condition: service_started
-        networks:
-            - cityresq-network
-        restart: unless-stopped
-
     orion-sync-consumer:
         build:
             context: ../../modules/OrionSyncConsumer
@@ -513,7 +488,10 @@ services:
             RABBITMQ_VHOST: /
 
             MEDIA_SERVICE_URL: http://media-service:8004/api/v1
-            NOTIFICATION_SERVICE_URL: http://notification-service:8006/api/v1
+            
+            # Firebase Cloud Messaging
+            FIREBASE_CREDENTIALS: storage/app/firebase-credentials.json
+            FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-cityresq360}
         volumes:
             - ../../modules/CoreAPI:/var/www/html
             - coreapi_storage:/var/www/html/storage
@@ -574,45 +552,6 @@ services:
         networks:
             - cityresq-network
         restart: unless-stopped
-
-    notification-service:
-        build:
-            context: ../../modules/NotificationService
-            dockerfile: Dockerfile
-        container_name: cityresq-notification-service
-        ports:
-            - "8002:8006"
-        environment:
-            NODE_ENV: development
-            PORT: 8006
-            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017/notification_db?authSource=admin
-            REDIS_URL: redis://redis:6379
-            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
-            FCM_PROJECT_ID: ${FCM_PROJECT_ID:-your-project-id}
-            FCM_CLIENT_EMAIL: ${FCM_CLIENT_EMAIL:-your-client-email}
-            FCM_PRIVATE_KEY: ${FCM_PRIVATE_KEY:-}
-            SMTP_HOST: ${SMTP_HOST:-smtp.gmail.com}
-            SMTP_PORT: ${SMTP_PORT:-587}
-            SMTP_USER: ${SMTP_USER:-noreply@cityresq360.com}
-            SMTP_PASS: ${SMTP_PASS:-your-password}
-            SMTP_FROM: ${SMTP_FROM:-noreply@cityresq360.com}
-            APP_URL: ${APP_URL:-http://localhost:3000}
-            JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
-        volumes:
-            - ../../modules/NotificationService:/app
-            - /app/node_modules
-        depends_on:
-            mongodb:
-                condition: service_healthy
-            redis:
-                condition: service_healthy
-            rabbitmq:
-                condition: service_healthy
-        networks:
-            - cityresq-network
-        restart: unless-stopped
-
-
 
     incident-service:
         build:

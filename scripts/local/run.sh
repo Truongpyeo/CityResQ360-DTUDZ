@@ -50,7 +50,7 @@ start_services() {
     
     # Start applications
     echo -e "${CYAN}Starting applications...${NC}"
-    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service \
+    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service \
         iot-service floodeye-service incident-service analytics-service search-service aiml-service
     
     echo -e "${GREEN}✓ Services started${NC}"
@@ -101,7 +101,7 @@ clean_rebuild() {
     sleep 30
     
     echo -e "\n${YELLOW}[7/7] Starting applications...${NC}"
-    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service notification-service \
+    docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service \
         iot-service floodeye-service incident-service analytics-service search-service aiml-service
     sleep 10
     
@@ -117,33 +117,31 @@ view_logs() {
     echo "  1) All services"
     echo "  2) CoreAPI"
     echo "  3) MediaService"
-    echo "  4) NotificationService"
-    echo "  5) AIMLService"
-    echo "  6) IoTService"
-    echo "  7) FloodEyeService"
-    echo "  8) IncidentService"
-    echo "  9) AnalyticsService"
-    echo " 10) SearchService"
-    echo " 11) PostgreSQL"
-    echo " 12) MySQL"
+    echo "  4) AIMLService"
+    echo "  5) IoTService"
+    echo "  6) FloodEyeService"
+    echo "  7) IncidentService"
+    echo "  8) AnalyticsService"
+    echo "  9) SearchService"
+    echo " 10) PostgreSQL"
+    echo " 11) MySQL"
     read -p "Choice: " choice
     
+    case $choice in
     case $choice in
         1) docker-compose -f "$COMPOSE_FILE" logs -f ;;
         2) docker-compose -f "$COMPOSE_FILE" logs -f coreapi ;;
         3) docker-compose -f "$COMPOSE_FILE" logs -f media-service ;;
-        4) docker-compose -f "$COMPOSE_FILE" logs -f notification-service ;;
-        5) docker-compose -f "$COMPOSE_FILE" logs -f aiml-service ;;
-        6) docker-compose -f "$COMPOSE_FILE" logs -f iot-service ;;
-        7) docker-compose -f "$COMPOSE_FILE" logs -f floodeye-service ;;
-        8) docker-compose -f "$COMPOSE_FILE" logs -f incident-service ;;
-        9) docker-compose -f "$COMPOSE_FILE" logs -f analytics-service ;;
-        10) docker-compose -f "$COMPOSE_FILE" logs -f search-service ;;
-        11) docker-compose -f "$COMPOSE_FILE" logs -f postgres ;;
-        12) docker-compose -f "$COMPOSE_FILE" logs -f mysql ;;
+        4) docker-compose -f "$COMPOSE_FILE" logs -f aiml-service ;;
+        5) docker-compose -f "$COMPOSE_FILE" logs -f iot-service ;;
+        6) docker-compose -f "$COMPOSE_FILE" logs -f floodeye-service ;;
+        7) docker-compose -f "$COMPOSE_FILE" logs -f incident-service ;;
+        8) docker-compose -f "$COMPOSE_FILE" logs -f analytics-service ;;
+        9) docker-compose -f "$COMPOSE_FILE" logs -f search-service ;;
+        10) docker-compose -f "$COMPOSE_FILE" logs -f postgres ;;
+        11) docker-compose -f "$COMPOSE_FILE" logs -f mysql ;;
         *) echo "Invalid choice" ;;
     esac
-}
 
 # Check status
 check_status() {
@@ -171,14 +169,11 @@ test_endpoints() {
     curl -s http://localhost:8000/api/health || echo -e "${RED}✗ Failed${NC}"
     
     echo -e "\n${YELLOW}MediaService:${NC}"
-    curl -s http://localhost:8004/health || echo -e "${RED}✗ Failed${NC}"
-    
-    echo -e "\n${YELLOW}NotificationService:${NC}"
-    curl -s http://localhost:8002/health || echo -e "${RED}✗ Failed${NC}"
+    echo -e "\n${YELLOW}MediaService:${NC}"
+    curl -s http://localhost:8001/health || echo -e "${RED}✗ Failed${NC}"
     
     echo -e "\n${YELLOW}AIMLService:${NC}"
     curl -s http://localhost:8008/health || echo -e "${RED}✗ Failed${NC}"
-    
     echo -e "\n${YELLOW}FloodEyeService:${NC}"
     curl -s http://localhost:8003/health || echo -e "${RED}✗ Failed${NC}"
     

@@ -66,14 +66,6 @@ class DocsController extends Controller
                 'version' => 'v1.0',
             ],
             [
-                'id' => 'notification-service',
-                'name' => 'NotificationService',
-                'description' => 'Dịch vụ gửi thông báo (Push, Email, SMS)',
-                'icon' => 'Bell',
-                'status' => 'coming-soon',
-                'version' => 'v1.0',
-            ],
-            [
                 'id' => 'wallet-service',
                 'name' => 'WalletService',
                 'description' => 'Dịch vụ quản lý ví điện tử và giao dịch',
