@@ -105,12 +105,12 @@ export default function Service({ service, services }: ServiceProps) {
                                         : 'bg-white'
                                     }`}
                             >
-                                <div className="flex items-start justify-between">
+                                <div className="flex items-center gap-2">
                                     <h3 className="text-lg font-semibold text-gray-900">
                                         {method.name}
                                     </h3>
                                     {method.recommended && (
-                                        <span className="rounded-full bg-blue-600 px-2 py-1 text-xs font-medium text-white">
+                                        <span className="rounded-full bg-blue-600 px-3 py-1 text-xs font-medium text-white whitespace-nowrap">
                                             Khuyến Nghị
                                         </span>
                                     )}

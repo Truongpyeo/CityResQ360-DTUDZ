@@ -27,24 +27,58 @@ const Incident = sequelize.define('Incident', {
     },
     report_id: {
         type: DataTypes.INTEGER,
-        allowNull: false,
-        unique: true,
+        allowNull: true,  // Now optional - for direct incident creation
+        unique: false,     // Allow null values (multiple nulls OK)
+    },
+    title: {
+        type: DataTypes.STRING,
+        allowNull: false,  // Required for direct creation
+    },
+    description: {
+        type: DataTypes.TEXT,
+        allowNull: false,  // Required for direct creation
+    },
+    location_latitude: {
+        type: DataTypes.DECIMAL(10, 8),
+        allowNull: true,
+    },
+    location_longitude: {
+        type: DataTypes.DECIMAL(11, 8),
+        allowNull: true,
+    },
+    address: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    category: {
+        type: DataTypes.STRING,
+        allowNull: true,
+    },
+    external_id: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'External system tracking ID',
+    },
+    external_system: {
+        type: DataTypes.STRING,
+        allowNull: true,
+        comment: 'External system name',
     },
     assigned_agency_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
-    assigned_to_user_id: {
+    assigned_user_id: {
         type: DataTypes.INTEGER,
         allowNull: true,
     },
     status: {
-        type: DataTypes.ENUM('pending', 'assigned', 'in_progress', 'resolved', 'closed', 'escalated'),
-        defaultValue: 'pending',
+        type: DataTypes.ENUM('PENDING', 'IN_PROGRESS', 'RESOLVED', 'CLOSED'),
+        defaultValue: 'PENDING',
     },
     priority: {
-        type: DataTypes.ENUM('low', 'medium', 'high', 'urgent'),
-        defaultValue: 'medium',
+        type: DataTypes.ENUM('LOW', 'MEDIUM', 'HIGH', 'CRITICAL'),
+        defaultValue: 'MEDIUM',
     },
     due_date: {
         type: DataTypes.DATE,
@@ -55,6 +89,10 @@ const Incident = sequelize.define('Incident', {
         allowNull: true,
     },
     resolved_at: {
+        type: DataTypes.DATE,
+        allowNull: true,
+    },
+    closed_at: {
         type: DataTypes.DATE,
         allowNull: true,
     },
@@ -87,6 +125,10 @@ const WorkflowLog = sequelize.define('WorkflowLog', {
     },
     to_status: {
         type: DataTypes.STRING,
+    },
+    performed_by: {
+        type: DataTypes.INTEGER,
+        allowNull: true,
     },
     user_id: {
         type: DataTypes.INTEGER,

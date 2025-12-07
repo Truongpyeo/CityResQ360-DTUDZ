@@ -18,101 +18,227 @@
 
 const { Incident, WorkflowLog } = require('../models/Incident');
 const axios = require('axios');
+const logger = require('../utils/logger');
+const { NotFoundError, BadRequestError } = require('../middleware/errorHandler');
+const { autoDispatch, calculateDueDate } = require('../services/autoDispatch');
+const { sendAgencyNotification } = require('../services/notificationService');
 
-const CORE_API_URL = process.env.CORE_API_URL || 'http://coreapi:8000/api/v1';
+const CORE_API_URL = process.env.CORE_API_URL || 'http://core-api:8000/api/v1';
 
 // Create incident from report
-const createIncident = async (req, res) => {
+const createIncident = async (req, res, next) => {
     try {
-        const { report_id, priority } = req.body;
+        const { 
+            report_id, 
+            title,
+            description,
+            location_latitude,
+            location_longitude,
+            address,
+            category,
+            priority, 
+            assigned_agency_id, 
+            assigned_user_id, 
+            notes,
+            external_id,
+            external_system 
+        } = req.body;
+
+        logger.info('Creating incident', { 
+            report_id, 
+            title,
+            external_id,
+            user: req.user?.email 
+        });
+
+        // Validate: Either report_id OR (title + description + location) required
+        if (!report_id && (!title || !description)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Either report_id OR (title + description + location) is required',
+            });
+        }
+
+        const priorityValue = priority || 'MEDIUM';
+        
+        // Calculate SLA due date
+        const dueDate = calculateDueDate(priorityValue);
 
         const incident = await Incident.create({
-            report_id,
-            priority: priority || 'medium',
-            status: 'pending',
+            report_id: report_id || null,
+            title: title || `Incident for Report #${report_id}`,
+            description: description || notes || '',
+            location_latitude: location_latitude || null,
+            location_longitude: location_longitude || null,
+            address: address || null,
+            category: category || null,
+            priority: priorityValue,
+            status: 'PENDING',
+            assigned_agency_id,
+            assigned_user_id,
+            due_date: dueDate,
+            external_id: external_id || null,
+            external_system: external_system || null,
         });
 
         await WorkflowLog.create({
             incident_id: incident.id,
-            action: 'created',
-            to_status: 'pending',
-            notes: 'Incident created from report',
+            action: 'CREATED',
+            to_status: 'PENDING',
+            notes: notes || (report_id ? `Incident created from report ${report_id}` : 'Direct incident creation'),
+            performed_by: typeof req.user?.id === 'number' ? req.user.id : 0,
         });
 
-        res.status(201).json(incident);
+        logger.info(`Incident created successfully: ${incident.id}, due_date: ${dueDate}`);
+
+        // 🔥 Auto-Dispatch if not manually assigned
+        if (!assigned_agency_id && !assigned_user_id) {
+            logger.info('Attempting auto-dispatch...', { incident_id: incident.id });
+            
+            const selectedAgency = await autoDispatch(incident);
+            
+            if (selectedAgency) {
+                incident.assigned_agency_id = selectedAgency.id;
+                incident.assigned_at = new Date();
+                await incident.save();
+
+                await WorkflowLog.create({
+                    incident_id: incident.id,
+                    action: 'AUTO_DISPATCHED',
+                    to_status: 'PENDING',
+                    notes: `Auto-dispatched to ${selectedAgency.ten_co_quan} (${selectedAgency.distance.toFixed(2)} km away)`,
+                    performed_by: 0,
+                });
+
+                logger.info('Auto-dispatch successful', {
+                    incident_id: incident.id,
+                    agency_id: selectedAgency.id,
+                    agency_name: selectedAgency.ten_co_quan,
+                });
+
+                // Send notification to agency
+                await sendAgencyNotification(incident, selectedAgency, 'AUTO_DISPATCHED');
+            } else {
+                logger.warn('Auto-dispatch failed, incident remains unassigned', {
+                    incident_id: incident.id,
+                });
+            }
+        }
+
+        // Reload to get updated data
+        await incident.reload();
+
+        res.status(201).json({
+            success: true,
+            message: 'Incident created successfully',
+            data: incident,
+        });
+
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error('Error creating incident:', error);
+        next(error);
     }
 };
 
 // Assign incident to agency/user
-const assignIncident = async (req, res) => {
+const assignIncident = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { agency_id, user_id } = req.body;
+        const { assigned_agency_id, assigned_user_id, notes } = req.body;
+
+        logger.info(`Assigning incident ${id}`, { 
+            agency_id: assigned_agency_id, 
+            user_id: assigned_user_id,
+            performed_by: req.user?.email,
+        });
 
         const incident = await Incident.findByPk(id);
         if (!incident) {
-            return res.status(404).json({ error: 'Incident not found' });
+            throw new NotFoundError('Incident');
         }
 
         const oldStatus = incident.status;
-        incident.assigned_agency_id = agency_id;
-        incident.assigned_to_user_id = user_id;
-        incident.status = 'assigned';
+        incident.assigned_agency_id = assigned_agency_id;
+        incident.assigned_user_id = assigned_user_id;
+        
+        // Auto-update status if still pending
+        if (incident.status === 'PENDING') {
+            incident.status = 'IN_PROGRESS';
+        }
+        
         incident.assigned_at = new Date();
         await incident.save();
 
         await WorkflowLog.create({
             incident_id: incident.id,
-            action: 'assigned',
+            action: 'ASSIGNED',
             from_status: oldStatus,
-            to_status: 'assigned',
-            notes: `Assigned to agency ${agency_id}${user_id ? `, user ${user_id}` : ''}`,
+            to_status: incident.status,
+            notes: notes || `Assigned to agency ${assigned_agency_id}${assigned_user_id ? `, user ${assigned_user_id}` : ''}`,
+            performed_by: req.user?.id,
         });
 
-        res.json(incident);
+        logger.info(`Incident ${id} assigned successfully`);
+
+        res.json({
+            success: true,
+            message: 'Incident assigned successfully',
+            data: incident,
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error(`Error assigning incident ${id}:`, error);
+        next(error);
     }
 };
 
 // Update incident status
-const updateStatus = async (req, res) => {
+const updateStatus = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { status, notes } = req.body;
 
+        logger.info(`Updating incident ${id} status to ${status}`, { performed_by: req.user?.email });
+
         const incident = await Incident.findByPk(id);
         if (!incident) {
-            return res.status(404).json({ error: 'Incident not found' });
+            throw new NotFoundError('Incident');
         }
 
         const oldStatus = incident.status;
         incident.status = status;
 
-        if (status === 'resolved') {
+        if (status === 'RESOLVED') {
             incident.resolved_at = new Date();
+        } else if (status === 'CLOSED') {
+            incident.closed_at = new Date();
         }
 
         await incident.save();
 
         await WorkflowLog.create({
             incident_id: incident.id,
-            action: 'status_changed',
+            action: 'STATUS_CHANGED',
             from_status: oldStatus,
             to_status: status,
-            notes,
+            notes: notes || `Status changed from ${oldStatus} to ${status}`,
+            performed_by: req.user?.id,
         });
 
-        res.json(incident);
+        logger.info(`Incident ${id} status updated successfully`);
+
+        res.json({
+            success: true,
+            message: 'Incident status updated successfully',
+            data: incident,
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error(`Error updating incident ${id} status:`, error);
+        next(error);
     }
 };
 
 // Get incident with logs
-const getIncident = async (req, res) => {
+const getIncident = async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -121,35 +247,61 @@ const getIncident = async (req, res) => {
         });
 
         if (!incident) {
-            return res.status(404).json({ error: 'Incident not found' });
+            throw new NotFoundError('Incident');
         }
 
-        res.json(incident);
+        res.json({
+            success: true,
+            data: incident,
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error(`Error fetching incident ${id}:`, error);
+        next(error);
     }
 };
 
 // List incidents with filters
-const listIncidents = async (req, res) => {
+const listIncidents = async (req, res, next) => {
     try {
-        const { status, priority, agency_id, limit = 20, offset = 0 } = req.query;
+        const { 
+            status, 
+            priority, 
+            assigned_agency_id, 
+            assigned_user_id,
+            page = 1, 
+            limit = 20 
+        } = req.query;
 
         const where = {};
         if (status) where.status = status;
         if (priority) where.priority = priority;
-        if (agency_id) where.assigned_agency_id = agency_id;
+        if (assigned_agency_id) where.assigned_agency_id = assigned_agency_id;
+        if (assigned_user_id) where.assigned_user_id = assigned_user_id;
+
+        const offset = (parseInt(page) - 1) * parseInt(limit);
 
         const incidents = await Incident.findAndCountAll({
             where,
             limit: parseInt(limit),
-            offset: parseInt(offset),
+            offset,
             order: [['created_at', 'DESC']],
         });
 
-        res.json(incidents);
+        const totalPages = Math.ceil(incidents.count / parseInt(limit));
+
+        res.json({
+            success: true,
+            data: incidents.rows,
+            pagination: {
+                total: incidents.count,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                totalPages,
+            },
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error('Error listing incidents:', error);
+        next(error);
     }
 };
 
