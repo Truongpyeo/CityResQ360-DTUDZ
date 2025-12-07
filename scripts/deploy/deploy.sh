@@ -282,12 +282,6 @@ echo -e "${YELLOW}[Step 6/8] Environment Configuration${NC}"
 
 ENV_FILE="${DOCKER_DIR}/.env"
 
-# Remove old .env if fresh deployment
-if [ "$CLEAN_INSTALL" = true ] && [ -f "$ENV_FILE" ]; then
-    echo -e "${YELLOW}Removing old .env for fresh deployment...${NC}"
-    rm -f "$ENV_FILE"
-fi
-
 # Generate passwords
 if [ ! -f "$ENV_FILE" ]; then
     echo -e "${CYAN}Generating secure passwords...${NC}"
@@ -548,16 +542,13 @@ if [ "$CLEAN_INSTALL" = true ]; then
     echo -e "${CYAN}[2/5] Removing volumes...${NC}"
     docker volume ls | grep cityresq | awk '{print $2}' | xargs -r docker volume rm 2>/dev/null || true
     
-    # Remove cityresq images only
-    echo -e "${CYAN}[3/5] Removing CityResQ360 images...${NC}"
-    docker images | grep -E '(cityresq|docker-)' | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || true
+    # Remove cityresq images
+    echo -e "${CYAN}[3/5] Removing images...${NC}"
+    docker images | grep cityresq | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || true
     
-    # Clean unused Docker resources (không xóa volumes đang dùng)
-    echo -e "${CYAN}[4/5] Cleaning unused Docker resources...${NC}"
-    docker system prune -f
-    
-    # Clean build cache
-    docker builder prune -f
+    # Clean docker system
+    echo -e "${CYAN}[4/5] Cleaning Docker system...${NC}"
+    docker system prune -f --volumes
     
     echo -e "${GREEN}✅ Fresh deployment prepared${NC}"
 else
@@ -593,15 +584,9 @@ docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service iot-service incide
 
 echo -e "${GREEN}✅ Docker deployment complete!${NC}"
 
-# Install Composer dependencies (fresh from composer.json)
-echo -e "${CYAN}Installing Composer dependencies...${NC}"
-sleep 5
-docker exec cityresq-coreapi composer install --optimize-autoloader --no-interaction
-
-echo -e "${GREEN}✅ Composer dependencies installed${NC}"
-
 # Run migrations and optimize
 echo -e "${CYAN}Running database migrations...${NC}"
+sleep 10
 docker exec cityresq-coreapi php artisan migrate --force || true
 docker exec cityresq-coreapi php artisan db:seed --force || true
 
