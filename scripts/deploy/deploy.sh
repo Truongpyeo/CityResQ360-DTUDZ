@@ -593,26 +593,10 @@ docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service iot-service incide
 
 echo -e "${GREEN}✅ Docker deployment complete!${NC}"
 
-# Install/Update Composer dependencies
+# Install Composer dependencies (fresh from composer.json)
 echo -e "${CYAN}Installing Composer dependencies...${NC}"
-sleep 10
-# Remove old composer.lock to avoid conflicts with new packages
-echo -e "${YELLOW}Removing old composer.lock...${NC}"
-docker exec cityresq-coreapi rm -f /var/www/html/composer.lock
-
-# Tắt tạm thời BROADCAST_CONNECTION để tránh Laravel hooks lỗi khi gỡ/cài packages
-# Lý do: Composer chạy prePackageUninstall hook → Laravel load BroadcastManager → 
-# cố tạo Reverb broadcaster → cần class Pusher\Pusher nhưng package chưa/đã bị gỡ
-echo -e "${YELLOW}Disabling broadcast during composer install...${NC}"
-docker exec cityresq-coreapi sed -i.bak 's/BROADCAST_CONNECTION=reverb/BROADCAST_CONNECTION=null/' /var/www/html/.env
-
-# Fresh install from composer.json (không trigger broadcasting errors)
-docker exec cityresq-coreapi composer install --no-dev --optimize-autoloader --no-interaction
-
-# Khôi phục lại BROADCAST_CONNECTION=reverb sau khi cài xong pusher/pusher-php-server
-echo -e "${YELLOW}Re-enabling broadcast...${NC}"
-docker exec cityresq-coreapi sed -i 's/BROADCAST_CONNECTION=null/BROADCAST_CONNECTION=reverb/' /var/www/html/.env
-docker exec cityresq-coreapi rm -f /var/www/html/.env.bak
+sleep 5
+docker exec cityresq-coreapi composer install --optimize-autoloader --no-interaction
 
 echo -e "${GREEN}✅ Composer dependencies installed${NC}"
 
