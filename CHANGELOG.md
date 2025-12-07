@@ -18,6 +18,7 @@
 ### Features
 
 * **api:** Add frontend build step to deployment script ([7a61b13](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/7a61b136465a2085a086e78b5a6f184b2bc73c98))
+* **realtime:** tích hợp Laravel Reverb cho thông báo realtime admin ([ac06ea5](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/ac06ea5ad0127660368d0677835fde407177ce49))
 * **service:** Cập nhật IncidentService với direct incident creation ([5ba7965](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/5ba79653115d226b6a2b516a6b71cc2d3f96e613))
 * **service:** Thêm IncidentService vào web documentation với JWT authentication ([162b379](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/162b37927b380c03e77ee0ad9dd6aa7f0dff7f43))
 
