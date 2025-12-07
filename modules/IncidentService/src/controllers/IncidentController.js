@@ -20,39 +20,120 @@ const { Incident, WorkflowLog } = require('../models/Incident');
 const axios = require('axios');
 const logger = require('../utils/logger');
 const { NotFoundError, BadRequestError } = require('../middleware/errorHandler');
+const { autoDispatch, calculateDueDate } = require('../services/autoDispatch');
+const { sendAgencyNotification } = require('../services/notificationService');
 
 const CORE_API_URL = process.env.CORE_API_URL || 'http://core-api:8000/api/v1';
 
 // Create incident from report
 const createIncident = async (req, res, next) => {
     try {
-        const { report_id, priority, assigned_agency_id, assigned_user_id, notes } = req.body;
+        const { 
+            report_id, 
+            title,
+            description,
+            location_latitude,
+            location_longitude,
+            address,
+            category,
+            priority, 
+            assigned_agency_id, 
+            assigned_user_id, 
+            notes,
+            external_id,
+            external_system 
+        } = req.body;
 
-        logger.info(`Creating incident for report_id: ${report_id}`, { user: req.user?.email });
+        logger.info('Creating incident', { 
+            report_id, 
+            title,
+            external_id,
+            user: req.user?.email 
+        });
+
+        // Validate: Either report_id OR (title + description + location) required
+        if (!report_id && (!title || !description)) {
+            return res.status(400).json({
+                success: false,
+                message: 'Either report_id OR (title + description + location) is required',
+            });
+        }
+
+        const priorityValue = priority || 'MEDIUM';
+        
+        // Calculate SLA due date
+        const dueDate = calculateDueDate(priorityValue);
 
         const incident = await Incident.create({
-            report_id,
-            priority: priority || 'MEDIUM',
+            report_id: report_id || null,
+            title: title || `Incident for Report #${report_id}`,
+            description: description || notes || '',
+            location_latitude: location_latitude || null,
+            location_longitude: location_longitude || null,
+            address: address || null,
+            category: category || null,
+            priority: priorityValue,
             status: 'PENDING',
             assigned_agency_id,
             assigned_user_id,
+            due_date: dueDate,
+            external_id: external_id || null,
+            external_system: external_system || null,
         });
 
         await WorkflowLog.create({
             incident_id: incident.id,
             action: 'CREATED',
             to_status: 'PENDING',
-            notes: notes || 'Incident created from report',
-            performed_by: req.user?.id,
+            notes: notes || (report_id ? `Incident created from report ${report_id}` : 'Direct incident creation'),
+            performed_by: typeof req.user?.id === 'number' ? req.user.id : 0,
         });
 
-        logger.info(`Incident created successfully: ${incident.id}`);
+        logger.info(`Incident created successfully: ${incident.id}, due_date: ${dueDate}`);
+
+        // 🔥 Auto-Dispatch if not manually assigned
+        if (!assigned_agency_id && !assigned_user_id) {
+            logger.info('Attempting auto-dispatch...', { incident_id: incident.id });
+            
+            const selectedAgency = await autoDispatch(incident);
+            
+            if (selectedAgency) {
+                incident.assigned_agency_id = selectedAgency.id;
+                incident.assigned_at = new Date();
+                await incident.save();
+
+                await WorkflowLog.create({
+                    incident_id: incident.id,
+                    action: 'AUTO_DISPATCHED',
+                    to_status: 'PENDING',
+                    notes: `Auto-dispatched to ${selectedAgency.ten_co_quan} (${selectedAgency.distance.toFixed(2)} km away)`,
+                    performed_by: 0,
+                });
+
+                logger.info('Auto-dispatch successful', {
+                    incident_id: incident.id,
+                    agency_id: selectedAgency.id,
+                    agency_name: selectedAgency.ten_co_quan,
+                });
+
+                // Send notification to agency
+                await sendAgencyNotification(incident, selectedAgency, 'AUTO_DISPATCHED');
+            } else {
+                logger.warn('Auto-dispatch failed, incident remains unassigned', {
+                    incident_id: incident.id,
+                });
+            }
+        }
+
+        // Reload to get updated data
+        await incident.reload();
 
         res.status(201).json({
             success: true,
             message: 'Incident created successfully',
             data: incident,
         });
+
     } catch (error) {
         logger.error('Error creating incident:', error);
         next(error);

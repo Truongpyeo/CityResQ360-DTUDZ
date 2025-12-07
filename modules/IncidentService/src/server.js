@@ -25,6 +25,8 @@ const { sequelize, testConnection } = require('./config/database');
 const { Incident, WorkflowLog } = require('./models/Incident');
 const incidentRoutes = require('./routes/incidentRoutes');
 const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
+const { initSLAMonitoring, getSLAStatistics } = require('./services/slaMonitor');
+const { initializeRabbitMQ } = require('./services/notificationService');
 const logger = require('./utils/logger');
 
 const app = express();
@@ -60,7 +62,7 @@ testConnection().catch(err => {
 });
 
 // Sync Database
-sequelize.sync({ alter: false })
+sequelize.sync({ alter: true })
   .then(() => {
     logger.info('Database synced successfully');
   })
@@ -112,6 +114,23 @@ app.get('/health', async (_req, res) => {
 // API Routes
 app.use('/api/v1/incidents', incidentRoutes);
 
+// SLA Statistics Endpoint
+app.get('/api/v1/sla/statistics', async (_req, res) => {
+  try {
+    const stats = await getSLAStatistics();
+    res.json({
+      success: true,
+      data: stats,
+    });
+  } catch (error) {
+    logger.error('Failed to get SLA statistics:', error);
+    res.status(500).json({
+      success: false,
+      message: 'Failed to retrieve SLA statistics',
+    });
+  }
+});
+
 // 404 Handler
 app.use(notFoundHandler);
 
@@ -133,4 +152,16 @@ app.listen(port, () => {
   logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
   logger.info(`🔐 JWT Secret configured: ${!!process.env.JWT_SECRET}`);
   logger.info(`🤖 Auto-dispatch enabled: ${process.env.AUTO_DISPATCH_ENABLED || 'false'}`);
+  logger.info(`⏰ SLA monitoring interval: ${process.env.SLA_CHECK_INTERVAL_MINUTES || '5'} minutes`);
+  
+  // Initialize SLA monitoring and RabbitMQ
+  if (process.env.NODE_ENV !== 'test') {
+    initSLAMonitoring();
+    logger.info('✅ SLA monitoring initialized');
+    
+    // Initialize RabbitMQ notifications (async)
+    initializeRabbitMQ()
+      .then(() => logger.info('✅ RabbitMQ notification service initialized'))
+      .catch(err => logger.error('Failed to initialize RabbitMQ', { error: err.message }));
+  }
 });

@@ -32,11 +32,67 @@ const handleValidationErrors = (req, res, next) => {
 
 /**
  * Validation rules for creating an incident
+ * Supports both CoreAPI flow (report_id) and direct creation (title + description + location)
  */
 const validateCreateIncident = [
+  // Option 1: CoreAPI flow with report_id
   body('report_id')
+    .optional()
     .isInt({ min: 1 })
     .withMessage('report_id must be a positive integer'),
+  
+  // Option 2: Direct creation fields
+  body('title')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 5, max: 255 })
+    .withMessage('title must be between 5 and 255 characters'),
+  
+  body('description')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ min: 10, max: 2000 })
+    .withMessage('description must be between 10 and 2000 characters'),
+  
+  body('location_latitude')
+    .optional()
+    .isFloat({ min: -90, max: 90 })
+    .withMessage('location_latitude must be between -90 and 90'),
+  
+  body('location_longitude')
+    .optional()
+    .isFloat({ min: -180, max: 180 })
+    .withMessage('location_longitude must be between -180 and 180'),
+  
+  body('address')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 500 })
+    .withMessage('address must not exceed 500 characters'),
+  
+  body('category')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('category must not exceed 100 characters'),
+  
+  body('external_id')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 100 })
+    .withMessage('external_id must not exceed 100 characters'),
+  
+  body('external_system')
+    .optional()
+    .isString()
+    .trim()
+    .isLength({ max: 50 })
+    .withMessage('external_system must not exceed 50 characters'),
   
   body('priority')
     .optional()

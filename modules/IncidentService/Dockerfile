@@ -1,24 +1,25 @@
-FROM golang:1.21-alpine AS builder
+FROM node:18-alpine
 
 WORKDIR /app
 
-# Copy everything first
-COPY . .
+# Copy package files
+COPY package*.json ./
 
-# Download dependencies and generate go.sum
-RUN go mod tidy && go mod download
+# Install dependencies
+RUN npm ci --only=production
 
-# Build
-RUN go build -o main .
+# Copy source code
+COPY src/ ./src/
 
-# Production image
-FROM alpine:latest
-RUN apk --no-cache add ca-certificates
+# Create logs directory
+RUN mkdir -p logs
 
-WORKDIR /root/
-
-COPY --from=builder /app/main .
-
+# Expose port
 EXPOSE 8005
 
-CMD ["./main"]
+# Health check
+HEALTHCHECK --interval=30s --timeout=3s --start-period=40s \
+  CMD node -e "require('http').get('http://localhost:8005/health', (res) => { process.exit(res.statusCode === 200 ? 0 : 1) })"
+
+# Start application
+CMD ["node", "src/server.js"]
