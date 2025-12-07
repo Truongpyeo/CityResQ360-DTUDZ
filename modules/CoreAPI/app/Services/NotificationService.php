@@ -22,12 +22,34 @@ namespace App\Services;
 use App\Models\ThongBao;
 use App\Models\CaiDatThongBao;
 use App\Models\NguoiDung;
+use Kreait\Firebase\Factory;
+use Kreait\Firebase\Messaging\CloudMessage;
+use Kreait\Firebase\Messaging\Notification as FirebaseNotification;
 
 class NotificationService
 {
+    protected $messaging;
+
+    public function __construct()
+    {
+        try {
+            $credentialsPath = config('firebase.credentials');
+
+            if (file_exists($credentialsPath)) {
+                $factory = (new Factory)->withServiceAccount($credentialsPath);
+                $this->messaging = $factory->createMessaging();
+            } else {
+                \Log::warning("Firebase credentials not found at: {$credentialsPath}");
+                $this->messaging = null;
+            }
+        } catch (\Exception $e) {
+            \Log::error("Failed to initialize Firebase: " . $e->getMessage());
+            $this->messaging = null;
+        }
+    }
     /**
      * Send notification to user
-     * 
+     *
      * @param int $userId
      * @param string $title
      * @param string $content
@@ -51,20 +73,20 @@ class NotificationService
             'da_doc' => false,
             'du_lieu_mo_rong' => $data,
         ]);
-        
+
         // Check user settings and send push if enabled
         $settings = CaiDatThongBao::getOrCreate($userId);
-        
+
         if ($settings->push_enabled && $this->shouldSendPush($type, $settings)) {
             $this->sendPush($userId, $title, $content, $data);
         }
-        
+
         return $notification;
     }
-    
+
     /**
      * Send push notification via FCM
-     * 
+     *
      * @param int $userId
      * @param string $title
      * @param string $body
@@ -74,37 +96,46 @@ class NotificationService
     public function sendPush(int $userId, string $title, string $body, array $data = []): bool
     {
         $user = NguoiDung::find($userId);
-        
+
         if (!$user || !$user->push_token) {
+            \Log::info("No push token for user {$userId}");
             return false;
         }
-        
-        // TODO: Implement FCM integration
-        // For now, just log
-        \Log::info("Push notification to user {$userId}: {$title}");
-        
-        /*
-        // Example FCM implementation:
-        $fcm = app('firebase.messaging');
-        $message = CloudMessage::withTarget('token', $user->push_token)
-            ->withNotification(Notification::create($title, $body))
-            ->withData($data);
-        
+
+        if (!$this->messaging) {
+            \Log::warning("Firebase messaging not initialized");
+            return false;
+        }
+
         try {
-            $fcm->send($message);
+            $message = CloudMessage::withTarget('token', $user->push_token)
+                ->withNotification(FirebaseNotification::create($title, $body))
+                ->withData(array_merge($data, [
+                    'click_action' => 'FLUTTER_NOTIFICATION_CLICK',
+                ]));
+
+            $this->messaging->send($message);
+
+            \Log::info("Push notification sent to user {$userId}: {$title}");
             return true;
+        } catch (\Kreait\Firebase\Exception\MessagingException $e) {
+            // Invalid token - clear it
+            if ($e->errors()->containsMessagingError('UNREGISTERED')) {
+                $user->update(['push_token' => null]);
+                \Log::info("Cleared invalid push token for user {$userId}");
+            } else {
+                \Log::error("FCM messaging error for user {$userId}: " . $e->getMessage());
+            }
+            return false;
         } catch (\Exception $e) {
-            \Log::error("FCM push failed: " . $e->getMessage());
+            \Log::error("Failed to send push notification to user {$userId}: " . $e->getMessage());
             return false;
         }
-        */
-        
-        return true;
     }
-    
+
     /**
      * Send to many users
-     * 
+     *
      * @param array $userIds
      * @param string $title
      * @param string $content
@@ -120,7 +151,7 @@ class NotificationService
         array $data = []
     ): int {
         $count = 0;
-        
+
         foreach ($userIds as $userId) {
             try {
                 $this->send($userId, $title, $content, $type, $data);
@@ -129,30 +160,30 @@ class NotificationService
                 \Log::error("Failed to send notification to user {$userId}: " . $e->getMessage());
             }
         }
-        
+
         return $count;
     }
-    
+
     /**
      * Mark notification as read
-     * 
+     *
      * @param int $notificationId
      * @return bool
      */
     public function markAsRead(int $notificationId): bool
     {
         $notification = ThongBao::find($notificationId);
-        
+
         if (!$notification) {
             return false;
         }
-        
+
         return $notification->markAsRead();
     }
-    
+
     /**
      * Mark all notifications as read for user
-     * 
+     *
      * @param int $userId
      * @return int Number of notifications marked as read
      */
@@ -162,10 +193,10 @@ class NotificationService
             ->where('da_doc', false)
             ->update(['da_doc' => true]);
     }
-    
+
     /**
      * Get notification settings
-     * 
+     *
      * @param int $userId
      * @return CaiDatThongBao
      */
@@ -173,10 +204,10 @@ class NotificationService
     {
         return CaiDatThongBao::getOrCreate($userId);
     }
-    
+
     /**
      * Update notification settings
-     * 
+     *
      * @param int $userId
      * @param array $settings
      * @return CaiDatThongBao
@@ -185,13 +216,13 @@ class NotificationService
     {
         $userSettings = CaiDatThongBao::getOrCreate($userId);
         $userSettings->update($settings);
-        
+
         return $userSettings;
     }
-    
+
     /**
      * Delete notification
-     * 
+     *
      * @param int $notificationId
      * @param int $userId
      * @return bool
@@ -201,17 +232,17 @@ class NotificationService
         $notification = ThongBao::where('id', $notificationId)
             ->where('nguoi_dung_id', $userId)
             ->first();
-        
+
         if (!$notification) {
             return false;
         }
-        
+
         return $notification->delete();
     }
-    
+
     /**
      * Get unread count
-     * 
+     *
      * @param int $userId
      * @return int
      */
@@ -221,10 +252,10 @@ class NotificationService
             ->where('da_doc', false)
             ->count();
     }
-    
+
     /**
      * Check if should send push notification based on type and settings
-     * 
+     *
      * @param string $type
      * @param CaiDatThongBao $settings
      * @return bool
@@ -238,15 +269,15 @@ class NotificationService
             'system_announcement' => 'system_announcement',
             'points_earned' => 'system_announcement', // Use system for points
         ];
-        
+
         $settingKey = $typeMapping[$type] ?? 'system_announcement';
-        
+
         return $settings->isEnabled($settingKey);
     }
-    
+
     /**
      * Helper: Send report status update notification
-     * 
+     *
      * @param int $userId
      * @param int $reportId
      * @param int $newStatus
@@ -261,9 +292,9 @@ class NotificationService
             3 => 'Đã giải quyết',
             4 => 'Từ chối',
         ];
-        
+
         $status = $statusText[$newStatus] ?? 'đã thay đổi';
-        
+
         return $this->send(
             $userId,
             'Cập nhật trạng thái phản ánh',
@@ -275,10 +306,10 @@ class NotificationService
             ]
         );
     }
-    
+
     /**
      * Helper: Send points earned notification
-     * 
+     *
      * @param int $userId
      * @param int $points
      * @param string $reason
@@ -288,7 +319,7 @@ class NotificationService
     {
         $user = NguoiDung::find($userId);
         $newBalance = $user ? ($user->diem_thanh_pho ?? 0) : 0;
-        
+
         return $this->send(
             $userId,
             "Bạn nhận được +{$points} CityPoints",
@@ -300,10 +331,10 @@ class NotificationService
             ]
         );
     }
-    
+
     /**
      * Helper: Send comment reply notification
-     * 
+     *
      * @param int $userId
      * @param int $reportId
      * @param string $commenterName
