@@ -40,15 +40,14 @@ COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
 # Set working directory
 WORKDIR /var/www/html
 
-# Copy application files
+# Copy application files (không có vendor/ vì đã gitignore)
 COPY . .
 
-# Install dependencies
-RUN composer install --no-dev --optimize-autoloader
-RUN npm install
-
-# Build frontend assets for production (skip if fails)
-RUN npm run build || echo "⚠️ Vite build failed, skipping..."
+# NOTE: Không cài composer/npm ở đây vì:
+# 1. vendor/ không có trong Git (gitignore)
+# 2. node_modules/ không có trong Git (gitignore)
+# 3. Sẽ cài sau khi container chạy trong deploy.sh
+# 4. Tránh rebuild image mỗi khi thay đổi dependencies
 
 # Set permissions
 RUN chown -R www-data:www-data /var/www/html && \
