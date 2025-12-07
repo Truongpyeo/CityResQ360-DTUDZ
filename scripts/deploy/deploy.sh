@@ -548,17 +548,16 @@ if [ "$CLEAN_INSTALL" = true ]; then
     echo -e "${CYAN}[2/5] Removing volumes...${NC}"
     docker volume ls | grep cityresq | awk '{print $2}' | xargs -r docker volume rm 2>/dev/null || true
     
-    # Remove cityresq images
-    echo -e "${CYAN}[3/5] Removing images...${NC}"
-    docker images | grep cityresq | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || true
-    docker images | grep docker- | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || true
+    # Remove cityresq images only
+    echo -e "${CYAN}[3/5] Removing CityResQ360 images...${NC}"
+    docker images | grep -E '(cityresq|docker-)' | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || true
     
-    # Clean docker system (only unused resources)
-    echo -e "${CYAN}[4/5] Cleaning Docker system...${NC}"
+    # Clean unused Docker resources (không xóa volumes đang dùng)
+    echo -e "${CYAN}[4/5] Cleaning unused Docker resources...${NC}"
     docker system prune -f
     
-    # Clean build cache for cityresq images only
-    docker builder prune -af --filter "label=project=cityresq360" 2>/dev/null || docker builder prune -f
+    # Clean build cache
+    docker builder prune -f
     
     echo -e "${GREEN}✅ Fresh deployment prepared${NC}"
 else
@@ -594,14 +593,11 @@ docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service iot-service incide
 
 echo -e "${GREEN}✅ Docker deployment complete!${NC}"
 
-# Install/Update Composer dependencies
+# Install Composer dependencies (fresh from composer.json)
 echo -e "${CYAN}Installing Composer dependencies...${NC}"
-sleep 10
-# Remove old composer.lock to avoid conflicts with new packages
-echo -e "${YELLOW}Removing old composer.lock...${NC}"
-docker exec cityresq-coreapi rm -f /var/www/html/composer.lock
-# Fresh install from composer.json
-docker exec cityresq-coreapi composer install --no-dev --optimize-autoloader --no-interaction
+sleep 5
+docker exec cityresq-coreapi composer install --optimize-autoloader --no-interaction
+
 echo -e "${GREEN}✅ Composer dependencies installed${NC}"
 
 # Run migrations and optimize
