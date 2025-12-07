@@ -9,6 +9,7 @@
 * **api:** admin FE ([28292b3](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/28292b36a3680a52b75fbb8d478f7824f23a34cb))
 * **Deloy:** Sửa Build FE Admin ([45a0f4a](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/45a0f4a14831e3eb1423f5f43fd25b822df4adbb))
 * **docker:** AIML Service external port: 8003 → 8013 ([f716b2e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/f716b2eb50268d6c4b6c1f14a3d63ff48f9beaef))
+* **docker:** Fix docker file ([b5906d8](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b5906d80bdc6d1bd8d5e4b1967b15185e94d7378))
 * **docker:** sửa deployment và blade template errors ([5778b2c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/5778b2c291fcc2273e93477a2011c32f47e2c314))
 * **docker:** sửa deployment, blade templates và MQTT port conflict ([e48e46e](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/e48e46ef98321224a23f830568a36f521782a3e9))
 * **docker:** Sửa ver mongoDB ([3429373](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/34293737b0b2d3b6ad68f2b6fe74e06319cac425))
