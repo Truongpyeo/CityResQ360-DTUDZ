@@ -354,16 +354,16 @@ Dự án này được phân phối dưới [GNU General Public License v3.0](ht
 
 ## 📱 CityResQ360 Application
 
-<div align="start" style="margin-bottom: 25px; display: flex; gap: 40px;">
-  <div>
-    <img style="margin-left: 15px;" src="./static/img/qrios.png" alt="CityResQ360 Logo" width="150"/>
+<div align="center">
+  <div style="display: inline-block; text-align: center; margin: 0 20px;">
+    <img src="./static/img/qrios.png" alt="iOS QR Code" width="150"/>
     <br/>
-    <img style="margin-left: 10px;" src="https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="iOS App"/>
+    <img src="https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="iOS App"/>
   </div>
-  <div>
-    <img style="margin-left: 30px;" src="./static/img/qrios.png" alt="CityResQ360 Logo" width="150"/>
+  <div style="display: inline-block; text-align: center; margin: 0 20px;">
+    <img src="./static/img/qrios.png" alt="Android QR Code" width="150"/>
     <br/>
-    <img src="https://img.shields.io/badge/Download-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android App"/>
+    <img src="https://img.shields.io/badge/Download-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android App"/>
   </div>
 </div>
 
