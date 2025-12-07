@@ -587,6 +587,10 @@ echo -e "${GREEN}✅ Docker deployment complete!${NC}"
 # Install/Update Composer dependencies
 echo -e "${CYAN}Installing Composer dependencies...${NC}"
 sleep 10
+# Remove old composer.lock to avoid conflicts with new packages
+echo -e "${YELLOW}Removing old composer.lock...${NC}"
+docker exec cityresq-coreapi rm -f /var/www/html/composer.lock
+# Fresh install from composer.json
 docker exec cityresq-coreapi composer install --no-dev --optimize-autoloader --no-interaction
 echo -e "${GREEN}✅ Composer dependencies installed${NC}"
 
