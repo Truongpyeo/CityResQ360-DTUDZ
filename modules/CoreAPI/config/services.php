@@ -57,6 +57,21 @@ return [
         'api_key' => env('MEDIA_SERVICE_API_KEY', ''),
     ],
 
+    'incident_service' => [
+        'url' => env('INCIDENT_SERVICE_URL', 'http://incident-service:8005'),
+        'jwt_secret' => env('INCIDENT_SERVICE_JWT_SECRET', 'your-jwt-secret-key-here'),
+    ],
+
+    /*
+    |--------------------------------------------------------------------------
+    | JWT Authentication for External APIs
+    |--------------------------------------------------------------------------
+    */
+
+    'jwt_secret' => env('JWT_SECRET', 'your-secret-key'),
+    'jwt_algorithm' => env('JWT_ALGORITHM', 'HS256'),
+    'jwt_ttl' => env('JWT_TTL', 3600), // 1 hour
+
     'openweather' => [
         'key' => env('OPENWEATHER_API_KEY', '30de77839a05db1dfe983c341a297838'),
         'base_url' => 'https://api.openweathermap.org/data/2.5',

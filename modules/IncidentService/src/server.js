@@ -24,36 +24,113 @@ require('dotenv').config();
 const { sequelize, testConnection } = require('./config/database');
 const { Incident, WorkflowLog } = require('./models/Incident');
 const incidentRoutes = require('./routes/incidentRoutes');
+const { errorHandler, notFoundHandler } = require('./middleware/errorHandler');
+const logger = require('./utils/logger');
 
 const app = express();
-const port = process.env.PORT || 8001;
+const port = process.env.PORT || 8005;
 
-// Middleware
+// Security Middleware
 app.use(helmet());
-app.use(cors());
-app.use(express.json());
+app.use(cors({
+  origin: process.env.CORS_ORIGIN || '*',
+  credentials: true,
+}));
+
+// Body Parser Middleware
+app.use(express.json({ limit: '10mb' }));
+app.use(express.urlencoded({ extended: true, limit: '10mb' }));
+
+// Request Logging Middleware (development only)
+if (process.env.NODE_ENV !== 'production') {
+  app.use((req, res, next) => {
+    logger.info(`${req.method} ${req.path}`, {
+      query: req.query,
+      body: req.body,
+      ip: req.ip,
+    });
+    next();
+  });
+}
 
 // Test Database Connection
-testConnection();
-
-// Sync Database
-sequelize.sync({ alter: false }).then(() => {
-  console.log('Database synced');
+testConnection().catch(err => {
+  logger.error('Database connection failed:', err);
+  process.exit(1);
 });
 
-// Routes
+// Sync Database
+sequelize.sync({ alter: false })
+  .then(() => {
+    logger.info('Database synced successfully');
+  })
+  .catch(err => {
+    logger.error('Database sync failed:', err);
+  });
+
+// Health Check Endpoint
+app.get('/health', async (_req, res) => {
+  try {
+    // Check database connection
+    await sequelize.authenticate();
+    
+    // Get service statistics
+    const incidentCount = await Incident.count();
+    const pendingCount = await Incident.count({ where: { status: 'PENDING' } });
+    const inProgressCount = await Incident.count({ where: { status: 'IN_PROGRESS' } });
+
+    res.json({
+      success: true,
+      service: 'IncidentService',
+      version: '1.0.0',
+      status: 'healthy',
+      timestamp: new Date().toISOString(),
+      uptime: process.uptime(),
+      database: {
+        status: 'connected',
+        type: 'PostgreSQL',
+      },
+      statistics: {
+        total_incidents: incidentCount,
+        pending: pendingCount,
+        in_progress: inProgressCount,
+      },
+      environment: process.env.NODE_ENV || 'development',
+    });
+  } catch (error) {
+    logger.error('Health check failed:', error);
+    res.status(503).json({
+      success: false,
+      service: 'IncidentService',
+      status: 'unhealthy',
+      timestamp: new Date().toISOString(),
+      error: error.message,
+    });
+  }
+});
+
+// API Routes
 app.use('/api/v1/incidents', incidentRoutes);
 
-// Health Check
-app.get('/health', (_req, res) => {
-  res.json({
-    service: 'IncidentService',
-    status: 'ok',
-    timestamp: new Date().toISOString()
+// 404 Handler
+app.use(notFoundHandler);
+
+// Error Handler (must be last)
+app.use(errorHandler);
+
+// Graceful Shutdown
+process.on('SIGTERM', () => {
+  logger.info('SIGTERM signal received: closing HTTP server');
+  sequelize.close().then(() => {
+    logger.info('Database connection closed');
+    process.exit(0);
   });
 });
 
 // Start Server
 app.listen(port, () => {
-  console.log(`IncidentService listening on port ${port}`);
+  logger.info(`🚀 IncidentService listening on port ${port}`);
+  logger.info(`📊 Environment: ${process.env.NODE_ENV || 'development'}`);
+  logger.info(`🔐 JWT Secret configured: ${!!process.env.JWT_SECRET}`);
+  logger.info(`🤖 Auto-dispatch enabled: ${process.env.AUTO_DISPATCH_ENABLED || 'false'}`);
 });

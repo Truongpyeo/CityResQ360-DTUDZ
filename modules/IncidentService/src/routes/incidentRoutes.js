@@ -19,11 +19,41 @@
 const express = require('express');
 const router = express.Router();
 const IncidentController = require('../controllers/IncidentController');
+const { authenticate, authorize } = require('../middleware/authMiddleware');
+const {
+  validateCreateIncident,
+  validateAssignIncident,
+  validateUpdateStatus,
+  validateGetIncident,
+  validateListIncidents,
+} = require('../validators/incidentValidators');
 
-router.post('/', IncidentController.createIncident);
-router.get('/', IncidentController.listIncidents);
-router.get('/:id', IncidentController.getIncident);
-router.put('/:id/assign', IncidentController.assignIncident);
-router.put('/:id/status', IncidentController.updateStatus);
+// All routes require authentication
+router.use(authenticate);
+
+// Create incident - All authenticated users can create
+router.post('/', validateCreateIncident, IncidentController.createIncident);
+
+// List incidents - All authenticated users can list
+router.get('/', validateListIncidents, IncidentController.listIncidents);
+
+// Get incident details - All authenticated users can view
+router.get('/:id', validateGetIncident, IncidentController.getIncident);
+
+// Assign incident - Only OFFICER and ADMIN can assign
+router.put(
+  '/:id/assign',
+  authorize(['OFFICER', 'ADMIN']),
+  validateAssignIncident,
+  IncidentController.assignIncident
+);
+
+// Update incident status - Only OFFICER and ADMIN can update status
+router.put(
+  '/:id/status',
+  authorize(['OFFICER', 'ADMIN']),
+  validateUpdateStatus,
+  IncidentController.updateStatus
+);
 
 module.exports = router;

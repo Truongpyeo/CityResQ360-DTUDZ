@@ -27,6 +27,7 @@ use App\Models\CoQuanXuLy;
 use App\Models\DanhMucPhanAnh;
 use App\Models\MucUuTien;
 use App\Models\NhatKyHeThong;
+use App\Events\ReportApprovedEvent;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Gate;
 use Inertia\Inertia;
@@ -223,6 +224,17 @@ class ReportController extends Controller
             'trang_thai' => $request->trang_thai,
             'co_quan_phu_trach_id' => $request->co_quan_phu_trach_id,
         ]);
+
+        // 🔥 NEW: Trigger event when report is approved (PENDING → VERIFIED)
+        if ($oldStatus === PhanAnh::TRANG_THAI_PENDING &&
+            $request->trang_thai === PhanAnh::TRANG_THAI_VERIFIED) {
+            $admin = auth()->guard('admin')->user();
+            event(new ReportApprovedEvent(
+                $report,
+                $admin->id,
+                $request->ghi_chu ?? "Approved by {$admin->ho_ten}"
+            ));
+        }
 
         // Log activity
         $admin = auth()->guard('admin')->user();

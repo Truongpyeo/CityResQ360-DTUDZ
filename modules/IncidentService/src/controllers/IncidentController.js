@@ -18,101 +18,146 @@
 
 const { Incident, WorkflowLog } = require('../models/Incident');
 const axios = require('axios');
+const logger = require('../utils/logger');
+const { NotFoundError, BadRequestError } = require('../middleware/errorHandler');
 
-const CORE_API_URL = process.env.CORE_API_URL || 'http://coreapi:8000/api/v1';
+const CORE_API_URL = process.env.CORE_API_URL || 'http://core-api:8000/api/v1';
 
 // Create incident from report
-const createIncident = async (req, res) => {
+const createIncident = async (req, res, next) => {
     try {
-        const { report_id, priority } = req.body;
+        const { report_id, priority, assigned_agency_id, assigned_user_id, notes } = req.body;
+
+        logger.info(`Creating incident for report_id: ${report_id}`, { user: req.user?.email });
 
         const incident = await Incident.create({
             report_id,
-            priority: priority || 'medium',
-            status: 'pending',
+            priority: priority || 'MEDIUM',
+            status: 'PENDING',
+            assigned_agency_id,
+            assigned_user_id,
         });
 
         await WorkflowLog.create({
             incident_id: incident.id,
-            action: 'created',
-            to_status: 'pending',
-            notes: 'Incident created from report',
+            action: 'CREATED',
+            to_status: 'PENDING',
+            notes: notes || 'Incident created from report',
+            performed_by: req.user?.id,
         });
 
-        res.status(201).json(incident);
+        logger.info(`Incident created successfully: ${incident.id}`);
+
+        res.status(201).json({
+            success: true,
+            message: 'Incident created successfully',
+            data: incident,
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error('Error creating incident:', error);
+        next(error);
     }
 };
 
 // Assign incident to agency/user
-const assignIncident = async (req, res) => {
+const assignIncident = async (req, res, next) => {
     try {
         const { id } = req.params;
-        const { agency_id, user_id } = req.body;
+        const { assigned_agency_id, assigned_user_id, notes } = req.body;
+
+        logger.info(`Assigning incident ${id}`, { 
+            agency_id: assigned_agency_id, 
+            user_id: assigned_user_id,
+            performed_by: req.user?.email,
+        });
 
         const incident = await Incident.findByPk(id);
         if (!incident) {
-            return res.status(404).json({ error: 'Incident not found' });
+            throw new NotFoundError('Incident');
         }
 
         const oldStatus = incident.status;
-        incident.assigned_agency_id = agency_id;
-        incident.assigned_to_user_id = user_id;
-        incident.status = 'assigned';
+        incident.assigned_agency_id = assigned_agency_id;
+        incident.assigned_user_id = assigned_user_id;
+        
+        // Auto-update status if still pending
+        if (incident.status === 'PENDING') {
+            incident.status = 'IN_PROGRESS';
+        }
+        
         incident.assigned_at = new Date();
         await incident.save();
 
         await WorkflowLog.create({
             incident_id: incident.id,
-            action: 'assigned',
+            action: 'ASSIGNED',
             from_status: oldStatus,
-            to_status: 'assigned',
-            notes: `Assigned to agency ${agency_id}${user_id ? `, user ${user_id}` : ''}`,
+            to_status: incident.status,
+            notes: notes || `Assigned to agency ${assigned_agency_id}${assigned_user_id ? `, user ${assigned_user_id}` : ''}`,
+            performed_by: req.user?.id,
         });
 
-        res.json(incident);
+        logger.info(`Incident ${id} assigned successfully`);
+
+        res.json({
+            success: true,
+            message: 'Incident assigned successfully',
+            data: incident,
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error(`Error assigning incident ${id}:`, error);
+        next(error);
     }
 };
 
 // Update incident status
-const updateStatus = async (req, res) => {
+const updateStatus = async (req, res, next) => {
     try {
         const { id } = req.params;
         const { status, notes } = req.body;
 
+        logger.info(`Updating incident ${id} status to ${status}`, { performed_by: req.user?.email });
+
         const incident = await Incident.findByPk(id);
         if (!incident) {
-            return res.status(404).json({ error: 'Incident not found' });
+            throw new NotFoundError('Incident');
         }
 
         const oldStatus = incident.status;
         incident.status = status;
 
-        if (status === 'resolved') {
+        if (status === 'RESOLVED') {
             incident.resolved_at = new Date();
+        } else if (status === 'CLOSED') {
+            incident.closed_at = new Date();
         }
 
         await incident.save();
 
         await WorkflowLog.create({
             incident_id: incident.id,
-            action: 'status_changed',
+            action: 'STATUS_CHANGED',
             from_status: oldStatus,
             to_status: status,
-            notes,
+            notes: notes || `Status changed from ${oldStatus} to ${status}`,
+            performed_by: req.user?.id,
         });
 
-        res.json(incident);
+        logger.info(`Incident ${id} status updated successfully`);
+
+        res.json({
+            success: true,
+            message: 'Incident status updated successfully',
+            data: incident,
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error(`Error updating incident ${id} status:`, error);
+        next(error);
     }
 };
 
 // Get incident with logs
-const getIncident = async (req, res) => {
+const getIncident = async (req, res, next) => {
     try {
         const { id } = req.params;
 
@@ -121,35 +166,61 @@ const getIncident = async (req, res) => {
         });
 
         if (!incident) {
-            return res.status(404).json({ error: 'Incident not found' });
+            throw new NotFoundError('Incident');
         }
 
-        res.json(incident);
+        res.json({
+            success: true,
+            data: incident,
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error(`Error fetching incident ${id}:`, error);
+        next(error);
     }
 };
 
 // List incidents with filters
-const listIncidents = async (req, res) => {
+const listIncidents = async (req, res, next) => {
     try {
-        const { status, priority, agency_id, limit = 20, offset = 0 } = req.query;
+        const { 
+            status, 
+            priority, 
+            assigned_agency_id, 
+            assigned_user_id,
+            page = 1, 
+            limit = 20 
+        } = req.query;
 
         const where = {};
         if (status) where.status = status;
         if (priority) where.priority = priority;
-        if (agency_id) where.assigned_agency_id = agency_id;
+        if (assigned_agency_id) where.assigned_agency_id = assigned_agency_id;
+        if (assigned_user_id) where.assigned_user_id = assigned_user_id;
+
+        const offset = (parseInt(page) - 1) * parseInt(limit);
 
         const incidents = await Incident.findAndCountAll({
             where,
             limit: parseInt(limit),
-            offset: parseInt(offset),
+            offset,
             order: [['created_at', 'DESC']],
         });
 
-        res.json(incidents);
+        const totalPages = Math.ceil(incidents.count / parseInt(limit));
+
+        res.json({
+            success: true,
+            data: incidents.rows,
+            pagination: {
+                total: incidents.count,
+                page: parseInt(page),
+                limit: parseInt(limit),
+                totalPages,
+            },
+        });
     } catch (error) {
-        res.status(500).json({ error: error.message });
+        logger.error('Error listing incidents:', error);
+        next(error);
     }
 };
 
