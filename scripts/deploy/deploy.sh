@@ -599,8 +599,21 @@ sleep 10
 # Remove old composer.lock to avoid conflicts with new packages
 echo -e "${YELLOW}Removing old composer.lock...${NC}"
 docker exec cityresq-coreapi rm -f /var/www/html/composer.lock
-# Fresh install from composer.json
+
+# Tắt tạm thời BROADCAST_CONNECTION để tránh Laravel hooks lỗi khi gỡ/cài packages
+# Lý do: Composer chạy prePackageUninstall hook → Laravel load BroadcastManager → 
+# cố tạo Reverb broadcaster → cần class Pusher\Pusher nhưng package chưa/đã bị gỡ
+echo -e "${YELLOW}Disabling broadcast during composer install...${NC}"
+docker exec cityresq-coreapi sed -i.bak 's/BROADCAST_CONNECTION=reverb/BROADCAST_CONNECTION=null/' /var/www/html/.env
+
+# Fresh install from composer.json (không trigger broadcasting errors)
 docker exec cityresq-coreapi composer install --no-dev --optimize-autoloader --no-interaction
+
+# Khôi phục lại BROADCAST_CONNECTION=reverb sau khi cài xong pusher/pusher-php-server
+echo -e "${YELLOW}Re-enabling broadcast...${NC}"
+docker exec cityresq-coreapi sed -i 's/BROADCAST_CONNECTION=null/BROADCAST_CONNECTION=reverb/' /var/www/html/.env
+docker exec cityresq-coreapi rm -f /var/www/html/.env.bak
+
 echo -e "${GREEN}✅ Composer dependencies installed${NC}"
 
 # Run migrations and optimize
