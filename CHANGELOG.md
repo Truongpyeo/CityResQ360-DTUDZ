@@ -3,6 +3,7 @@
 
 ### Bug Fixes
 
+* **deploy:** sửa lỗi composer install khi fresh deployment ([1fd32bc](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/1fd32bc98ed5242d950954f68e19214be0fed604))
 * **docker:** Fix docker file ([b5906d8](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b5906d80bdc6d1bd8d5e4b1967b15185e94d7378))
 * **docker:** fix docker script ([dd7a237](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/dd7a237b3bb59fb3a6b1253a1a669449f8e7d643))
 * **docker:** Fix script docker ([982bbab](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/982bbabd44f4da48ec4835b4ca0d503fe06a136e))
