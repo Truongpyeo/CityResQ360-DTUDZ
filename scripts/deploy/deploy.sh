@@ -553,10 +553,12 @@ if [ "$CLEAN_INSTALL" = true ]; then
     docker images | grep cityresq | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || true
     docker images | grep docker- | awk '{print $3}' | xargs -r docker rmi -f 2>/dev/null || true
     
-    # Clean docker system and build cache
-    echo -e "${CYAN}[4/5] Cleaning Docker system and build cache...${NC}"
-    docker system prune -f --volumes
-    docker builder prune -af --volumes
+    # Clean docker system (only unused resources)
+    echo -e "${CYAN}[4/5] Cleaning Docker system...${NC}"
+    docker system prune -f
+    
+    # Clean build cache for cityresq images only
+    docker builder prune -af --filter "label=project=cityresq360" 2>/dev/null || docker builder prune -f
     
     echo -e "${GREEN}✅ Fresh deployment prepared${NC}"
 else
