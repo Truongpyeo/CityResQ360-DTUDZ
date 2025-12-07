@@ -1,7 +1,7 @@
 # 🌆 CityResQ360 — Chung tay vì một đô thị thông minh & an toàn
 
 <div align="center">
-  <img src="./static/logo21.png" alt="CityResQ360 Logo" width="250"/>
+  <img src="./static/logo21.png" alt="CityResQ360 Logo" width="200"/>
 
   <a href="https://api.cityresq360.io.vn/">
     <img src="https://img.shields.io/badge/🚀_Website-CityResQ360-00C853?style=for-the-badge" alt="Demo System"/>
@@ -346,10 +346,17 @@ Dự án này được phân phối dưới [GNU General Public License v3.0](ht
 
 ## 📱 CityResQ360 Application
 
-<div align="start">
-  <img src="./static/img/qrios.png" alt="CityResQ360 Logo" width="150"/>
-  <br/>
-  <img src="https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="iOS App"/>
+<div align="start" style="margin-bottom: 25px; display: flex; gap: 40px;">
+  <div>
+    <img style="margin-left: 15px;" src="./static/img/qrios.png" alt="CityResQ360 Logo" width="150"/>
+    <br/>
+    <img style="margin-left: 10px;" src="https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="iOS App"/>
+  </div>
+  <div>
+    <img style="margin-left: 30px;" src="./static/img/qrios.png" alt="CityResQ360 Logo" width="150"/>
+    <br/>
+    <img src="https://img.shields.io/badge/Download-Android-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android App"/>
+  </div>
 </div>
 
 ---
