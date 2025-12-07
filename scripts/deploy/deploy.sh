@@ -584,9 +584,14 @@ docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service iot-service incide
 
 echo -e "${GREEN}✅ Docker deployment complete!${NC}"
 
+# Install/Update Composer dependencies
+echo -e "${CYAN}Installing Composer dependencies...${NC}"
+sleep 10
+docker exec cityresq-coreapi composer install --no-dev --optimize-autoloader --no-interaction
+echo -e "${GREEN}✅ Composer dependencies installed${NC}"
+
 # Run migrations and optimize
 echo -e "${CYAN}Running database migrations...${NC}"
-sleep 10
 docker exec cityresq-coreapi php artisan migrate --force || true
 docker exec cityresq-coreapi php artisan db:seed --force || true
 
