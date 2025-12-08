@@ -25,6 +25,7 @@ use App\Http\Controllers\Api\BaseController;
 use App\Http\Requests\Api\Media\UploadMediaRequest;
 use App\Models\HinhAnhPhanAnh;
 use App\Services\MediaServiceClient;
+use App\Services\AIMLServiceClient;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
@@ -35,10 +36,12 @@ use Intervention\Image\ImageManager;
 class MediaController extends BaseController
 {
     protected MediaServiceClient $mediaService;
+    protected AIMLServiceClient $aimlService;
 
-    public function __construct(MediaServiceClient $mediaService)
+    public function __construct(MediaServiceClient $mediaService, AIMLServiceClient $aimlService)
     {
         $this->mediaService = $mediaService;
+        $this->aimlService = $aimlService;
     }
 
     /**
@@ -46,6 +49,7 @@ class MediaController extends BaseController
      * POST /api/v1/media/upload
      *
      * Tries Media Service first, falls back to local storage if unavailable
+     * For images: automatically sends to AI/ML Service for analysis
      */
     public function upload(UploadMediaRequest $request)
     {
@@ -55,6 +59,34 @@ class MediaController extends BaseController
 
         // Get token from request for Media Service
         $token = $request->bearerToken();
+
+        // AI Analysis for images (async, non-blocking)
+        $aiAnalysis = null;
+        if ($type === 'image') {
+            try {
+                Log::info('Attempting AI analysis for uploaded image', [
+                    'user_id' => $user->id,
+                    'file_name' => $file->getClientOriginalName(),
+                ]);
+
+                $aiAnalysis = $this->aimlService->analyzeForReport($file, $token);
+
+                if ($aiAnalysis) {
+                    Log::info('AI analysis completed', [
+                        'label' => $aiAnalysis['ai_analysis']['label'] ?? 'unknown',
+                        'confidence' => $aiAnalysis['ai_analysis']['confidence'] ?? 0,
+                        'category_id' => $aiAnalysis['danh_muc_id'] ?? null,
+                    ]);
+                } else {
+                    Log::warning('AI analysis returned null - service may be unavailable');
+                }
+            } catch (\Exception $e) {
+                Log::warning('AI analysis failed, continuing with upload', [
+                    'error' => $e->getMessage(),
+                ]);
+                // Continue with upload even if AI fails
+            }
+        }
 
         // Try Media Service first
         $mediaServiceResult = $this->mediaService->upload(
@@ -82,7 +114,7 @@ class MediaController extends BaseController
                     'media_service_id' => $mediaServiceResult['id'] ?? null,
                 ]);
 
-                return $this->created([
+                $response = [
                     'id' => $media->id,
                     'media_service_id' => $mediaServiceResult['id'] ?? null,
                     'url' => $mediaServiceResult['url'] ?? $mediaServiceResult['duong_dan'] ?? null,
@@ -91,7 +123,14 @@ class MediaController extends BaseController
                     'kich_thuoc' => $media->kich_thuoc,
                     'dinh_dang' => $media->dinh_dang,
                     'created_at' => $media->created_at,
-                ], 'Upload thành công');
+                ];
+
+                // Add AI analysis to response if available
+                if ($aiAnalysis) {
+                    $response['ai_analysis'] = $aiAnalysis;
+                }
+
+                return $this->created($response, 'Upload thành công' . ($aiAnalysis ? ' (đã phân tích AI)' : ''));
             } catch (\Exception $e) {
                 Log::warning('Failed to save media reference to local database', [
                     'error' => $e->getMessage(),
@@ -99,7 +138,12 @@ class MediaController extends BaseController
                 ]);
 
                 // Still return success if Media Service worked
-                return $this->created($mediaServiceResult, 'Upload thành công');
+                $fallbackResponse = $mediaServiceResult;
+                if ($aiAnalysis) {
+                    $fallbackResponse['ai_analysis'] = $aiAnalysis;
+                }
+
+                return $this->created($fallbackResponse, 'Upload thành công');
             }
         }
 
