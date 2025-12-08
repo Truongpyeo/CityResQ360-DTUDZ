@@ -378,34 +378,35 @@ git push -u origin feat/<new-feature>
 - Chọn branch của bạn để merge
 - Điền thông tin mô tả chi tiết
 
-Xem
-
-### 📝 Issues
-
-- Báo cáo lỗi và đề xuất tính năng mới tại [GitHub Issues](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/issues)
-
-- Xem thêm hướng dẫn đóng góp tại [CONTRIBUTING.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md)
-
 ---
 
 ## ⚖️ Quy Tắc Ứng Xử
 
 Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file [CODE_OF_CONDUCT.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/feat/document/CODE_OF_CONDUCT.md) để biết thêm chi tiết về các quy tắc và hành vi được chấp nhận.
 
-## 👥 Người Hướng Dẫn
+## � Cộng đồng & Hỗ trợ
 
-| 👨‍🏫 Vai Trò | 📧 Thông Tin          |
-| ---------- | --------------------- |
-| Giảng Viên | Nguyễn Quốc Long      |
-| Email      | quoclongdng@gmail.com |
+### Kênh giao tiếp
 
-## 📞 Liên hệ Team DTU-DZ
+- **💬 GitHub Discussions**: [Thảo luận & Hỏi đáp](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/discussions)
+- **🐛 GitHub Issues**: [Báo lỗi & Đề xuất tính năng](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/issues)
+- **📖 Documentation**: [Tài liệu chi tiết](https://nguyenthai11103.github.io/DTU-CityResQ360-documents/)
+- **✍️ CONTRIBUTING**: [Hướng dẫn đóng góp](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md)
+
+### Liên hệ Team DTU-DZ
 
 Nếu cần trao đổi gì thêm, vui lòng liên hệ:
 
 - **Lê Thanh Trường**: thanhtruong23111999@gmail.com
 - **Nguyễn Văn Nhân**: vannhan130504@gmail.com
 - **Nguyễn Ngọc Duy Thái**: kkdn011@gmail.com
+
+### Người Hướng Dẫn
+
+| 👨‍🏫 Vai Trò | 📧 Thông Tin          |
+| ---------- | --------------------- |
+| Giảng Viên | Nguyễn Quốc Long      |
+| Email      | quoclongdng@gmail.com |
 
 ---
 
