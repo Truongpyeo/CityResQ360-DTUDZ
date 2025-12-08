@@ -192,8 +192,6 @@ Dự án không chỉ dừng lại ở việc cải thiện tốc độ phản �
 
 ---
 
----
-
 ## 🗂️ Cấu trúc dự án
 
 ```
@@ -423,8 +421,8 @@ Dự án này được phân phối dưới [GNU General Public License v3.0](ht
 
 <div align="center">
 
-| <img src="./static/img/qrios.png" alt="iOS QR Code" width="150"/><br/>![iOS App](https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white) | <img src="./static/img/qrios.png" alt="Android QR Code" width="150"/><br/>![Android App](https://img.shields.io/badge/Soon-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white) |
-| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| <img src="./static/img/qrios.png" alt="iOS QR Code" width="150"/><br/>![iOS App](https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white) | <img src="https://png.pngtree.com/png-clipart/20230102/original/pngtree-coming-soon-banner-design-png-image_8856817.png" alt="Android QR Code" width="150"/><br/>![Android App](https://img.shields.io/badge/Soon-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white) |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 
 </div>
 
