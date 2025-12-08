@@ -11,6 +11,7 @@
 * **docker:** fix docker script ([dd7a237](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/dd7a237b3bb59fb3a6b1253a1a669449f8e7d643))
 * **docker:** Fix script docker ([982bbab](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/982bbabd44f4da48ec4835b4ca0d503fe06a136e))
 * **dockẻ:** Xóa --volumes khỏi docker system prune ([bc73644](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/bc73644c7ac6c07aeda6198c70d3791635cd8c3d))
+* **docs:** Sửa Docs Realtime ReactNative ([f14ee74](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/f14ee7423e0985b641494fb1a1308bf82ac9b79b))
 * **reverb:** cấu hình lại WebSocket để tránh xung đột port ([c252645](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/c25264574f8816f05451523cdbbd3a0840028c56))
 * **script:** fix docker ([d478085](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/d478085e47ea823c4d51a48c9bb0d46bfff568c3))
 * **script:** fix script ([340b42d](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/340b42d4b6d0258b6db11c501953720ab1325a62))
