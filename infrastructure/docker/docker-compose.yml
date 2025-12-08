@@ -848,6 +848,837 @@ services:
     networks:
       - cityresq-network
     restart: unless-stopped
+    # ==========================================
+    # MESSAGE BROKER & IOT
+    # ==========================================
+    rabbitmq:
+        image: rabbitmq:3.13-management-alpine
+        container_name: cityresq-rabbitmq
+        ports:
+            - "5672:5672"    # AMQP
+            - "15672:15672"  # Management UI
+        environment:
+            RABBITMQ_DEFAULT_USER: cityresq
+            RABBITMQ_DEFAULT_PASS: ${RABBITMQ_PASSWORD:-cityresq_password}
+            RABBITMQ_DEFAULT_VHOST: /
+        volumes:
+            - rabbitmq_data:/var/lib/rabbitmq
+            - ../../infrastructure/rabbitmq/enabled_plugins:/etc/rabbitmq/enabled_plugins
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD", "rabbitmq-diagnostics", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    mqtt:
+        image: eclipse-mosquitto:2.0
+        container_name: cityresq-mqtt
+        ports:
+            - "1885:1883"    # MQTT (changed to avoid conflict with cityresq-emqx)
+            - "9002:9001"    # WebSocket
+        volumes:
+            - ../../infrastructure/mosquitto/config:/mosquitto/config
+            - ../../infrastructure/mosquitto/data:/mosquitto/data
+            - ../../infrastructure/mosquitto/log:/mosquitto/log
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD-SHELL", "mosquitto_pub -h localhost -t test -m ping || exit 1"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    # ==========================================
+    # DATABASES
+    # ==========================================
+    mysql:
+        image: mysql:8.0
+        container_name: cityresq-mysql
+        ports:
+            - "3307:3306"  # External port 3307 to avoid conflict with local MySQL
+        environment:
+            MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD:-root_password}
+            MYSQL_DATABASE: cityresq_db
+            MYSQL_USER: cityresq
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+        volumes:
+            - mysql_data:/var/lib/mysql
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD", "mysqladmin", "ping", "-h", "localhost"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    mongodb:
+        image: mongo:7.0
+        container_name: cityresq-mongodb
+        ports:
+            - "27018:27017"  # External port 27018 to avoid conflict with local MongoDB
+        environment:
+            MONGO_INITDB_ROOT_USERNAME: cityresq
+            MONGO_INITDB_ROOT_PASSWORD: ${MONGODB_PASSWORD:-cityresq_password}
+        volumes:
+            - mongodb_data:/data/db
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD", "mongosh", "--eval", "db.adminCommand('ping')"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    postgres:
+        image: postgres:16-alpine
+        container_name: cityresq-postgres
+        ports:
+            - "5432:5432"
+        environment:
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: shared_db
+        volumes:
+            - postgres_data:/var/lib/postgresql/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U cityresq"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    timescaledb:
+        image: timescale/timescaledb:latest-pg16
+        container_name: cityresq-timescaledb
+        ports:
+            - "5433:5432"
+        environment:
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: iot_db
+        volumes:
+            - timescaledb_data:/var/lib/postgresql/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U cityresq"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    postgres-incident:
+        image: postgres:16-alpine
+        container_name: cityresq-postgres-incident
+        ports:
+            - "5434:5432"
+        environment:
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: incident_db
+        volumes:
+            - postgres_incident_data:/var/lib/postgresql/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U cityresq"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    postgres-aiml:
+        image: pgvector/pgvector:pg16
+        container_name: cityresq-postgres-aiml
+        ports:
+            - "5435:5432"
+        environment:
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: aiml_db
+        volumes:
+            - postgres_aiml_data:/var/lib/postgresql/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U cityresq"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    postgres-floodeye:
+        image: postgis/postgis:16-3.4-alpine
+        container_name: cityresq-postgres-floodeye
+        ports:
+            - "5436:5432"
+        environment:
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: floodeye_db
+        volumes:
+            - postgres_floodeye_data:/var/lib/postgresql/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD-SHELL", "pg_isready -U cityresq"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    redis:
+        image: redis:7-alpine
+        container_name: cityresq-redis
+        ports:
+            - "6380:6379"  # External port 6380 to avoid conflict with local Redis
+        volumes:
+            - redis_data:/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD", "redis-cli", "ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    minio:
+        image: minio/minio:latest
+        container_name: cityresq-minio
+        ports:
+            - "9000:9000"    # API
+            - "9001:9001"    # Console
+        environment:
+            MINIO_ROOT_USER: ${MINIO_ROOT_USER:-minioadmin}
+            MINIO_ROOT_PASSWORD: ${MINIO_ROOT_PASSWORD:-minioadmin}
+        command: server /data --console-address ":9001"
+        volumes:
+            - minio_data:/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:9000/minio/health/live"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    opensearch:
+        image: opensearchproject/opensearch:2.11.0
+        platform: linux/amd64
+        container_name: cityresq-opensearch
+        ports:
+            - "9200:9200"
+            - "9600:9600"
+        environment:
+            discovery.type: single-node
+            plugins.security.disabled: "true"
+            OPENSEARCH_JAVA_OPTS: "-Xms512m -Xmx512m"
+            bootstrap.memory_lock: "true"
+        ulimits:
+            memlock:
+                soft: -1
+                hard: -1
+            nofile:
+                soft: 65536
+                hard: 65536
+        volumes:
+            - opensearch_data:/usr/share/opensearch/data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD-SHELL", "curl -f http://localhost:9200/_cluster/health || exit 1"]
+            interval: 30s
+            timeout: 10s
+            retries: 5
+        restart: unless-stopped
+
+    opensearch-dashboards:
+        image: opensearchproject/opensearch-dashboards:2.11.0
+        container_name: cityresq-opensearch-dashboards
+        ports:
+            - "5601:5601"
+        environment:
+            OPENSEARCH_HOSTS: '["http://opensearch:9200"]'
+            DISABLE_SECURITY_DASHBOARDS_PLUGIN: "true"
+        depends_on:
+            opensearch:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    clickhouse:
+        image: clickhouse/clickhouse-server:latest
+        platform: linux/amd64
+        container_name: cityresq-clickhouse
+        ports:
+            - "8123:8123"    # HTTP
+            - "9003:9000"    # Native - changed from 9001 to avoid conflict with MinIO
+        environment:
+            CLICKHOUSE_DB: analytics_db
+            CLICKHOUSE_USER: cityresq
+            CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cityresq_password}
+        volumes:
+            - clickhouse_data:/var/lib/clickhouse
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost:8123/ping"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    meilisearch:
+        image: getmeili/meilisearch:v1.5
+        container_name: cityresq-meilisearch
+        ports:
+            - "7700:7700"
+        environment:
+            MEILI_MASTER_KEY: ${MEILISEARCH_MASTER_KEY:-cityresq_meili_master_key}
+            MEILI_ENV: ${MEILI_ENV:-development}
+            MEILI_HTTP_ADDR: 0.0.0.0:7700
+            MEILI_NO_ANALYTICS: "true"
+        volumes:
+            - meilisearch_data:/meili_data
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:7700/health"]
+            interval: 10s
+            timeout: 5s
+            retries: 5
+        restart: unless-stopped
+
+    orion-ld:
+        image: fiware/orion-ld:1.5.1
+        platform: linux/amd64
+        container_name: cityresq-orion-ld
+        ports:
+            - "1026:1026"
+        environment:
+            ORIONLD_MONGO_HOST: mongodb
+            ORIONLD_MONGO_DB: orion
+            ORIONLD_MONGO_USER: cityresq
+            ORIONLD_MONGO_PASSWORD: ${MONGODB_PASSWORD:-cityresq_password}
+            ORIONLD_PORT: 1026
+            ORIONLD_LOG_LEVEL: DEBUG
+        depends_on:
+            mongodb:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        healthcheck:
+            test: ["CMD", "curl", "-f", "http://localhost:1026/version"]
+            interval: 10s
+            timeout: 5s
+            retries: 10
+        restart: unless-stopped
+
+
+    # ==========================================
+    # CONSUMER SERVICES
+    # ==========================================
+    analytics-consumer:
+        build:
+            context: ../../modules/AnalyticsConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-analytics-consumer
+        environment:
+            NODE_ENV: development
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            CLICKHOUSE_HOST: clickhouse
+            CLICKHOUSE_PORT: 8123
+            CLICKHOUSE_HTTP_PORT: 8123
+            CLICKHOUSE_DB: analytics_db
+            CLICKHOUSE_USER: cityresq
+            CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cityresq_password}
+            QUEUE_NAME: analytics.events
+            BATCH_SIZE: 100
+            FLUSH_INTERVAL: 5000
+        ports:
+            - "9100:9229"  # Node.js debug port
+        volumes:
+            - ../../modules/AnalyticsConsumer:/app
+            - /app/node_modules
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            clickhouse:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    orion-sync-consumer:
+        build:
+            context: ../../modules/OrionSyncConsumer
+            dockerfile: Dockerfile
+        container_name: cityresq-orion-sync-consumer
+        environment:
+            NODE_ENV: development
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            ORION_URL: http://orion-ld:1026
+            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017
+            QUEUE_NAME: orion.sync
+        ports:
+            - "9102:9229"  # Node.js debug port
+        volumes:
+            - ../../modules/OrionSyncConsumer:/app
+            - /app/node_modules
+        depends_on:
+            rabbitmq:
+                condition: service_healthy
+            orion-ld:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    # ==========================================
+    # ADAPTER SERVICES
+    # ==========================================
+    context-broker-adapter:
+        build:
+            context: ../../modules/ContextBrokerAdapter
+            dockerfile: Dockerfile
+        container_name: cityresq-context-broker-adapter
+        ports:
+            - "8012:8012"
+        environment:
+            PORT: "8012"
+            MYSQL_HOST: mysql
+            MYSQL_PORT: "3306"
+            MYSQL_USER: cityresq
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+            MYSQL_DATABASE: ${MYSQL_DATABASE:-cityresq_db}
+            ORION_URL: http://orion-ld:1026
+        depends_on:
+            mysql:
+                condition: service_healthy
+            orion-ld:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    iot-adapter:
+        build:
+            context: ../../modules/IoTAdapter
+            dockerfile: Dockerfile
+        container_name: cityresq-iot-adapter
+        ports:
+            - "8011:8011"
+        environment:
+            PORT: "8011"
+            MQTT_BROKER: mqtt
+            MQTT_PORT: "1883"
+            MQTT_CLIENT_ID: iot-adapter
+            ORION_URL: http://orion-ld:1026
+        depends_on:
+            mqtt:
+                condition: service_healthy
+            orion-ld:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    # ==========================================
+    # APPLICATION SERVICES
+    # ==========================================
+    coreapi:
+        build:
+            context: ../../modules/CoreAPI
+            dockerfile: Dockerfile
+        container_name: cityresq-coreapi
+        ports:
+            - "8000:80"      # Nginx listens on port 80 inside container
+            - "5173:5173"    # Vite dev server
+            - "6001:6001"    # Laravel Reverb WebSocket
+        environment:
+            APP_NAME: CityResQ360
+            APP_ENV: development
+            APP_DEBUG: "true"
+            APP_URL: ${APP_URL:-http://localhost:8000}
+
+            DB_CONNECTION: mysql
+            DB_HOST: mysql
+            DB_PORT: 3306
+            DB_DATABASE: cityresq_db
+            DB_USERNAME: cityresq
+            DB_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+
+            REDIS_HOST: redis
+            REDIS_PORT: 6379
+
+            RABBITMQ_HOST: rabbitmq
+            RABBITMQ_PORT: 5672
+            RABBITMQ_USER: cityresq
+            RABBITMQ_PASSWORD: ${RABBITMQ_PASSWORD:-cityresq_password}
+            RABBITMQ_VHOST: /
+
+            MEDIA_SERVICE_URL: http://media-service:8004/api/v1
+            
+            # Firebase Cloud Messaging
+            FIREBASE_CREDENTIALS: storage/app/firebase-credentials.json
+            FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-cityresq360}
+            
+            # Laravel Reverb (WebSocket Broadcasting)
+            BROADCAST_CONNECTION: reverb
+            REVERB_APP_ID: ${REVERB_APP_ID:-808212}
+            REVERB_APP_KEY: ${REVERB_APP_KEY:-lwf6joghdvbowg9hb7p4}
+            REVERB_APP_SECRET: ${REVERB_APP_SECRET:-yh8dts6nhxqzn2i77yim}
+            REVERB_HOST: ${REVERB_HOST:-127.0.0.1}
+            REVERB_PORT: ${REVERB_PORT:-6001}
+            REVERB_SCHEME: ${REVERB_SCHEME:-http}
+            REVERB_SERVER_HOST: ${REVERB_SERVER_HOST:-0.0.0.0}
+            REVERB_SERVER_PORT: ${REVERB_SERVER_PORT:-6001}
+        volumes:
+            - ../../modules/CoreAPI:/var/www/html
+            - coreapi_storage:/var/www/html/storage
+
+        depends_on:
+            mysql:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    media-service:
+        build:
+            context: ../../modules/MediaService
+            dockerfile: Dockerfile
+        container_name: cityresq-media-service
+        ports:
+            - "8001:8004"
+        environment:
+            NODE_ENV: development
+            PORT: 8004
+            MONGODB_URI: mongodb://cityresq:${MONGODB_PASSWORD:-cityresq_password}@mongodb:27017/media_db?authSource=admin
+            MINIO_ENDPOINT: minio
+            MINIO_PORT: 9000
+            MINIO_ACCESS_KEY: ${MINIO_ROOT_USER:-minioadmin}
+            MINIO_SECRET_KEY: ${MINIO_ROOT_PASSWORD:-minioadmin}
+            MINIO_BUCKET: cityresq-media
+            MINIO_USE_SSL: "false"
+            UPLOAD_DIR: ./uploads
+            MAX_FILE_SIZE: 10485760
+            ALLOWED_IMAGE_TYPES: image/jpeg,image/png,image/webp
+            ALLOWED_VIDEO_TYPES: video/mp4,video/quicktime
+            THUMBNAIL_WIDTH: 300
+            THUMBNAIL_HEIGHT: 300
+            OPTIMIZED_WIDTH: 1920
+            OPTIMIZED_HEIGHT: 1080
+            JWT_SECRET: ${JWT_SECRET:-your-secret-key-here}
+            CORS_ORIGINS: ${MEDIASERVICE_CORS_ORIGINS:-*}
+            
+            # CoreAPI Database Connection (for Auth)
+            COREAPI_DB_HOST: mysql
+            COREAPI_DB_USER: cityresq
+            COREAPI_DB_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+            COREAPI_DB_NAME: cityresq_db
+        volumes:
+            - ../../modules/MediaService:/app
+            - media_uploads:/app/uploads
+            - /app/node_modules
+        depends_on:
+            mongodb:
+                condition: service_healthy
+            minio:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    incident-service:
+        build:
+            context: ../../modules/IncidentService
+            dockerfile: Dockerfile
+        container_name: cityresq-incident-service
+        ports:
+            - "8005:8001"
+        environment:
+            PORT: 8001
+            NODE_ENV: development
+            POSTGRES_HOST: postgres-incident
+            POSTGRES_PORT: 5432
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: incident_db
+            REDIS_URL: redis://redis:6379
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            CORE_API_URL: http://coreapi:80/api/v1
+            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
+        volumes:
+            - ../../modules/IncidentService:/app
+            - /app/node_modules
+        depends_on:
+            postgres-incident:
+                condition: service_healthy
+            redis:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+            coreapi:
+                condition: service_started
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    iot-service:
+        build:
+            context: ../../modules/IoTService
+            dockerfile: Dockerfile
+        container_name: cityresq-iot-service
+        ports:
+            - "8004:8002"
+        environment:
+            PORT: 8002
+            NODE_ENV: development
+            POSTGRES_HOST: timescaledb
+            POSTGRES_PORT: 5432
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: iot_db
+            MQTT_BROKER: mqtt://mqtt:1883
+            MQTT_WS_URL: ws://mqtt:9001
+            MQTT_TOPIC_PREFIX: cityresq/iot
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            JWT_SECRET: ${JWT_SECRET:-your-secret-key}
+        volumes:
+            - ../../modules/IoTService:/app
+            - /app/node_modules
+        depends_on:
+            timescaledb:
+                condition: service_healthy
+            mqtt:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    aiml-service:
+        build:
+            context: ../../modules/AIMLService
+            dockerfile: Dockerfile
+        container_name: cityresq-aiml-service
+        ports:
+            - "8013:8003"  # Changed to avoid port conflict
+        environment:
+            PORT: 8003
+            ENV: development
+            GEMINI_API_KEY: ${GEMINI_API_KEY:-}
+            POSTGRES_HOST: postgres-aiml
+            POSTGRES_PORT: 5432
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: aiml_db
+            MEDIA_SERVICE_URL: http://media-service:8004/api/v1
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            NLP_MODEL_PATH: /app/models/nlp
+            VISION_MODEL_PATH: /app/models/vision
+        volumes:
+            - ../../modules/AIMLService:/app
+            - aiml_models:/app/models
+        depends_on:
+            postgres-aiml:
+                condition: service_healthy
+            media-service:
+                condition: service_started
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    search-service:
+        build:
+            context: ../../modules/SearchService
+            dockerfile: Dockerfile
+        container_name: cityresq-search-service
+        ports:
+            - "8007:8007"
+        environment:
+            PORT: 8007
+            ENV: development
+            # Meilisearch
+            MEILI_URL: http://meilisearch:7700
+            MEILI_MASTER_KEY: ${MEILISEARCH_MASTER_KEY:-cityresq_meili_master_key}
+            # MySQL (for data sync)
+            MYSQL_HOST: mysql
+            MYSQL_PORT: 3306
+            MYSQL_USER: cityresq
+            MYSQL_PASSWORD: ${MYSQL_PASSWORD:-cityresq_password}
+            MYSQL_DATABASE: cityresq_db
+        depends_on:
+            meilisearch:
+                condition: service_healthy
+            mysql:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    floodeye-service:
+        build:
+            context: ../../modules/FloodEyeService
+            dockerfile: Dockerfile
+        container_name: cityresq-floodeye-service
+        ports:
+            - "8008:8008"
+        environment:
+            PORT: 8008
+            ENV: development
+            POSTGRES_HOST: postgres-floodeye
+            POSTGRES_PORT: 5432
+            POSTGRES_USER: cityresq
+            POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-cityresq_password}
+            POSTGRES_DB: floodeye_db
+            IOT_SERVICE_URL: http://iot-service:8002/api/v1
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            OSM_API_URL: https://nominatim.openstreetmap.org
+        volumes:
+            - ../../modules/FloodEyeService:/app
+        depends_on:
+            postgres-floodeye:
+                condition: service_healthy
+            iot-service:
+                condition: service_started
+            rabbitmq:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    analytics-service:
+        build:
+            context: ../../modules/AnalyticsService
+            dockerfile: Dockerfile
+        container_name: cityresq-analytics-service
+        ports:
+            - "8006:8009"
+        environment:
+            PORT: 8009
+            ENV: development
+            CLICKHOUSE_HOST: clickhouse
+            CLICKHOUSE_PORT: 9000
+            CLICKHOUSE_HTTP_PORT: 8123
+            CLICKHOUSE_DB: analytics_db
+            CLICKHOUSE_USER: cityresq
+            CLICKHOUSE_PASSWORD: ${CLICKHOUSE_PASSWORD:-cityresq_password}
+            RABBITMQ_URL: amqp://cityresq:${RABBITMQ_PASSWORD:-cityresq_password}@rabbitmq:5672
+            CORE_API_URL: http://coreapi:80/api/v1
+        volumes:
+            - ../../modules/AnalyticsService:/app
+        depends_on:
+            clickhouse:
+                condition: service_healthy
+            rabbitmq:
+                condition: service_healthy
+            coreapi:
+                condition: service_started
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    context-broker:
+        image: fiware/orion-ld:latest
+        container_name: cityresq-context-broker
+        ports:
+            - "1026:1026"
+        environment:
+            ORION_DB_HOST: mongodb
+            ORION_DB_PORT: 27017
+            ORION_DB_USER: cityresq
+            ORION_DB_PASSWORD: ${MONGODB_PASSWORD:-cityresq_password}
+            ORION_DB_NAME: context_broker_db
+        depends_on:
+            mongodb:
+                condition: service_healthy
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    # ==========================================
+    # MOBILE APP (Run locally, not in Docker)
+    # ==========================================
+    # app-mobile:
+    #     build:
+    #         context: ../../modules/AppMobile
+    #         dockerfile: Dockerfile
+    #     container_name: cityresq-app-mobile
+    #     ports:
+    #         - "3000:3000"
+    #     environment:
+    #         NODE_ENV: development
+    #         PORT: 3000
+    #         NEXT_PUBLIC_API_URL: ${NEXT_PUBLIC_API_URL:-http://localhost:8000/api/v1}
+    #         API_URL: http://coreapi:80/api/v1
+    #         DATABASE_URL: postgresql://cityresq:${POSTGRES_PASSWORD:-cityresq_password}@postgres:5432/wallet_db?schema=public
+    #     volumes:
+    #         - ../../modules/AppMobile:/app
+    #         - /app/node_modules
+    #         - /app/.next
+    #     depends_on:
+    #         coreapi:
+    #             condition: service_started
+    #     networks:
+    #         - cityresq-network
+    #     restart: unless-stopped
+    # Note: React Native app should run locally with: npm start / npx expo start
+
+    # ==========================================
+    # MONITORING
+    # ==========================================
+    prometheus:
+        image: prom/prometheus:latest
+        container_name: cityresq-prometheus
+        ports:
+            - "9091:9090"
+        volumes:
+            - ../../infrastructure/monitoring/prometheus/prometheus.yml:/etc/prometheus/prometheus.yml
+            - prometheus_data:/prometheus
+        command:
+            - '--config.file=/etc/prometheus/prometheus.yml'
+            - '--storage.tsdb.path=/prometheus'
+            - '--web.console.libraries=/usr/share/prometheus/console_libraries'
+            - '--web.console.templates=/usr/share/prometheus/consoles'
+        networks:
+            - cityresq-network
+        restart: unless-stopped
+
+    grafana:
+        image: grafana/grafana:latest
+        container_name: cityresq-grafana
+        ports:
+            - "3001:3000"
+        environment:
+            - GF_SECURITY_ADMIN_USER=admin
+            - GF_SECURITY_ADMIN_PASSWORD=admin
+            - GF_USERS_ALLOW_SIGN_UP=false
+        volumes:
+            - grafana_data:/var/lib/grafana
+            - ../../infrastructure/monitoring/grafana/provisioning:/etc/grafana/provisioning
+        networks:
+            - cityresq-network
+        restart: unless-stopped
 
 volumes:
   mysql_data:

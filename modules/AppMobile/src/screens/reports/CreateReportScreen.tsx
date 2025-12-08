@@ -1,6 +1,6 @@
 import React, { useState, useRef, useEffect } from 'react';
 import { SafeAreaView } from 'react-native-safe-area-context';
-import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Image, Platform, Modal, Dimensions, ActivityIndicator, PermissionsAndroid } from 'react-native';
+import { View, Text, StyleSheet, ScrollView, TouchableOpacity, Switch, Image, Platform, Modal, Dimensions, ActivityIndicator, PermissionsAndroid, Alert } from 'react-native';
 import { useNavigation } from '@react-navigation/native';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import MapboxGL from '@rnmapbox/maps';
@@ -10,7 +10,7 @@ import InputCustom from '../../component/InputCustom';
 import ButtonCustom from '../../component/ButtonCustom';
 import ModalCustom from '../../component/ModalCustom';
 import { theme, SPACING, FONT_SIZE, BORDER_RADIUS, SCREEN_PADDING, wp, hp } from '../../theme';
-import { launchImageLibrary } from 'react-native-image-picker';
+import { launchImageLibrary, launchCamera } from 'react-native-image-picker';
 import { reportService } from '../../services/reportService';
 import { mapService } from '../../services/mapService';
 import { mediaService } from '../../services/mediaService';
@@ -22,12 +22,12 @@ MapboxGL.setAccessToken(env.MAPBOX_ACCESS_TOKEN);
 
 // Category options matching API
 const CATEGORIES = [
-  { value: 0, label: 'Giao thông', icon: 'car', color: theme.colors.primary },
-  { value: 1, label: 'Môi trường', icon: 'leaf', color: theme.colors.success },
-  { value: 2, label: 'Hỏa hoạn', icon: 'fire', color: theme.colors.error },
-  { value: 3, label: 'Rác thải', icon: 'delete', color: theme.colors.warning },
-  { value: 4, label: 'Ngập lụt', icon: 'water', color: theme.colors.info },
-  { value: 5, label: 'Khác', icon: 'dots-horizontal', color: theme.colors.textSecondary },
+  { value: 1, label: 'Giao thông', icon: 'car', color: '#EF4444' },
+  { value: 2, label: 'Môi trường', icon: 'leaf', color: '#10B981' },
+  { value: 3, label: 'Cháy nổ', icon: 'fire', color: '#F97316' },
+  { value: 4, label: 'Rác thải', icon: 'delete', color: '#8B5CF6' },
+  { value: 5, label: 'Ngập lụt', icon: 'water', color: '#3B82F6' },
+  { value: 6, label: 'Khác', icon: 'dots-horizontal', color: '#6B7280' },
 ];
 
 // Priority options matching API
@@ -43,8 +43,10 @@ const CreateReportScreen = () => {
   const [loading, setLoading] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showErrorModal, setShowErrorModal] = useState(false);
+  const [showAIModal, setShowAIModal] = useState(false);
   const [errorMessage, setErrorMessage] = useState('');
   const [successMessage, setSuccessMessage] = useState('');
+  const [aiAnalysisMessage, setAiAnalysisMessage] = useState('');
 
   // Map Modal State
   const [showMapModal, setShowMapModal] = useState(false);
@@ -60,7 +62,7 @@ const CreateReportScreen = () => {
   const [formData, setFormData] = useState<CreateReportRequest>({
     tieu_de: '',
     mo_ta: '',
-    danh_muc: 0,
+    danh_muc: 1,
     vi_do: 10.7769, // Default location (can be updated with GPS)
     kinh_do: 106.7009,
     dia_chi: '',
@@ -89,13 +91,114 @@ const CreateReportScreen = () => {
     });
   };
 
-  const handleSelectMedia = async () => {
-    if (uploadedMedia.length >= 5) {
-      setErrorMessage('Bạn chỉ được tải lên tối đa 5 ảnh/video');
-      setShowErrorModal(true);
-      return;
+  const mapPriorityLevel = (priority: string): number => {
+    const priorityMap: { [key: string]: number } = {
+      'low': 1,
+      'medium': 2,
+      'high': 3,
+      'critical': 4,
+      'urgent': 4,
+    };
+    return priorityMap[priority.toLowerCase()] || 2; // Default to medium
+  };
+
+  const uploadMediaAssets = async (assets: any[]) => {
+    setUploadingMedia(true);
+    const newMedia: Media[] = [];
+    const newMediaIds: number[] = [];
+    let aiAnalysisData: any = null;
+
+    for (const asset of assets) {
+      try {
+        console.log('🚀 [API Request] Upload Media:', asset.fileName);
+        const response = await mediaService.uploadMedia(
+          asset,
+          asset.type?.includes('video') ? 'video' : 'image',
+          'phan_anh',
+          'Hình ảnh phản ánh'
+        );
+        console.log('✅ [API Response] Upload Media:', response);
+
+        if (response.success && response.data) {
+          newMedia.push(response.data);
+          newMediaIds.push(response.data.id);
+
+          // Get AI analysis from first uploaded image
+          if (!aiAnalysisData && response.data.ai_analysis) {
+            aiAnalysisData = response.data.ai_analysis;
+            console.log('🤖 [AI Analysis] Detected:', aiAnalysisData);
+          }
+        }
+      } catch (error) {
+        console.error('❌ [API Error] Upload Media:', error);
+      }
     }
 
+    if (newMedia.length > 0) {
+      setUploadedMedia([...uploadedMedia, ...newMedia]);
+      
+      // Auto-fill form with AI analysis if available
+      if (aiAnalysisData) {
+        const categoryLabel = CATEGORIES.find(c => c.value === aiAnalysisData.danh_muc_id)?.label || 'Khác';
+        const priorityLabel = PRIORITIES.find(p => p.value === mapPriorityLevel(aiAnalysisData.muc_do_uu_tien || 'medium'))?.label || 'Trung bình';
+        
+        setFormData(prev => ({
+          ...prev,
+          media_ids: [...(prev.media_ids || []), ...newMediaIds],
+          // Only fill if current values are empty
+          danh_muc: aiAnalysisData.danh_muc_id || prev.danh_muc,
+          tieu_de: prev.tieu_de || aiAnalysisData.tieu_de || '',
+          mo_ta: prev.mo_ta || aiAnalysisData.mo_ta || '',
+          uu_tien: aiAnalysisData.muc_do_uu_tien 
+            ? mapPriorityLevel(aiAnalysisData.muc_do_uu_tien) 
+            : prev.uu_tien,
+        }));
+
+        // Prepare AI analysis message
+        const detectedObjects = aiAnalysisData.ai_analysis?.detected_objects || [];
+        const objectsText = detectedObjects.length > 0 
+          ? `\n\n🔍 Phát hiện: ${detectedObjects.slice(0, 5).join(', ')}${detectedObjects.length > 5 ? '...' : ''}` 
+          : '';
+        
+        setAiAnalysisMessage(
+          `AI đã tự động phân tích và điền:\n\n` +
+          `📁 Danh mục: ${categoryLabel}\n` +
+          `⚠️ Mức độ: ${priorityLabel}\n` +
+          `📝 Tiêu đề & Mô tả${objectsText}\n\n` +
+          `Bạn có thể chỉnh sửa nếu cần.`
+        );
+        setShowAIModal(true);
+      } else {
+        setFormData(prev => ({
+          ...prev,
+          media_ids: [...(prev.media_ids || []), ...newMediaIds]
+        }));
+      }
+    }
+    setUploadingMedia(false);
+  };
+
+  const handleTakePhoto = async () => {
+    try {
+      const result = await launchCamera({
+        mediaType: 'photo',
+        quality: 0.5, // Reduced quality to avoid 413
+        maxWidth: 1024, // Resize large images
+        maxHeight: 1024,
+        saveToPhotos: true,
+      });
+
+      if (result.assets && result.assets.length > 0) {
+        await uploadMediaAssets(result.assets);
+      }
+    } catch (error) {
+      console.error('Camera error:', error);
+      setErrorMessage('Không thể mở camera. Vui lòng kiểm tra quyền truy cập.');
+      setShowErrorModal(true);
+    }
+  };
+
+  const handleSelectFromGallery = async () => {
     try {
       const result = await launchImageLibrary({
         mediaType: 'mixed',
@@ -106,43 +209,41 @@ const CreateReportScreen = () => {
       });
 
       if (result.assets && result.assets.length > 0) {
-        setUploadingMedia(true);
-        const newMedia: Media[] = [];
-        const newMediaIds: number[] = [];
-
-        for (const asset of result.assets) {
-          try {
-            console.log('🚀 [API Request] Upload Media:', asset.fileName);
-            const response = await mediaService.uploadMedia(
-              asset,
-              asset.type?.includes('video') ? 'video' : 'image',
-              'phan_anh',
-              'Hình ảnh phản ánh'
-            );
-            console.log('✅ [API Response] Upload Media:', response);
-
-            if (response.success && response.data) {
-              newMedia.push(response.data);
-              newMediaIds.push(response.data.id);
-            }
-          } catch (error) {
-            console.error('❌ [API Error] Upload Media:', error);
-          }
-        }
-
-        if (newMedia.length > 0) {
-          setUploadedMedia([...uploadedMedia, ...newMedia]);
-          setFormData(prev => ({
-            ...prev,
-            media_ids: [...(prev.media_ids || []), ...newMediaIds]
-          }));
-        }
+        await uploadMediaAssets(result.assets);
       }
     } catch (error) {
       console.error('Image picker error:', error);
-    } finally {
-      setUploadingMedia(false);
+      setErrorMessage('Không thể chọn ảnh. Vui lòng thử lại.');
+      setShowErrorModal(true);
     }
+  };
+
+  const handleSelectMedia = () => {
+    if (uploadedMedia.length >= 5) {
+      setErrorMessage('Bạn chỉ được tải lên tối đa 5 ảnh/video');
+      setShowErrorModal(true);
+      return;
+    }
+
+    Alert.alert(
+      'Chọn hình ảnh',
+      'Chọn nguồn hình ảnh',
+      [
+        {
+          text: 'Chụp ảnh',
+          onPress: handleTakePhoto,
+        },
+        {
+          text: 'Chọn từ thư viện',
+          onPress: handleSelectFromGallery,
+        },
+        {
+          text: 'Hủy',
+          style: 'cancel',
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const handleRemoveMedia = (mediaId: number) => {
@@ -251,7 +352,7 @@ const CreateReportScreen = () => {
       console.log('✅ [API Response] Create Report:', response);
 
       if (response.success) {
-        setSuccessMessage(response.message || 'Tạo phản ánh thành công!');
+        setSuccessMessage('Phản ánh của bạn đã được tạo thành công!');
         setShowSuccessModal(true);
       }
     } catch (error: any) {
@@ -260,7 +361,7 @@ const CreateReportScreen = () => {
         console.log('Error Data:', error.response.data);
         console.log('Error Status:', error.response.status);
       }
-      let message = 'Không thể tạo phản ánh. Vui lòng thử lại.';
+      let message = 'Không thể tạo phản ánh của bạn. Vui lòng thử lại.';
 
       if (error.response?.data?.message) {
         message = error.response.data.message;
@@ -362,6 +463,58 @@ const CreateReportScreen = () => {
               );
             })}
           </View>
+        </View>
+         {/* Media Upload */}
+         <View style={styles.card}>
+          <View style={styles.sectionTitleRow}>
+            <Text style={styles.sectionTitle}>Hình ảnh/Video</Text>
+            <View style={styles.aiChip}>
+              <Icon name="robot" size={14} color={theme.colors.primary} />
+              <Text style={styles.aiChipText}>AI phân tích</Text>
+            </View>
+          </View>
+
+          <View style={styles.mediaList}>
+            {uploadedMedia.map((media) => (
+              <View key={media.id} style={styles.mediaItem}>
+                <Image
+                  source={{ uri: media.thumbnail_url || media.url }}
+                  style={styles.mediaImage}
+                  resizeMode="cover"
+                />
+                {media.type === 'video' && (
+                  <View style={styles.videoBadge}>
+                    <Icon name="video" size={12} color={theme.colors.white} />
+                  </View>
+                )}
+                <TouchableOpacity
+                  style={styles.removeMediaButton}
+                  onPress={() => handleRemoveMedia(media.id)}
+                >
+                  <Icon name="close" size={12} color={theme.colors.white} />
+                </TouchableOpacity>
+              </View>
+            ))}
+
+            {uploadedMedia.length < 5 && (
+              <TouchableOpacity
+                style={styles.uploadButton}
+                activeOpacity={0.7}
+                onPress={handleSelectMedia}
+                disabled={uploadingMedia}
+              >
+                {uploadingMedia ? (
+                  <ActivityIndicator size="small" color={theme.colors.primary} />
+                ) : (
+                  <>
+                    <Icon name="camera-plus" size={24} color={theme.colors.primary} />
+                    <Text style={styles.uploadButtonText}>Thêm</Text>
+                  </>
+                )}
+              </TouchableOpacity>
+            )}
+          </View>
+          <Text style={styles.uploadSubtitle}>Tối đa 5 file (JPG, PNG, MP4)</Text>
         </View>
 
         {/* Main Info */}
@@ -482,52 +635,7 @@ const CreateReportScreen = () => {
           </View>
         </View>
 
-        {/* Media Upload */}
-        <View style={styles.card}>
-          <Text style={styles.sectionTitle}>Hình ảnh/Video</Text>
-
-          <View style={styles.mediaList}>
-            {uploadedMedia.map((media) => (
-              <View key={media.id} style={styles.mediaItem}>
-                <Image
-                  source={{ uri: media.thumbnail_url || media.url }}
-                  style={styles.mediaImage}
-                  resizeMode="cover"
-                />
-                {media.type === 'video' && (
-                  <View style={styles.videoBadge}>
-                    <Icon name="video" size={12} color={theme.colors.white} />
-                  </View>
-                )}
-                <TouchableOpacity
-                  style={styles.removeMediaButton}
-                  onPress={() => handleRemoveMedia(media.id)}
-                >
-                  <Icon name="close" size={12} color={theme.colors.white} />
-                </TouchableOpacity>
-              </View>
-            ))}
-
-            {uploadedMedia.length < 5 && (
-              <TouchableOpacity
-                style={styles.uploadButton}
-                activeOpacity={0.7}
-                onPress={handleSelectMedia}
-                disabled={uploadingMedia}
-              >
-                {uploadingMedia ? (
-                  <ActivityIndicator size="small" color={theme.colors.primary} />
-                ) : (
-                  <>
-                    <Icon name="camera-plus" size={24} color={theme.colors.primary} />
-                    <Text style={styles.uploadButtonText}>Thêm</Text>
-                  </>
-                )}
-              </TouchableOpacity>
-            )}
-          </View>
-          <Text style={styles.uploadSubtitle}>Tối đa 5 file (JPG, PNG, MP4)</Text>
-        </View>
+       
 
         {/* Settings */}
         <View style={styles.card}>
@@ -649,6 +757,18 @@ const CreateReportScreen = () => {
       >
         <Text style={styles.modalText}>{errorMessage}</Text>
       </ModalCustom>
+
+      {/* AI Analysis Modal */}
+      <ModalCustom
+        isModalVisible={showAIModal}
+        setIsModalVisible={setShowAIModal}
+        title="🤖 AI đã phân tích ảnh"
+        type="success"
+        isClose={false}
+        actionText="Đồng ý"
+      >
+        <Text style={styles.aiModalText}>{aiAnalysisMessage}</Text>
+      </ModalCustom>
     </SafeAreaView>
   );
 };
@@ -674,6 +794,28 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: theme.colors.text,
     marginBottom: SPACING.md,
+  },
+  sectionTitleRow: {
+    flexDirection: 'row',
+    justifyContent: 'space-between',
+    alignItems: 'center',
+    marginBottom: SPACING.md,
+  },
+  aiChip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    backgroundColor: theme.colors.primary + '10',
+    paddingHorizontal: SPACING.sm,
+    paddingVertical: 4,
+    borderRadius: BORDER_RADIUS.full,
+    borderWidth: 1,
+    borderColor: theme.colors.primary + '30',
+  },
+  aiChipText: {
+    fontSize: FONT_SIZE.xs,
+    color: theme.colors.primary,
+    fontWeight: '600',
   },
   categoryGrid: {
     flexDirection: 'row',
@@ -917,6 +1059,13 @@ const styles = StyleSheet.create({
     textAlign: 'center',
     color: theme.colors.text,
     fontSize: FONT_SIZE.md,
+  },
+  aiModalText: {
+    textAlign: 'left',
+    color: theme.colors.text,
+    fontSize: FONT_SIZE.sm,
+    lineHeight: 22,
+    paddingHorizontal: SPACING.xs,
   },
   mapModalContainer: {
     flex: 1,
