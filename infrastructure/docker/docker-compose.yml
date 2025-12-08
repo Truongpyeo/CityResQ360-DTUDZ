@@ -644,6 +644,7 @@ services:
         environment:
             PORT: 8003
             ENV: development
+            GEMINI_API_KEY: ${GEMINI_API_KEY:-}
             POSTGRES_HOST: postgres-aiml
             POSTGRES_PORT: 5432
             POSTGRES_USER: cityresq
