@@ -160,8 +160,8 @@ class MediaController extends BaseController
         $path = date('Y/m/d'); // Match MediaService path structure: YYYY/MM/DD
 
         try {
-            // Use S3/MinIO for fallback storage
-            $disk = config('filesystems.default', 's3');
+            // Use S3/MinIO for fallback storage - hardcode to ensure MinIO is used
+            $disk = 's3';
 
             // Store original file to S3/MinIO
             $filePath = $file->storeAs($path, $filename, $disk);
