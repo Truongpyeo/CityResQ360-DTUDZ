@@ -4,6 +4,7 @@
 ### Bug Fixes
 
 * **aiml:** make auth optional for analyze-for-report endpoint ([aaf45b6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/aaf45b6b8e9ecc46106357dd31046e7c458299d7))
+* **coreapi:** fix Reverb port and media URL generation ([b231514](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b23151480579493fee850a3ba7f3c2fb1e8dbb58))
 * **deloy:** Fix deloy.sh ([9ac7d6a](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/9ac7d6aed34b2e395e1e43f2969f32e796fea650))
 * **deloy:** sửa deloy.sh ([581c63f](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/581c63f1fe1a63e5c1bd9beb4b26ccc1633a64c6))
 * **deloy:** sửa deloy.sh để không Conflict ([8fe3e11](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8fe3e1123a86f528fc88fbdb9b26121e303c16db))
