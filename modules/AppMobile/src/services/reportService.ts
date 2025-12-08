@@ -1,28 +1,32 @@
-/*
- * CityResQ360-DTUDZ - Smart City Emergency Response System
- * Copyright (C) 2025 DTU-DZ Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import api from '../utils/Api';
 import { ApiResponse } from '../types/api/common';
 import { Report, ReportDetail, CreateReportRequest, ReportFilterParams } from '../types/api/report';
 
+// Paginated response wrapper for list endpoints
+interface PaginatedResponse<T> {
+    data: T[];
+    current_page: number;
+    per_page: number;
+    total: number;
+    last_page: number;
+    from: number;
+    to: number;
+    first_page_url: string;
+    last_page_url: string;
+    next_page_url: string | null;
+    prev_page_url: string | null;
+    path: string;
+    links: Array<{
+        url: string | null;
+        label: string;
+        active: boolean;
+        page?: number | null;
+    }>;
+}
+
 export const reportService = {
-    getReports: async (params?: ReportFilterParams): Promise<ApiResponse<Report[]>> => {
-        const response = await api.get<ApiResponse<Report[]>>('/reports', { params });
+    getReports: async (params?: ReportFilterParams): Promise<ApiResponse<PaginatedResponse<Report>>> => {
+        const response = await api.get<ApiResponse<PaginatedResponse<Report>>>('/reports', { params });
         return response.data;
     },
 
@@ -46,8 +50,8 @@ export const reportService = {
         return response.data;
     },
 
-    getMyReports: async (params?: ReportFilterParams): Promise<ApiResponse<Report[]>> => {
-        const response = await api.get<ApiResponse<Report[]>>('/reports/my', { params });
+    getMyReports: async (params?: ReportFilterParams): Promise<ApiResponse<PaginatedResponse<Report>>> => {
+        const response = await api.get<ApiResponse<PaginatedResponse<Report>>>('/reports/my', { params });
         return response.data;
     },
 

@@ -25,12 +25,12 @@ type EditReportRouteProp = RouteProp<RootStackParamList, 'EditReport'>;
 
 // Category options matching API
 const CATEGORIES = [
-  { value: 0, label: 'Giao thông', icon: 'car', color: theme.colors.primary },
-  { value: 1, label: 'Môi trường', icon: 'leaf', color: theme.colors.success },
-  { value: 2, label: 'Hỏa hoạn', icon: 'fire', color: theme.colors.error },
-  { value: 3, label: 'Rác thải', icon: 'delete', color: theme.colors.warning },
-  { value: 4, label: 'Ngập lụt', icon: 'water', color: theme.colors.info },
-  { value: 5, label: 'Khác', icon: 'dots-horizontal', color: theme.colors.textSecondary },
+  { value: 1, label: 'Giao thông', icon: 'car', color: '#EF4444' },
+  { value: 2, label: 'Môi trường', icon: 'leaf', color: '#10B981' },
+  { value: 3, label: 'Cháy nổ', icon: 'fire', color: '#F97316' },
+  { value: 4, label: 'Rác thải', icon: 'delete', color: '#8B5CF6' },
+  { value: 5, label: 'Ngập lụt', icon: 'water', color: '#3B82F6' },
+  { value: 6, label: 'Khác', icon: 'dots-horizontal', color: '#6B7280' },
 ];
 
 // Priority options matching API
@@ -44,7 +44,7 @@ const PRIORITIES = [
 const EditReportScreen = () => {
   const navigation = useNavigation();
   const route = useRoute<EditReportRouteProp>();
-  const { reportId } = route.params;
+  const { id: reportId } = route.params;
 
   const [loading, setLoading] = useState(true);
   const [updating, setUpdating] = useState(false);
@@ -67,7 +67,7 @@ const EditReportScreen = () => {
   const [formData, setFormData] = useState<CreateReportRequest>({
     tieu_de: '',
     mo_ta: '',
-    danh_muc: 0,
+    danh_muc: 1,
     vi_do: 10.7769,
     kinh_do: 106.7009,
     dia_chi: '',
@@ -89,6 +89,7 @@ const EditReportScreen = () => {
       try {
         setLoading(true);
         const response = await reportService.getReportDetail(reportId);
+        console.log('Report detail response:', response);
 
         if (response.success && response.data) {
           const report = response.data;
@@ -102,11 +103,20 @@ const EditReportScreen = () => {
             dia_chi: report.dia_chi,
             uu_tien: report.uu_tien_id,
             la_cong_khai: report.la_cong_khai,
-            the_tags: report.the_tags ? (typeof report.the_tags === 'string' ? report.the_tags.split(',') : report.the_tags) : [],
-            media_ids: report.media?.map(m => m.id) || []
+            the_tags: report.the_tags ? (typeof report.the_tags === 'string' ? (report.the_tags as string).split(',') : (report.the_tags as string[])) : [],
+            media_ids: report.hinh_anhs?.map(m => m.id) || report.media?.map(m => m.id) || []
           });
 
-          if (report.media) {
+          // Convert hinh_anhs to Media format for display
+          if (report.hinh_anhs && report.hinh_anhs.length > 0) {
+            const mediaList: Media[] = report.hinh_anhs.map(img => ({
+              id: img.id,
+              url: img.duong_dan_hinh_anh,
+              type: img.loai_file.includes('video') ? 'video' : 'image',
+              thumbnail_url: img.duong_dan_thumbnail || undefined
+            }));
+            setUploadedMedia(mediaList);
+          } else if (report.media) {
             setUploadedMedia(report.media);
           }
         }

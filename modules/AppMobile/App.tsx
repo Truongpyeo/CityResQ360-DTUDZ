@@ -5,16 +5,7 @@
  * @format
  */
 
-/**
- * GreenEduMap Mobile App
- * 
- * Nền tảng di động dành cho công dân, học sinh và nhà quản lý đô thị,
- * giúp quan sát – phân tích – hành động dựa trên dữ liệu môi trường,
- * năng lượng và giáo dục mở (Open Data).
- * 
- * Kết nối dữ liệu từ OpenAQ, OpenWeather, NASA POWER, OpenStreetMap
- * và cung cấp đề xuất "hành động xanh" do AI gợi ý.
- */
+
 
 import React from 'react';
 import { StatusBar, useColorScheme, Platform } from 'react-native';
@@ -23,14 +14,30 @@ import { SafeAreaProvider } from 'react-native-safe-area-context';
 import { GestureHandlerRootView } from 'react-native-gesture-handler';
 import MainNavigator from './src/navigation/MainTabNavigator';
 import { AuthProvider } from './src/contexts/AuthContext';
+import { WebSocketProvider } from './src/contexts/WebSocketContext';
+import { NotificationBanner } from './src/components/NotificationBanner';
 import { theme } from './src/theme/colors';
 import './src/i18n'; // Initialize i18n
 import { navigationRef } from './src/navigation/NavigationService';
 import { AlertProvider } from './src/services/AlertService';
 import AlertServiceConnector from './src/component/AlertServiceConnector';
+import NotificationService from './src/components/NotificationService';
 
 const App = () => {
   const isDarkMode = useColorScheme() === 'dark';
+
+  // Xử lý thông báo khi app đang mở
+  const handleNotification = (notification: any) => {
+    console.log('Xử lý thông báo trong app:', notification);
+    // Bạn có thể thêm logic xử lý thông báo tùy chỉnh ở đây
+  };
+
+  // Xử lý khi người dùng mở thông báo
+  const handleNotificationOpened = (notification: any) => {
+    console.log('Người dùng mở thông báo:', notification);
+    // Bạn có thể điều hướng đến màn hình cụ thể dựa trên notification data
+    // Ví dụ: navigationRef.current?.navigate('NotificationDetail', { data: notification.data });
+  };
 
   const navigationTheme: Theme = {
     dark: isDarkMode,
@@ -79,14 +86,22 @@ const App = () => {
       <SafeAreaProvider>
         <AlertProvider>
           <AlertServiceConnector />
+          <NotificationService
+            onNotification={handleNotification}
+            onNotificationOpened={handleNotificationOpened}
+          />
           <AuthProvider>
-            <StatusBar
-              barStyle={isDarkMode ? 'light-content' : 'dark-content'}
-              backgroundColor={theme.colors.background}
-            />
-            <NavigationContainer theme={navigationTheme} ref={navigationRef}>
-              <MainNavigator />
-            </NavigationContainer>
+            <WebSocketProvider>
+              <StatusBar
+                barStyle={isDarkMode ? 'light-content' : 'dark-content'}
+                backgroundColor={theme.colors.background}
+              />
+              <NavigationContainer theme={navigationTheme} ref={navigationRef}>
+                <MainNavigator />
+              </NavigationContainer>
+              {/* NotificationBanner phải nằm BÊN TRONG WebSocketProvider để nhận context */}
+              <NotificationBanner />
+            </WebSocketProvider>
           </AuthProvider>
         </AlertProvider>
       </SafeAreaProvider>

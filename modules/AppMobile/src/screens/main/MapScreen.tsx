@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from 'react';
-import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform, ScrollView, TextInput, Animated } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, StatusBar, Platform, ScrollView, TextInput, Animated, Image } from 'react-native';
 import { SafeAreaView } from 'react-native-safe-area-context';
 import MapboxGL from '@rnmapbox/maps';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
@@ -47,11 +47,12 @@ const MapScreen = () => {
 
   const categories = [
     { id: -1, label: 'Tất cả', icon: 'view-grid-outline' },
-    { id: 0, label: 'Giao thông', icon: 'road-variant' },
-    { id: 1, label: 'Môi trường', icon: 'tree-outline' },
-    { id: 2, label: 'Cháy nổ', icon: 'fire' },
-    { id: 3, label: 'Rác thải', icon: 'trash-can-outline' },
-    { id: 4, label: 'Ngập lụt', icon: 'weather-pouring' },
+    { id: 1, label: 'Giao thông', icon: 'road-variant' },
+    { id: 2, label: 'Môi trường', icon: 'tree-outline' },
+    { id: 3, label: 'Hỏa hoạn', icon: 'fire' },
+    { id: 4, label: 'Rác thải', icon: 'trash-can-outline' },
+    { id: 5, label: 'Ngập lụt', icon: 'weather-pouring' },
+    { id: 6, label: 'Khác', icon: 'alert-circle-outline' },
   ];
 
   const onUserLocationUpdate = (location: MapboxGL.Location) => {
@@ -72,23 +73,23 @@ const MapScreen = () => {
 
   const getCategoryName = (category: number): string => {
     const categories: { [key: number]: string } = {
-      0: 'Giao thông',
-      1: 'Môi trường',
-      2: 'Cháy nổ',
-      3: 'Rác thải',
-      4: 'Ngập lụt',
-      5: 'Khác',
+      1: 'Giao thông',
+      2: 'Môi trường',
+      3: 'Hỏa hoạn',
+      4: 'Rác thải',
+      5: 'Ngập lụt',
+      6: 'Khác',
     };
     return categories[category] || 'Khác';
   };
 
   const getStatusColor = (status: number): string => {
     switch (status) {
-      case 0: return theme.colors.warning;
-      case 1: return theme.colors.info;
-      case 2: return theme.colors.info;
-      case 3: return theme.colors.success;
-      case 4: return theme.colors.error;
+      case 0: return theme.colors.warning;     // Tiếp nhận
+      case 1: return theme.colors.info;        // Đã xác minh
+      case 2: return '#8B5CF6';                // Đang xử lý - Purple
+      case 3: return theme.colors.success;     // Hoàn thành
+      case 4: return theme.colors.error;       // Từ chối
       default: return theme.colors.textSecondary;
     }
   };
@@ -106,14 +107,54 @@ const MapScreen = () => {
 
   const getCategoryIcon = (category: number): string => {
     const iconMap: { [key: number]: string } = {
-      0: 'road-variant',        // Giao thông
-      1: 'tree-outline',        // Môi trường
-      2: 'fire',                // Cháy nổ
-      3: 'trash-can-outline',   // Rác thải
-      4: 'weather-pouring',     // Ngập lụt
-      5: 'alert-circle',        // Khác
+      1: 'road-variant',        // Giao thông
+      2: 'tree-outline',        // Môi trường
+      3: 'fire',                // Hỏa hoạn
+      4: 'trash-can-outline',   // Rác thải
+      5: 'weather-pouring',     // Ngập lụt
+      6: 'alert-circle',        // Khác
     };
     return iconMap[category] || 'alert-circle';
+  };
+
+  const getCategoryColor = (category: number): string => {
+    const colorMap: { [key: number]: string } = {
+      1: '#FF9500',  // Giao thông - Orange
+      2: '#34C759',  // Môi trường - Green
+      3: '#FF3B30',  // Hỏa hoạn - Red
+      4: '#8E6F3E',  // Rác thải - Brown
+      5: '#007AFF',  // Ngập lụt - Blue
+      6: '#8E8E93',  // Khác - Gray
+    };
+    return colorMap[category] || '#8E8E93';
+  };
+
+  const fitMapToReports = (reports: MapReport[]) => {
+    if (!cameraRef.current || !reports || reports.length === 0) return;
+
+    // Calculate bounds from all reports
+    let minLon = reports[0].kinh_do;
+    let maxLon = reports[0].kinh_do;
+    let minLat = reports[0].vi_do;
+    let maxLat = reports[0].vi_do;
+
+    reports.forEach(report => {
+      if (report.kinh_do < minLon) minLon = report.kinh_do;
+      if (report.kinh_do > maxLon) maxLon = report.kinh_do;
+      if (report.vi_do < minLat) minLat = report.vi_do;
+      if (report.vi_do > maxLat) maxLat = report.vi_do;
+    });
+
+    // Add padding to bounds (20% for better view)
+    const lonPadding = Math.max((maxLon - minLon) * 0.2, 0.01); // Minimum padding
+    const latPadding = Math.max((maxLat - minLat) * 0.2, 0.01);
+
+    cameraRef.current.fitBounds(
+      [minLon - lonPadding, minLat - latPadding], // southwest
+      [maxLon + lonPadding, maxLat + latPadding], // northeast
+      [80, 80, 80, 80], // padding: top, right, bottom, left (increased)
+      1000 // animation duration
+    );
   };
 
   const fetchMapReports = async () => {
@@ -150,12 +191,43 @@ const MapScreen = () => {
 
       const response = await mapService.getMapReports(mapBounds, filters);
       console.log('Response:', response);
+      console.log('Response data type:', typeof response.data);
+      console.log('Response data:', response.data);
 
-      if (response.success) {
-        console.log('Setting map reports, count:', response.data?.length);
-        setMapReports(response.data);
+      if (response.success && response.data) {
+        // API returns GeoJSON FeatureCollection
+        const geojson = response.data as any;
+
+        if (geojson.type === 'FeatureCollection' && geojson.features) {
+          // Extract MapReport objects from GeoJSON features
+          const reports: MapReport[] = geojson.features.map((feature: any) => {
+            const props = feature.properties;
+            const coords = feature.geometry.coordinates; // [lon, lat]
+
+            return {
+              id: props.id,
+              tieu_de: props.tieu_de,
+              danh_muc: props.danh_muc,
+              danh_muc_text: props.danh_muc_text,
+              trang_thai: props.trang_thai,
+              uu_tien: props.uu_tien,
+              marker_color: props.marker_color,
+              kinh_do: coords[0], // longitude
+              vi_do: coords[1],   // latitude
+              nguoi_dung: props.nguoi_dung,
+            } as MapReport;
+          });
+
+          console.log('Extracted reports from GeoJSON:', reports);
+          console.log('Reports count:', reports.length);
+          setMapReports(reports);
+        } else {
+          console.log('Response is not a valid GeoJSON FeatureCollection');
+          setMapReports([]);
+        }
       } else {
         console.log('Response not successful:', response.message);
+        setMapReports([]);
       }
     } catch (error) {
       console.error('Error fetching map reports:', error);
@@ -180,6 +252,14 @@ const MapScreen = () => {
       fetchMapReports();
     }
   }, [selectedCategory]);
+
+  // Fit map to reports when they change and a category is selected
+  useEffect(() => {
+    if (mapReports && mapReports.length > 0 && selectedCategory !== -1) {
+      // Only auto-fit when a specific category is selected (not "All")
+      fitMapToReports(mapReports);
+    }
+  }, [mapReports, selectedCategory]);
 
   // Fetch report detail when a marker is selected
   const fetchReportDetail = async (reportId: number) => {
@@ -352,12 +432,12 @@ const MapScreen = () => {
               iconImage: [
                 'match',
                 ['get', 'danh_muc'],
-                0, 'traffic',       // Giao thông
-                1, 'environment',   // Môi trường
-                2, 'fire',          // Cháy nổ
-                3, 'trash',         // Rác thải
-                4, 'flood',         // Ngập lụt
-                'default'           // Default
+                1, 'traffic',       // Giao thông
+                2, 'environment',   // Môi trường
+                3, 'fire',          // Hỏa hoạn
+                4, 'trash',         // Rác thải
+                5, 'flood',         // Ngập lụt
+                'default'           // Khác
               ],
               iconSize: 0.08,
               iconAllowOverlap: true,
@@ -408,18 +488,27 @@ const MapScreen = () => {
                 key={cat.id}
                 style={[
                   styles.filterChip,
-                  selectedCategory === cat.id && styles.filterChipActive
+                  selectedCategory === cat.id && {
+                    backgroundColor: cat.id === -1 ? theme.colors.primary : getCategoryColor(cat.id)
+                  }
                 ]}
                 onPress={() => setSelectedCategory(cat.id)}
               >
                 <Icon
                   name={cat.icon}
                   size={16}
-                  color={selectedCategory === cat.id ? theme.colors.white : theme.colors.textSecondary}
+                  color={
+                    selectedCategory === cat.id
+                      ? theme.colors.white
+                      : (cat.id === -1 ? theme.colors.textSecondary : getCategoryColor(cat.id))
+                  }
                 />
                 <Text style={[
                   styles.filterText,
-                  selectedCategory === cat.id && styles.filterTextActive
+                  selectedCategory === cat.id && styles.filterTextActive,
+                  cat.id !== -1 && selectedCategory !== cat.id && {
+                    color: getCategoryColor(cat.id)
+                  }
                 ]}>
                   {cat.label}
                 </Text>
@@ -495,9 +584,19 @@ const MapScreen = () => {
             >
               {/* Badges */}
               <View style={styles.sheetRow}>
-                <View style={styles.sheetBadge}>
-                  <Icon name="tag-outline" size={16} color={theme.colors.primary} />
-                  <Text style={styles.sheetBadgeText}>
+                <View style={[
+                  styles.sheetBadge,
+                  { backgroundColor: getCategoryColor(selectedReport.danh_muc) + '15' }
+                ]}>
+                  <Icon
+                    name={getCategoryIcon(selectedReport.danh_muc)}
+                    size={16}
+                    color={getCategoryColor(selectedReport.danh_muc)}
+                  />
+                  <Text style={[
+                    styles.sheetBadgeText,
+                    { color: getCategoryColor(selectedReport.danh_muc) }
+                  ]}>
                     {selectedReport.danh_muc_text || getCategoryName(selectedReport.danh_muc)}
                   </Text>
                 </View>
@@ -526,6 +625,24 @@ const MapScreen = () => {
                       <Text style={styles.detailText} numberOfLines={3}>
                         {reportDetail.mo_ta}
                       </Text>
+                    </View>
+                  )}
+
+                  {/* Media Gallery */}
+                  {reportDetail.hinh_anhs && reportDetail.hinh_anhs.length > 0 && (
+                    <View style={styles.detailSection}>
+                      <Text style={styles.detailLabel}>Hình ảnh</Text>
+                      <ScrollView horizontal showsHorizontalScrollIndicator={false} style={styles.mediaScroll}>
+                        {reportDetail.hinh_anhs.map((item) => (
+                          <TouchableOpacity key={item.id} activeOpacity={0.9}>
+                            <Image
+                              source={{ uri: item.duong_dan_hinh_anh }}
+                              style={styles.mediaImage}
+                              resizeMode="cover"
+                            />
+                          </TouchableOpacity>
+                        ))}
+                      </ScrollView>
                     </View>
                   )}
 
@@ -567,26 +684,28 @@ const MapScreen = () => {
                     </View>
                     <View style={styles.statItem}>
                       <Icon name="comment-outline" size={18} color={theme.colors.textSecondary} />
-                      <Text style={styles.statText}>{reportDetail.comments?.length || 0}</Text>
+                      <Text style={styles.statText}>{reportDetail.binh_luans?.length || 0}</Text>
                     </View>
                   </View>
 
                   {/* Comments */}
-                  {reportDetail.comments && reportDetail.comments.length > 0 && (
+                  {reportDetail.binh_luans && reportDetail.binh_luans.length > 0 && (
                     <View style={styles.commentsSection}>
                       <Text style={styles.commentsTitle}>
-                        Bình luận ({reportDetail.comments.length})
+                        Bình luận ({reportDetail.binh_luans.length})
                       </Text>
-                      {reportDetail.comments.slice(0, 3).map((comment) => (
+                      {reportDetail.binh_luans.slice(0, 3).map((comment) => (
                         <View key={comment.id} style={styles.commentItem}>
                           <View style={styles.commentHeader}>
                             <View style={styles.commentAvatar}>
                               <Text style={styles.commentAvatarText}>
-                                {comment.user.ho_ten.charAt(0)}
+                                {((comment as any).user?.ho_ten || (comment as any).nguoi_dung?.ho_ten || 'U').charAt(0)}
                               </Text>
                             </View>
                             <View style={{ flex: 1 }}>
-                              <Text style={styles.commentUser}>{comment.user.ho_ten}</Text>
+                              <Text style={styles.commentUser}>
+                                {(comment as any).user?.ho_ten || (comment as any).nguoi_dung?.ho_ten || 'Người dùng'}
+                              </Text>
                               <Text style={styles.commentTime}>
                                 {new Date(comment.created_at || comment.ngay_tao || '').toLocaleDateString('vi-VN')}
                               </Text>
@@ -597,9 +716,9 @@ const MapScreen = () => {
                           </Text>
                         </View>
                       ))}
-                      {reportDetail.comments.length > 3 && (
+                      {reportDetail.binh_luans.length > 3 && (
                         <Text style={styles.moreComments}>
-                          +{reportDetail.comments.length - 3} bình luận khác
+                          +{reportDetail.binh_luans.length - 3} bình luận khác
                         </Text>
                       )}
                     </View>
@@ -933,14 +1052,22 @@ const styles = StyleSheet.create({
     lineHeight: 20,
   },
   moreComments: {
-    fontSize: FONT_SIZE.xs,
+    fontSize: FONT_SIZE.sm,
     color: theme.colors.primary,
     fontWeight: '600',
     textAlign: 'center',
-    marginTop: SPACING.xs,
+    paddingVertical: SPACING.xs,
+  },
+  mediaScroll: {
+    marginTop: SPACING.sm,
+  },
+  mediaImage: {
+    width: wp('60%'),
+    height: wp('40%'),
+    borderRadius: BORDER_RADIUS.lg,
+    marginRight: SPACING.md,
+    backgroundColor: theme.colors.backgroundSecondary,
   },
 });
 
 export default MapScreen;
-
-
