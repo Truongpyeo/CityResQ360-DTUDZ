@@ -377,6 +377,7 @@ class MediaController extends BaseController
 
     /**
      * Convert relative media URL to full URL
+     * Handles both MinIO internal URLs and relative paths
      * @param string|null $path
      * @return string|null
      */
@@ -386,15 +387,26 @@ class MediaController extends BaseController
             return null;
         }
 
-        // If already a full URL, return as-is
+        // If already a full URL, check if it's MinIO internal URL
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            // Replace MinIO internal URL with public CDN URL
+            $minioInternal = config('filesystems.disks.s3.endpoint', env('AWS_ENDPOINT', 'http://minio:9000'));
+            $publicUrl = config('services.media_service.url', env('MEDIA_SERVICE_URL', 'https://media.cityresq360.io.vn'));
+
+            if (str_starts_with($path, $minioInternal)) {
+                // Extract path after bucket name
+                // Example: http://minio:9000/cityresq-media/storage/... → /storage/...
+                $pattern = '#' . preg_quote($minioInternal, '#') . '/[^/]+/(.+)$#';
+                if (preg_match($pattern, $path, $matches)) {
+                    return rtrim($publicUrl, '/') . '/' . $matches[1];
+                }
+            }
+
             return $path;
         }
 
-        // Get Media Service base URL
+        // Get Media Service base URL for relative paths
         $mediaServiceUrl = config('services.media_service.url', env('MEDIA_SERVICE_URL', 'https://media.cityresq360.io.vn'));
-
-        // Remove trailing slash from base URL
         $mediaServiceUrl = rtrim($mediaServiceUrl, '/');
 
         // Ensure path starts with /
