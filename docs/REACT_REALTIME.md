@@ -23,13 +23,19 @@ npm install pusher-js @react-native-async-storage/async-storage
 Cập nhật file `.env`:
 
 ```env
-# Laravel Reverb Configuration
+# Laravel Reverb Configuration (Development)
 REVERB_APP_ID=808212
 REVERB_APP_KEY=lwf6joghdvbowg9hb7p4
 REVERB_APP_SECRET=yh8dts6nhxqzn2i77yim
-REVERB_HOST=192.168.1.100  # IP của máy chạy Docker
-REVERB_PORT=8080
+REVERB_HOST=192.168.1.100  # IP của máy chạy Docker (local network)
+REVERB_PORT=6001           # Internal Reverb port
 REVERB_SCHEME=http
+
+# For Mobile App (React Native)
+VITE_REVERB_APP_KEY=lwf6joghdvbowg9hb7p4
+VITE_REVERB_HOST=192.168.1.100  # or api.yourdomai n.com for production
+VITE_REVERB_PORT=8080              # External port (dev) or 443 (production SSL)
+VITE_REVERB_SCHEME=http            # http (dev) or https (production)
 ```
 
 **Quan trọng:** Trên thiết bị thật hoặc emulator, không thể dùng `localhost`. Phải dùng:
@@ -61,16 +67,18 @@ import Pusher from 'pusher-js/react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
 
 // Pusher configuration
+// For development: use IP + port 8080 (if mobile can't access 6001)
+// For production: use domain + port 443 (SSL)
 const PUSHER_CONFIG = {
-  key: process.env.REVERB_APP_KEY || 'lwf6joghdvbowg9hb7p4',
+  key: process.env.VITE_REVERB_APP_KEY || 'lwf6joghdvbowg9hb7p4',
   cluster: 'mt1',
-  wsHost: process.env.REVERB_HOST || '192.168.1.100',
-  wsPort: parseInt(process.env.REVERB_PORT || '8080'),
-  wssPort: parseInt(process.env.REVERB_PORT || '8080'),
-  forceTLS: false,
+  wsHost: process.env.VITE_REVERB_HOST || '192.168.1.100',
+  wsPort: parseInt(process.env.VITE_REVERB_PORT || '8080'),   // External port
+  wssPort: parseInt(process.env.VITE_REVERB_PORT || '8080'),  // Same for wss
+  forceTLS: process.env.VITE_REVERB_SCHEME === 'https',       // Enable for production
   enabledTransports: ['ws', 'wss'],
   disableStats: true,
-  authEndpoint: `http://${process.env.REVERB_HOST}/broadcasting/auth`,
+  authEndpoint: `${process.env.VITE_REVERB_SCHEME}://${process.env.VITE_REVERB_HOST}/broadcasting/auth`,
   auth: {
     headers: {},
   },
@@ -561,10 +569,171 @@ export default function HomeScreen() {
 
 ## 📡 Events và Channels
 
-### 1. Private User Channel: `private-user.{userId}`
+### 1. Public Channel: `user-reports` (✅ **Dành cho Client/Mobile App**)
+
+**Mục đích:** Thông báo cho TẤT CẢ users khi có report được cập nhật trạng thái bởi admin.
+
+**Use case:** 
+- Mobile app tự động refresh map khi report thay đổi trạng thái
+- Hiển thị realtime updates cho users
+- Auto-reload danh sách reports
+
+**Event:** `report.status.updated`
+
+**Payload example:**
+```json
+{
+  "report_id": 123,
+  "old_status": 0,
+  "new_status": 1,
+  "status_text": "Đã xác nhận",
+  "report": {
+    "id": 123,
+    "tieu_de": "Đường hư hỏng",
+    "trang_thai": 1,
+    "dia_chi": "123 Nguyen Hue, Q1",
+    "vi_do": "10.7769",
+    "kinh_do": "106.7009",
+    "updated_at": "2025-12-08T04:30:00.000000Z"
+  }
+}
+```
+
+**Status codes:**
+- `0` = Chờ xử lý
+- `1` = Đã xác nhận  
+- `2` = Đang xử lý
+- `3` = Đã giải quyết
+- `4` = Từ chối
+
+**Implementation:**
+
+```typescript
+import { useEffect } from 'react';
+import { useWebSocket } from '../contexts/WebSocketContext';
+
+export const useReportUpdates = (onReportUpdated: (data: any) => void) => {
+  const { isConnected, subscribe, listen } = useWebSocket();
+  
+  useEffect(() => {
+    if (!isConnected) return;
+    
+    // Subscribe to public channel
+    subscribe('user-reports');
+    
+    // Listen to report status updates
+    listen('user-reports', 'report.status.updated', (data) => {
+      console.log('📢 Report updated:', data);
+      
+      // Option 1: Update specific report in state
+      onReportUpdated(data.report);
+      
+      // Option 2: Refetch all reports
+      // refetchReports();
+      
+      // Option 3: Update map markers
+      // updateMapMarker(data.report.id, data.report);
+    });
+    
+    return () => {
+      // Cleanup handled by WebSocketProvider
+    };
+  }, [isConnected]);
+};
+```
+
+**Example: Map Screen với Auto-Refresh**
+
+```typescript
+import React, { useState, useEffect } from 'react';
+import { View } from 'react-native';
+import MapView, { Marker } from 'react-native-maps';
+import { useReportUpdates } from '../hooks/useReportUpdates';
+
+export default function MapScreen() {
+  const [reports, setReports] = useState([]);
+  const [loading, setLoading] = useState(false);
+  
+  // Fetch initial reports
+  useEffect(() => {
+    fetchReports();
+  }, []);
+  
+  // ✅ Auto-update when admin changes status
+  useReportUpdates((updatedReport) => {
+    console.log('🔄 Auto-updating report:', updatedReport.id);
+    
+    setReports(prev => 
+      prev.map(r => 
+        r.id === updatedReport.id ? { ...r, ...updatedReport } : r
+      )
+    );
+    
+    // Show toast notification
+    Toast.show({
+      text: `Phản ánh "${updatedReport.tieu_de}" đã được cập nhật`,
+      type: 'info',
+    });
+  });
+  
+  async function fetchReports() {
+    setLoading(true);
+    try {
+      const response = await api.get('/api/v1/reports');
+      setReports(response.data.data);
+    } finally {
+      setLoading(false);
+    }
+  }
+  
+  return (
+    <View style={{ flex: 1 }}>
+      <MapView
+        style={{ flex: 1 }}
+        initialRegion={{
+          latitude: 10.7769,
+          longitude: 106.7009,
+          latitudeDelta: 0.05,
+          longitudeDelta: 0.05,
+        }}
+      >
+        {reports.map(report => (
+          <Marker
+            key={report.id}
+            coordinate={{
+              latitude: parseFloat(report.vi_do),
+              longitude: parseFloat(report.kinh_do),
+            }}
+            pinColor={getMarkerColor(report.trang_thai)}
+            title={report.tieu_de}
+            description={report.status_text}
+          />
+        ))}
+      </MapView>
+    </View>
+  );
+}
+
+function getMarkerColor(status: number): string {
+  switch (status) {
+    case 0: return 'orange';  // Chờ xử lý
+    case 1: return 'blue';    // Đã xác nhận
+    case 2: return 'yellow';  // Đang xử lý
+    case 3: return 'green';   // Đã giải quyết
+    case 4: return 'red';     // Từ chối
+    default: return 'gray';
+  }
+}
+```
+
+---
+
+### 2. Private User Channel: `private-user.{userId}` (✅ **Dành cho User cá nhân**)
+
+**Mục đích:** Thông báo riêng cho user khi REPORTS CỦA HỌ được admin cập nhật.
 
 **Events:**
-- `report.status.updated` - Admin duyệt/từ chối phản ánh
+- `report.status.updated` - Admin duyệt/từ chối phản ánh của user
 - `points.updated` - Điểm uy tín thay đổi
 - `notification.sent` - Notification chung
 
@@ -580,11 +749,38 @@ export default function HomeScreen() {
 }
 ```
 
-### 2. Public Channel: `user-reports`
+### 3. Backend Implementation (Already done ✅)
 
-**Event:** `new.report.nearby`
+**Event broadcast in `AdminController::updateStatus()`:**
 
-Dùng để thông báo có phản ánh mới trong khu vực (nếu implement).
+```php
+use App\Events\ReportStatusUpdatedForUsers;
+
+public function updateStatus(Request $request, $id) {
+    $report = PhanAnh::findOrFail($id);
+    $oldStatus = $report->trang_thai;
+    
+    $report->update(['trang_thai' => $request->trang_thai]);
+    
+    // 🔥 Broadcast to ALL users for map refresh
+    broadcast(new ReportStatusUpdatedForUsers(
+        $report, 
+        $oldStatus, 
+        $request->trang_thai
+    ))->toOthers();
+    
+    return response()->json(['success' => true]);
+}
+```
+
+**Channel authorization in `routes/channels.php`:**
+
+```php
+// Public channel - all authenticated users can listen
+Broadcast::channel('user-reports', function () {
+    return true;
+});
+```
 
 ## 🔒 Authentication
 
@@ -659,22 +855,157 @@ docker exec cityresq-coreapi tail -f /var/log/supervisor/reverb.log
 
 ### 1. Cấu hình SSL/TLS
 
+**Environment variables cho production:**
+
+```env
+VITE_REVERB_APP_KEY=lwf6joghdvbowg9hb7p4
+VITE_REVERB_HOST=api.cityresq360.io.vn
+VITE_REVERB_PORT=443
+VITE_REVERB_SCHEME=https
+```
+
+**Pusher config sẽ tự động dùng SSL:**
+
 ```typescript
 const PUSHER_CONFIG = {
-  // ...
-  forceTLS: true,  // Enable SSL
+  key: 'lwf6joghdvbowg9hb7p4',
+  wsHost: 'api.cityresq360.io.vn',
   wsPort: 443,
   wssPort: 443,
+  forceTLS: true,  // ✅ Enable SSL
+  enabledTransports: ['ws', 'wss'],
 };
 ```
 
-### 2. Nginx reverse proxy
+### 2. Nginx Reverse Proxy
 
-Cấu hình nginx để proxy WebSocket qua SSL.
+**Nginx config cho WebSocket (on VPS):**
 
-### 3. Environment variables
+```nginx
+server {
+    server_name api.cityresq360.io.vn;
+    
+    # WebSocket location
+    location /app {
+        proxy_pass http://127.0.0.1:6001;  # Internal Reverb port
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection "Upgrade";
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto https;
+        proxy_read_timeout 86400;
+    }
+    
+    listen 443 ssl;
+    ssl_certificate /etc/letsencrypt/live/api.cityresq360.io.vn/fullchain.pem;
+    ssl_certificate_key /etc/letsencrypt/live/api.cityresq360.io.vn/privkey.pem;
+}
+```
 
-Sử dụng `react-native-config` để quản lý env theo môi trường (dev/staging/prod).
+**Supervisor config (trong Docker container):**
+
+```ini
+[program:reverb]
+command=php /var/www/html/artisan reverb:start --host=0.0.0.0 --port=6001
+autostart=true
+autorestart=true
+stdout_logfile=/var/log/supervisor/reverb.log
+stderr_logfile=/var/log/supervisor/reverb_error.log
+```
+
+### 3. React Admin Panel Example
+
+**AdminLayout.tsx (Real implementation):**
+
+```typescript
+import Pusher from 'pusher-js';
+import Swal from 'sweetalert2';
+
+export default function AdminLayout({ children }) {
+  const [wsConnected, setWsConnected] = useState(false);
+  
+  useEffect(() => {
+    // Initialize Pusher for Admin
+    const pusher = new Pusher(
+      import.meta.env.VITE_REVERB_APP_KEY || 'lwf6joghdvbowg9hb7p4',
+      {
+        wsHost: window.location.hostname,  // Auto-detect domain
+        wsPort: 443,                        // SSL port
+        wssPort: 443,
+        forceTLS: true,                     // Enable SSL
+        enabledTransports: ['ws', 'wss'],
+        disableStats: true,
+        cluster: 'mt1',
+        authEndpoint: '/broadcasting/auth',
+      }
+    );
+    
+    // Connection events
+    pusher.connection.bind('connected', () => {
+      console.log('✅ WebSocket connected');
+      setWsConnected(true);
+    });
+    
+    // Subscribe to admin channel
+    const channel = pusher.subscribe('admin-reports');
+    
+    channel.bind('new.report', (data) => {
+      // Show popup notification
+      Swal.fire({
+        title: '📢 Phản ánh mới!',
+        html: `
+          <p><strong>Từ:</strong> ${data.user?.ho_ten}</p>
+          <p><strong>Tiêu đề:</strong> ${data.report?.tieu_de}</p>
+        `,
+        icon: 'info',
+        confirmButtonText: '👁️ Xem chi tiết',
+      }).then((result) => {
+        if (result.isConfirmed) {
+          router.visit(`/admin/reports/${data.report.id}`);
+        }
+      });
+    });
+    
+    return () => {
+      pusher.disconnect();
+    };
+  }, []);
+  
+  return (
+    <div>
+      {/* WebSocket status indicator */}
+      <div className={wsConnected ? 'bg-green-500' : 'bg-red-500'}>
+        {wsConnected ? '🟢 Connected' : '🔴 Disconnected'}
+      </div>
+      {children}
+    </div>
+  );
+}
+```
+
+### 4. Environment Management
+
+**Using `react-native-config`:**
+
+```bash
+npm install react-native-config
+```
+
+**.env.development:**
+```env
+VITE_REVERB_HOST=192.168.1.100
+VITE_REVERB_PORT=8080
+VITE_REVERB_SCHEME=http
+```
+
+**.env.production:**
+```env
+VITE_REVERB_HOST=api.cityresq360.io.vn
+VITE_REVERB_PORT=443
+VITE_REVERB_SCHEME=https
+```
 
 ## 📚 Tài liệu tham khảo
 
