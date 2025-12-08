@@ -19,6 +19,8 @@
 
 
 
+
+use App\Http\Controllers\Api\V1\AIController;
 use App\Http\Controllers\Api\V1\AgencyController;
 use App\Http\Controllers\Api\V1\AuthController;
 use App\Http\Controllers\Api\V1\CommentController;
@@ -143,6 +145,14 @@ Route::prefix('v1')->group(function () {
             Route::get('my', [MediaController::class, 'myMedia']);
             Route::get('{id}', [MediaController::class, 'show']);
             Route::delete('{id}', [MediaController::class, 'destroy']);
+        });
+
+        // ========== AI/ML Service Proxy ==========
+        Route::prefix('ai')->group(function () {
+            Route::post('analyze', [AIController::class, 'analyze']);
+            Route::post('analyze-base64', [AIController::class, 'analyzeBase64']);
+            Route::post('analyze-for-report', [AIController::class, 'analyzeForReport']);
+            Route::get('health', [AIController::class, 'health']);
         });
 
         // ========== Map & Location Services ==========

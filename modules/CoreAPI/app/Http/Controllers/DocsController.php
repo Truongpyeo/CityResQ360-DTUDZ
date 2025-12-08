@@ -98,6 +98,14 @@ class DocsController extends Controller
                 'version' => 'v1.0',
             ],
             [
+                'id' => 'aiml-service',
+                'name' => 'AIMLService',
+                'description' => 'Dịch vụ AI/ML phân tích ảnh và phát hiện sự cố tự động',
+                'icon' => 'Brain',
+                'status' => 'stable',
+                'version' => 'v1.0',
+            ],
+            [
                 'id' => 'search-service',
                 'name' => 'SearchService',
                 'description' => 'Dịch vụ tìm kiếm toàn văn (OpenSearch)',
@@ -116,6 +124,7 @@ class DocsController extends Controller
         $services = [
             'media-service' => $this->getMediaServiceData(),
             'incident-service' => $this->getIncidentServiceData(),
+            'aiml-service' => $this->getAIMLServiceData(),
             // Thêm các services khác sau
         ];
 
@@ -136,34 +145,23 @@ class DocsController extends Controller
             'version' => 'v1.0',
 
             'baseUrls' => [
-                'direct' => 'https://media.cityresq360.io.vn',
-                'viaCoreAPI' => 'https://api.cityresq360.io.vn/api/v1/media',
+                'production' => 'https://api.cityresq360.io.vn/api/v1/media',
+                'local' => 'http://localhost:8000/api/v1/media',
             ],
 
             'integrationMethods' => [
                 [
-                    'id' => 'option-a',
-                    'name' => 'Phương Án A: Qua CoreAPI',
+                    'id' => 'recommended',
+                    'name' => 'Qua CoreAPI (Only Method)',
                     'recommended' => true,
-                    'description' => 'Truy cập qua CoreAPI - Khuyên dùng cho các ứng dụng CityResQ360',
+                    'description' => 'Tất cả requests đều phải qua CoreAPI - Không có direct access',
                     'benefits' => [
                         'Tích hợp business logic và validation',
-                        'Tự động xử lý fallback',
-                        'Quản lý quyền truy cập thống nhất',
+                        'Authentication và authorization thống nhất',
+                        'User tracking và audit log đầy đủ',
+                        'Rate limiting và security centralized',
                     ],
                     'url' => 'https://api.cityresq360.io.vn/api/v1/media',
-                ],
-                [
-                    'id' => 'option-b',
-                    'name' => 'Phương Án B: Truy Cập Trực Tiếp',
-                    'recommended' => false,
-                    'description' => 'Truy cập trực tiếp MediaService - Dành cho dự án bên ngoài',
-                    'benefits' => [
-                        'Microservice độc lập',
-                        'Performance tốt hơn (bỏ qua proxy)',
-                        'Linh hoạt cho external integration',
-                    ],
-                    'url' => 'https://media.cityresq360.io.vn',
                 ],
             ],
 
@@ -237,13 +235,13 @@ class DocsController extends Controller
 
             'codeExamples' => [
                 'laravel' => [
-                    'upload' => "use Illuminate\\Support\\Facades\\Http;\n\n\$response = Http::attach(\n    'file', file_get_contents(\$filePath), 'photo.jpg'\n)->post('https://media.cityresq360.io.vn/api/v1/media/upload', [\n    'type' => 'image'\n]);\n\n\$data = \$response->json();",
+                    'upload' => "use Illuminate\\Support\\Facades\\Http;\n\n\$response = Http::withToken(\$sanctumToken)\n    ->attach(\n        'file', file_get_contents(\$filePath), 'photo.jpg'\n    )->post('https://api.cityresq360.io.vn/api/v1/media/upload', [\n        'type' => 'image'\n    ]);\n\n\$data = \$response->json();",
                 ],
                 'python' => [
-                    'upload' => "import requests\n\nfiles = {'file': open('photo.jpg', 'rb')}\ndata = {'type': 'image'}\n\nresponse = requests.post(\n    'https://media.cityresq360.io.vn/api/v1/media/upload',\n    files=files,\n    data=data\n)\n\nresult = response.json()",
+                    'upload' => "import requests\n\nheaders = {\n    'Authorization': 'Bearer YOUR_SANCTUM_TOKEN'\n}\nfiles = {'file': open('photo.jpg', 'rb')}\ndata = {'type': 'image'}\n\nresponse = requests.post(\n    'https://api.cityresq360.io.vn/api/v1/media/upload',\n    headers=headers,\n    files=files,\n    data=data\n)\n\nresult = response.json()",
                 ],
                 'javascript' => [
-                    'upload' => "const formData = new FormData();\nformData.append('file', fileInput.files[0]);\nformData.append('type', 'image');\n\nconst response = await fetch(\n    'https://media.cityresq360.io.vn/api/v1/media/upload',\n    {\n        method: 'POST',\n        body: formData\n    }\n);\n\nconst data = await response.json();",
+                    'upload' => "const formData = new FormData();\nformData.append('file', fileInput.files[0]);\nformData.append('type', 'image');\n\nconst response = await fetch(\n    'https://api.cityresq360.io.vn/api/v1/media/upload',\n    {\n        method: 'POST',\n        headers: {\n            'Authorization': `Bearer \${sanctumToken}`\n        },\n        body: formData\n    }\n);\n\nconst data = await response.json();",
                 ],
             ],
         ];
@@ -263,24 +261,24 @@ class DocsController extends Controller
             'version' => 'v1.0',
 
             'baseUrls' => [
-                'direct' => 'https://incident.cityresq360.io.vn',
-                'viaCoreAPI' => 'https://api.cityresq360.io.vn/api/v1/incidents',
+                'production' => 'https://api.cityresq360.io.vn/api/v1/incidents',
+                'local' => 'http://localhost:8000/api/v1/incidents',
             ],
 
             'integrationMethods' => [
                 [
-                    'id' => 'option-b',
-                    'name' => 'Tích Hợp JWT Trực Tiếp (Recommended)',
+                    'id' => 'recommended',
+                    'name' => 'Qua CoreAPI (Only Method)',
                     'recommended' => true,
-                    'description' => 'Tạo incident trực tiếp qua JWT - Dành cho external systems (IoT sensors, third-party apps)',
+                    'description' => 'Tất cả requests đều phải qua CoreAPI - Không có direct access',
                     'benefits' => [
-                        'Không cần report_id từ CoreAPI',
-                        'Không cần admin verification',
+                        'Tích hợp business logic và validation',
+                        'Authentication và authorization thống nhất',
                         'Auto-dispatch tự động',
-                        'Microservice hoàn toàn độc lập',
-                        'Phù hợp cho IoT, emergency systems',
+                        'User tracking và audit log đầy đủ',
+                        'Rate limiting và security centralized',
                     ],
-                    'url' => 'https://incident.cityresq360.io.vn',
+                    'url' => 'https://api.cityresq360.io.vn/api/v1/incidents',
                 ],
             ],
 
@@ -442,28 +440,24 @@ class DocsController extends Controller
 
             'codeExamples' => [
                 'nodejs' => [
-                    'generate_jwt' => "const jwt = require('jsonwebtoken');\n\nconst token = jwt.sign(\n  {\n    user_id: 999,\n    email: 'external_system@example.com',\n    role: 'EXTERNAL_SERVICE',\n    service: 'iot_sensor'\n  },\n  process.env.INCIDENT_JWT_SECRET,\n  { \n    algorithm: 'HS256',\n    expiresIn: '1h'\n  }\n);\n\nconsole.log(token);",
-                    'create_incident' => "const axios = require('axios');\nconst jwt = require('jsonwebtoken');\n\n// Generate JWT token\nconst token = jwt.sign(\n  { user_id: 999, role: 'EXTERNAL_SERVICE' },\n  process.env.INCIDENT_JWT_SECRET,\n  { expiresIn: '1h' }\n);\n\n// Create incident\nconst response = await axios.post(\n  'https://incident.cityresq360.io.vn/api/v1/incidents',\n  {\n    title: 'Emergency: Flooding Detected',\n    description: 'Water level 45cm, traffic blocked',\n    priority: 'HIGH',\n    location_latitude: 10.7758,\n    location_longitude: 106.7019,\n    address: 'Le Loi Street, District 1',\n    category: 'Traffic - Flooding',\n    external_id: 'IOT-SENSOR-001',\n    external_system: 'iot_water_sensor'\n  },\n  {\n    headers: { 'Authorization': `Bearer \${token}` }\n  }\n);\n\nconsole.log(response.data);",
+                    'create_incident' => "const axios = require('axios');\n\n// Sử dụng Sanctum token từ CoreAPI login\nconst sanctumToken = 'YOUR_SANCTUM_TOKEN';\n\n// Create incident qua CoreAPI\nconst response = await axios.post(\n  'https://api.cityresq360.io.vn/api/v1/incidents',\n  {\n    title: 'Emergency: Flooding Detected',\n    description: 'Water level 45cm, traffic blocked',\n    priority: 'HIGH',\n    location_latitude: 10.7758,\n    location_longitude: 106.7019,\n    address: 'Le Loi Street, District 1',\n    category: 'Traffic - Flooding'\n  },\n  {\n    headers: { 'Authorization': `Bearer \${sanctumToken}` }\n  }\n);\n\nconsole.log(response.data);",
                 ],
                 'python' => [
-                    'generate_jwt' => "import jwt\nfrom datetime import datetime, timedelta\nimport os\n\npayload = {\n    'user_id': 999,\n    'email': 'external_system@example.com',\n    'role': 'EXTERNAL_SERVICE',\n    'service': 'iot_sensor',\n    'exp': datetime.utcnow() + timedelta(hours=1)\n}\n\ntoken = jwt.encode(\n    payload,\n    os.getenv('INCIDENT_JWT_SECRET'),\n    algorithm='HS256'\n)\n\nprint(token)",
-                    'create_incident' => "import requests\nimport jwt\nfrom datetime import datetime, timedelta\nimport os\n\n# Generate JWT token\npayload = {\n    'user_id': 999,\n    'role': 'EXTERNAL_SERVICE',\n    'exp': datetime.utcnow() + timedelta(hours=1)\n}\n\ntoken = jwt.encode(\n    payload,\n    os.getenv('INCIDENT_JWT_SECRET'),\n    algorithm='HS256'\n)\n\n# Create incident\nresponse = requests.post(\n    'https://incident.cityresq360.io.vn/api/v1/incidents',\n    json={\n        'title': 'Emergency: Flooding Detected',\n        'description': 'Water level 45cm, traffic blocked',\n        'priority': 'HIGH',\n        'location_latitude': 10.7758,\n        'location_longitude': 106.7019,\n        'address': 'Le Loi Street, District 1',\n        'category': 'Traffic - Flooding',\n        'external_id': 'IOT-SENSOR-001',\n        'external_system': 'iot_water_sensor'\n    },\n    headers={'Authorization': f'Bearer {token}'}\n)\n\nprint(response.json())",
+                    'create_incident' => "import requests\n\n# Sử dụng Sanctum token từ CoreAPI login\nsanctum_token = 'YOUR_SANCTUM_TOKEN'\n\n# Create incident qua CoreAPI\nresponse = requests.post(\n    'https://api.cityresq360.io.vn/api/v1/incidents',\n    json={\n        'title': 'Emergency: Flooding Detected',\n        'description': 'Water level 45cm, traffic blocked',\n        'priority': 'HIGH',\n        'location_latitude': 10.7758,\n        'location_longitude': 106.7019,\n        'address': 'Le Loi Street, District 1',\n        'category': 'Traffic - Flooding'\n    },\n    headers={'Authorization': f'Bearer {sanctum_token}'}\n)\n\nprint(response.json())",
                 ],
                 'curl' => [
-                    'create_incident' => "# Generate JWT token first (using Node.js or Python)\n# Then use it in the request:\n\ncurl -X POST https://incident.cityresq360.io.vn/api/v1/incidents \\\n  -H \"Authorization: Bearer YOUR_JWT_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"title\": \"Emergency: Flooding Detected\",\n    \"description\": \"Water level 45cm, traffic blocked\",\n    \"priority\": \"HIGH\",\n    \"location_latitude\": 10.7758,\n    \"location_longitude\": 106.7019,\n    \"address\": \"Le Loi Street, District 1\",\n    \"category\": \"Traffic - Flooding\",\n    \"external_id\": \"IOT-SENSOR-001\",\n    \"external_system\": \"iot_water_sensor\"\n  }'",
+                    'create_incident' => "curl -X POST https://api.cityresq360.io.vn/api/v1/incidents \\\n  -H \"Authorization: Bearer YOUR_SANCTUM_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\n    \"title\": \"Emergency: Flooding Detected\",\n    \"description\": \"Water level 45cm, traffic blocked\",\n    \"priority\": \"HIGH\",\n    \"location_latitude\": 10.7758,\n    \"location_longitude\": 106.7019,\n    \"address\": \"Le Loi Street, District 1\",\n    \"category\": \"Traffic - Flooding\"\n  }'",
                 ],
             ],
 
             'authentication' => [
-                'type' => 'JWT',
-                'description' => 'IncidentService sử dụng JWT authentication. Bạn cần đăng ký để nhận JWT_SECRET.',
+                'type' => 'Sanctum',
+                'description' => 'Tất cả requests phải có Laravel Sanctum token. Token được lấy sau khi login thành công vào CoreAPI.',
                 'steps' => [
-                    'Đăng nhập vào trang Admin Panel',
-                    'Vào menu "Tích Hợp" → "API Keys"',
-                    'Chọn module "IncidentService"',
-                    'Nhấn "Đăng Ký Mới" và điền thông tin',
-                    'Sau khi được approve, bạn sẽ nhận được JWT_SECRET qua email',
-                    'Sử dụng JWT_SECRET để generate JWT token trong code của bạn',
+                    'Đăng nhập vào CoreAPI (POST /api/v1/auth/login)',
+                    'Lấy Sanctum token từ response',
+                    'Thêm token vào header: Authorization: Bearer {token}',
+                    'Gọi Incident endpoints với token này',
                 ],
             ],
 
@@ -514,5 +508,215 @@ class DocsController extends Controller
             ],
         ];
     }
-}
 
+    /**
+     * Dữ liệu tài liệu AIMLService
+     */
+    private function getAIMLServiceData(): array
+    {
+        return [
+            'id' => 'aiml-service',
+            'name' => 'AIMLService',
+            'description' => 'Dịch vụ AI/ML phân tích ảnh để phát hiện tự động các loại sự cố: ổ gà, ngập lụt, rác thải, kẹt xe... Sử dụng Google ViT và Facebook DETR models.',
+            'icon' => 'Brain',
+            'status' => 'stable',
+            'version' => 'v1.0',
+
+            'baseUrls' => [
+                'production' => 'https://api.cityresq360.io.vn/api/v1/ai',
+                'local' => 'http://localhost:8000/api/v1/ai',
+            ],
+
+            'integrationMethods' => [
+                [
+                    'id' => 'recommended',
+                    'name' => 'Qua CoreAPI (Only Method)',
+                    'recommended' => true,
+                    'description' => 'Tất cả requests đều phải qua CoreAPI - Không có direct access',
+                    'benefits' => [
+                        'Tích hợp business logic và validation',
+                        'Authentication và authorization thống nhất',
+                        'User tracking và audit log đầy đủ',
+                        'Rate limiting và security centralized',
+                    ],
+                    'url' => 'https://api.cityresq360.io.vn/api/v1/ai',
+                ],
+            ],
+
+            'endpoints' => [
+                [
+                    'method' => 'POST',
+                    'path' => '/api/v1/ai/analyze',
+                    'description' => 'Phân tích ảnh để phát hiện loại sự cố',
+                    'auth' => 'Bearer Token (Sanctum)',
+                    'requestBody' => [
+                        [
+                            'name' => 'file',
+                            'type' => 'File',
+                            'required' => true,
+                            'description' => 'File ảnh cần phân tích (JPEG, PNG, WebP)',
+                        ],
+                    ],
+                    'response' => [
+                        'success' => true,
+                        'analysis' => [
+                            'label' => 'pothole',
+                            'label_vi' => 'Ổ gà',
+                            'label_en' => 'Pothole',
+                            'confidence' => 0.87,
+                            'severity' => 'medium',
+                            'priority' => 'high',
+                            'category_id' => 1,
+                            'description' => 'Ổ gà được phát hiện với độ tin cậy 87%',
+                            'detected_objects' => ['road', 'hole', 'asphalt', 'damage'],
+                            'timestamp' => '2025-12-08T02:30:00Z',
+                        ],
+                    ],
+                ],
+                [
+                    'method' => 'POST',
+                    'path' => '/api/v1/ai/analyze-base64',
+                    'description' => 'Phân tích ảnh từ base64 string (cho mobile apps)',
+                    'auth' => 'Bearer Token (Sanctum)',
+                    'requestBody' => [
+                        [
+                            'name' => 'image_base64',
+                            'type' => 'string',
+                            'required' => true,
+                            'description' => 'Base64 encoded image data',
+                        ],
+                    ],
+                    'response' => [
+                        'success' => true,
+                        'analysis' => [
+                            'label' => 'flooding',
+                            'label_vi' => 'Ngập lụt',
+                            'confidence' => 0.92,
+                            'category_id' => 2,
+                        ],
+                    ],
+                ],
+                [
+                    'method' => 'POST',
+                    'path' => '/api/v1/ai/analyze-for-report',
+                    'description' => 'Phân tích và trả về format cho CoreAPI Report',
+                    'auth' => 'Bearer Token (Sanctum)',
+                    'requestBody' => [
+                        [
+                            'name' => 'file',
+                            'type' => 'File',
+                            'required' => true,
+                            'description' => 'File ảnh cần phân tích',
+                        ],
+                    ],
+                    'response' => [
+                        'success' => true,
+                        'data' => [
+                            'danh_muc_id' => 1,
+                            'tieu_de' => 'Phát hiện Ổ gà',
+                            'mo_ta' => 'Ổ gà được phát hiện với độ tin cậy 87%',
+                            'muc_do_uu_tien' => 'high',
+                            'muc_do_nghiem_trong' => 'medium',
+                            'ai_analysis' => [
+                                'label' => 'pothole',
+                                'confidence' => 0.87,
+                            ],
+                        ],
+                    ],
+                ],
+                [
+                    'method' => 'GET',
+                    'path' => '/api/v1/ai/health',
+                    'description' => 'Kiểm tra trạng thái AIMLService',
+                    'auth' => 'None',
+                    'response' => [
+                        'service' => 'AIMLService',
+                        'status' => 'healthy',
+                        'models_loaded' => true,
+                        'device' => 'cpu',
+                    ],
+                ],
+            ],
+
+            'codeExamples' => [
+                'python' => [
+                    'analyze' => "import requests\n\n# Qua CoreAPI - cần authentication\nheaders = {\n    'Authorization': 'Bearer YOUR_SANCTUM_TOKEN'\n}\nfiles = {'file': open('incident_photo.jpg', 'rb')}\n\nresponse = requests.post(\n    'https://api.cityresq360.io.vn/api/v1/ai/analyze',\n    headers=headers,\n    files=files\n)\n\nresult = response.json()\nprint(f\"Detected: {result['analysis']['label_vi']}\")\nprint(f\"Confidence: {result['analysis']['confidence']:.0%}\")",
+                    'analyze_base64' => "import requests\nimport base64\n\n# Read and encode image\nheaders = {\n    'Authorization': 'Bearer YOUR_SANCTUM_TOKEN'\n}\nwith open('photo.jpg', 'rb') as f:\n    image_data = base64.b64encode(f.read()).decode()\n\nresponse = requests.post(\n    'https://api.cityresq360.io.vn/api/v1/ai/analyze-base64',\n    headers=headers,\n    json={'image_base64': image_data}\n)\n\nresult = response.json()",
+                ],
+                'javascript' => [
+                    'analyze' => "// Upload và analyze ảnh qua CoreAPI\nconst formData = new FormData();\nformData.append('file', fileInput.files[0]);\n\nconst response = await fetch(\n    'https://api.cityresq360.io.vn/api/v1/ai/analyze',\n    {\n        method: 'POST',\n        headers: {\n            'Authorization': `Bearer \${sanctumToken}`\n        },\n        body: formData\n    }\n);\n\nconst data = await response.json();\nconsole.log(`Detected: \${data.analysis.label_vi}`);\nconsole.log(`Confidence: \${data.analysis.confidence}`);\n",
+                ],
+                'curl' => [
+                    'analyze' => "curl -X POST https://api.cityresq360.io.vn/api/v1/ai/analyze \\\\\n  -H \"Authorization: Bearer YOUR_SANCTUM_TOKEN\" \\\\\n  -F \"file=@photo.jpg\"\n\n# Response:\n{\n  \"success\": true,\n  \"analysis\": {\n    \"label\": \"pothole\",\n    \"label_vi\": \"Ổ gà\",\n    \"confidence\": 0.87,\n    \"category_id\": 1\n  }\n}",
+                ],
+            ],
+
+            'authentication' => [
+                'type' => 'Sanctum',
+                'description' => 'Tất cả requests phải có Laravel Sanctum token. Token được lấy sau khi login thành công vào CoreAPI.',
+                'steps' => [
+                    'Đăng nhập vào CoreAPI (POST /api/v1/auth/login)',
+                    'Lấy Sanctum token từ response',
+                    'Thêm token vào header: Authorization: Bearer {token}',
+                    'Gọi AI endpoints với token này',
+                ],
+            ],
+
+            'features' => [
+                [
+                    'name' => '6 Loại Sự Cố Detection',
+                    'description' => 'Phát hiện: Ổ gà, Ngập lụt, Đèn giao thông, Rác thải, Kẹt xe, Khác',
+                ],
+                [
+                    'name' => '2 AI Models',
+                    'description' => 'Google ViT (image classification) + Facebook DETR (object detection)',
+                ],
+
+                [
+                    'name' => 'Dual Authentication',
+                    'description' => 'Hỗ trợ cả Sanctum và JWT authentication',
+                ],
+                [
+                    'name' => 'CoreAPI Integration',
+                    'description' => 'Tích hợp sẵn trong MediaController upload flow',
+                ],
+            ],
+
+            'useCases' => [
+                [
+                    'title' => 'Auto Report Category',
+                    'description' => 'Người dùng upload ảnh, AI tự động suggest category cho report',
+                    'icon' => 'Image',
+                ],
+                [
+                    'title' => 'Mobile App Integration',
+                    'description' => 'App mobile analyze ảnh ngay trên thiết bị trước khi upload',
+                    'icon' => 'Smartphone',
+                ],
+                [
+                    'title' => 'Quality Control',
+                    'description' => 'Kiểm tra ảnh có đúng loại sự cố người dùng report không',
+                    'icon' => 'CheckCircle',
+                ],
+                [
+                    'title' => 'Data Analytics',
+                    'description' => 'Phân tích hình ảnh để tạo báo cáo thống kê tự động',
+                    'icon' => 'BarChart',
+                ],
+            ],
+
+            'aiModels' => [
+                'classification' => [
+                    'name' => 'Google ViT',
+                    'description' => 'Vision Transformer - image classification',
+                    'accuracy' => '55-95% confidence',
+                ],
+                'detection' => [
+                    'name' => 'Facebook DETR',
+                    'description' => 'Detection Transformer - object detection',
+                    'features' => 'Phát hiện xe, người, đường, nước, rác...',
+                ],
+            ],
+        ];
+    }
+}

@@ -244,7 +244,7 @@ async def authenticate(
 
 
 async def optional_authenticate(
-    credentials: Optional[HTTPAuthorizationCredentials] = Security(security, auto_error=False)
+    credentials: Optional[HTTPAuthorizationCredentials] = Depends(HTTPBearer(auto_error=False))
 ) -> Optional[Dict]:
     """
     Optional authentication - for public/semi-public endpoints
@@ -253,4 +253,5 @@ async def optional_authenticate(
     if credentials is None:
         return None
     
-    return await authenticate(credentials)
+    # Call authenticate manually since we have credentials
+    return await authenticate(credentials=credentials)
