@@ -15,6 +15,11 @@
 * **script:** fix script ([340b42d](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/340b42d4b6d0258b6db11c501953720ab1325a62))
 
 
+### Features
+
+* **ai:** Phát triển tính năng phân tích AI cho sự cố đô thị ([ffc267c](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/ffc267c4cedb05a10c81f14cb102793f9831adad))
+
+
 
 # [2.1.0](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.0.0...v2.1.0) (2025-12-07)
 
