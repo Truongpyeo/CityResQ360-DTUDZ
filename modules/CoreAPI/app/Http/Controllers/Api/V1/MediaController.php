@@ -167,9 +167,9 @@ class MediaController extends BaseController
             $filePath = $file->storeAs($path, $filename, $disk);
 
             // Construct public URL directly using MinIO bucket path
-            $publicBaseUrl = config('services.media_service.url', env('MEDIA_SERVICE_URL', 'https://media.cityresq360.io.vn'));
-            $bucket = config('filesystems.disks.s3.bucket', 'cityresq-media');
-            $fullUrl = rtrim($publicBaseUrl, '/') . '/' . $bucket . '/' . $filePath;
+            $publicBaseUrl = rtrim(config('services.media_service.url', env('MEDIA_SERVICE_URL', 'https://media.cityresq360.io.vn')), '/');
+            $bucket = 'cityresq-media'; // Hardcoded MinIO bucket name
+            $fullUrl = $publicBaseUrl . '/' . $bucket . '/' . ltrim($filePath, '/');
 
             Log::info('File stored successfully to S3/MinIO fallback', [
                 'file_path' => $filePath,
@@ -195,7 +195,7 @@ class MediaController extends BaseController
 
                     // Upload thumbnail to S3/MinIO
                     Storage::disk($disk)->put($thumbnailPath, file_get_contents($tempThumbPath));
-                    $thumbnailUrl = rtrim($publicBaseUrl, '/') . '/' . $bucket . '/' . $thumbnailPath;
+                    $thumbnailUrl = $publicBaseUrl . '/' . $bucket . '/' . ltrim($thumbnailPath, '/');
 
                     // Clean up temp file
                     @unlink($tempThumbPath);
