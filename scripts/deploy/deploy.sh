@@ -526,6 +526,42 @@ else
 fi
 
 # ============================================
+# AUTO-CONFIGURE CoreAPI .env WITH MYSQL
+# ============================================
+echo -e "${CYAN}Configuring CoreAPI .env with MySQL credentials...${NC}"
+
+# Read MySQL password from docker .env
+if [ -f "$ENV_FILE" ]; then
+    MYSQL_PASS=$(grep "^MYSQL_PASSWORD=" "$ENV_FILE" | cut -d'=' -f2)
+    
+    # Configure CoreAPI .env
+    COREAPI_ENV="${PROJECT_DIR}/modules/CoreAPI/.env"
+    
+    if [ -f "$COREAPI_ENV" ]; then
+        # Update existing .env - change DB_CONNECTION to mysql
+        sed -i 's/^DB_CONNECTION=.*/DB_CONNECTION=mysql/' "$COREAPI_ENV"
+        
+        # Remove old DB config if exists
+        sed -i '/^# Database Configuration (MySQL for Docker)/,/^$/d' "$COREAPI_ENV"
+        
+        # Append MySQL configuration
+        cat >> "$COREAPI_ENV" <<EOF
+
+# Database Configuration (MySQL for Docker)
+# Auto-configured by deploy.sh - $(date)
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=cityresq_db
+DB_USERNAME=cityresq
+DB_PASSWORD=${MYSQL_PASS}
+EOF
+        echo -e "${GREEN}✅ CoreAPI .env configured with MySQL${NC}"
+    else
+        echo -e "${YELLOW}⚠️  CoreAPI .env not found, will be created from .env.example${NC}"
+    fi
+fi
+
+# ============================================
 # STEP 6: DEPLOY WITH DOCKER
 # ============================================
 echo -e "${YELLOW}[Step 7/8] Docker Deployment${NC}"
@@ -586,11 +622,52 @@ docker-compose -f "$COMPOSE_FILE" up -d coreapi media-service iot-service incide
 
 echo -e "${GREEN}✅ Docker deployment complete!${NC}"
 
+# Ensure CoreAPI .env exists and is properly configured
+echo -e "${CYAN}Ensuring CoreAPI .env configuration...${NC}"
+COREAPI_DIR="${PROJECT_DIR}/modules/CoreAPI"
+COREAPI_ENV="${COREAPI_DIR}/.env"
+
+if [ ! -f "$COREAPI_ENV" ]; then
+    echo -e "${YELLOW}⚠️  CoreAPI .env not found, creating from .env.example${NC}"
+    docker exec cityresq-coreapi cp /var/www/html/.env.example /var/www/html/.env || true
+fi
+
+# Re-apply MySQL configuration (in case .env was just created)
+MYSQL_PASS=$(grep "^MYSQL_PASSWORD=" "$ENV_FILE" | cut -d'=' -f2)
+docker exec cityresq-coreapi bash -c "cat >> /var/www/html/.env <<EOF
+
+# Database Configuration (MySQL for Docker)  
+# Auto-configured by deploy.sh - $(date)
+DB_CONNECTION=mysql
+DB_HOST=mysql
+DB_PORT=3306
+DB_DATABASE=cityresq_db
+DB_USERNAME=cityresq
+DB_PASSWORD=${MYSQL_PASS}
+EOF"
+
+echo -e "${GREEN}✅ CoreAPI .env verified and configured${NC}"
+
 # Run migrations and optimize
 echo -e "${CYAN}Running database migrations...${NC}"
 sleep 10
-docker exec cityresq-coreapi php artisan migrate --force || true
-docker exec cityresq-coreapi php artisan db:seed --force || true
+
+# Wait for MySQL to be ready
+echo -e "${YELLOW}⏳ Waiting for MySQL to be ready...${NC}"
+for i in {1..30}; do
+    if docker exec cityresq-mysql mysqladmin ping -h localhost 2>/dev/null | grep -q "mysqld is alive"; then
+        echo -e "${GREEN}✅ MySQL is ready!${NC}"
+        break
+    fi
+    echo -n "."
+    sleep 2
+done
+echo ""
+
+# Run migrations with better error handling
+echo -e "${CYAN}Running migrations and seeders...${NC}"
+docker exec cityresq-coreapi php artisan config:clear
+docker exec cityresq-coreapi php artisan migrate:fresh --seed --force
 
 # Build frontend assets
 echo -e "${CYAN}Building frontend assets (Vite)...${NC}"

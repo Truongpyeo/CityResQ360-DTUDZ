@@ -119,6 +119,12 @@ password: 123456
 
 **Yêu cầu kỹ thuật OLP 2025:** CityResQ360 tuân thủ chuẩn **NGSI-LD** (Next Generation Service Interfaces - Linked Data) do ETSI ban hành để chia sẻ dữ liệu mở về thành phố thông minh.
 
+### 📡 API Documentation
+
+**🔗 NGSI-LD Swagger UI:** [https://api.cityresq360.io.vn/api/documentation](https://api.cityresq360.io.vn/api/documentation)
+
+Tài liệu API mở tương tác đầy đủ với Swagger UI (tuân chuẩn NGSI-LD).
+
 ### Tại sao NGSI-LD?
 
 - **Chuẩn quốc tế:** ETSI GS CIM 009 - Được sử dụng bởi FiWARE và các thành phố thông minh trên thế giới
@@ -224,45 +230,101 @@ CityResQ360-DTUDZ/
 
 ## 🛠️ Hướng dẫn cài đặt
 
-### 🚀 Cài đặt nhanh với docker
+### 🚀 Cài đặt nhanh với Docker
 
 **Yêu cầu**: Docker, Docker Compose, Git
+
+#### **Cách 1: Dùng script tự động (Khuyến nghị)**
+
+**Linux/macOS:**
+```bash
+# 1. Clone repository
+git clone https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ.git
+cd CityResQ360-DTUDZ
+
+# 2. Chạy script quản lý
+chmod +x scripts/local/run.sh
+./scripts/local/run.sh
+
+# Menu sẽ hiện:
+# 1) Start all services       - Khởi động tất cả
+# 2) Stop all services        - Dừng tất cả
+# 3) Restart all services     - Khởi động lại
+# 4) Clean rebuild            - Xóa và build lại từ đầu
+# 5) View logs               - Xem logs
+# 6) Check status            - Kiểm tra trạng thái
+# 7) Run migrations          - Chạy database migrations
+# 8) Test endpoints          - Test API endpoints
+```
+
+**Windows:**
+
+*Cách 1 - Git Bash (Khuyến nghị):*
+```bash
+# 1. Clone repository
+git clone https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ.git
+cd CityResQ360-DTUDZ
+
+# 2. Right-click trong folder → "Git Bash Here"
+
+# 3. Fix line endings nếu cần
+sed -i 's/\r$//' scripts/local/run.sh
+
+# 4. Chạy script
+chmod +x scripts/local/run.sh
+./scripts/local/run.sh
+```
+
+*Cách 2 - PowerShell/CMD:*
+```powershell
+# 1. Clone repository
+git clone https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ.git
+cd CityResQ360-DTUDZ
+
+# 2. Chạy Docker Compose trực tiếp
+cd infrastructure/docker
+docker compose up -d
+
+# 3. Chạy migrations
+docker exec -it cityresq-coreapi php artisan migrate --seed
+docker exec -it cityresq-coreapi php artisan key:generate
+docker exec -it cityresq-coreapi php artisan config:cache
+```
+
+#### **Cách 2: Chạy thủ công**
 
 ```bash
 # 1. Clone repository
 git clone https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ.git
 cd CityResQ360-DTUDZ
 
-# 2. Cấu hình environment
-cp modules/CoreAPI/.env.example modules/CoreAPI/.env
-
-# 3. Tạo cấu hình MQTT
-mkdir -p infrastructure/mosquitto/config
-cat > infrastructure/mosquitto/config/mosquitto.conf << 'EOF'
-listener 1883
-allow_anonymous true
-persistence true
-persistence_location /mosquitto/data/
-log_dest file /mosquitto/log/mosquitto.log
-EOF
-
-# 4. Khởi động hệ thống
+# 2. Khởi động databases trước
 cd infrastructure/docker
-docker compose up -d
+docker compose up -d mysql postgres redis mongodb rabbitmq minio
+
+# 3. Đợi 20 giây cho databases khởi động
+sleep 20
+
+# 4. Khởi động application services
+docker compose up -d coreapi media-service iot-service incident-service \
+    aiml-service analytics-service search-service floodeye-service
 
 # 5. Chạy migrations
 docker exec -it cityresq-coreapi php artisan migrate --seed
 docker exec -it cityresq-coreapi php artisan key:generate
+docker exec -it cityresq-coreapi php artisan config:cache
 ```
 
 **Truy cập**:
 
-- 🌐 CoreAPI: http://localhost:8000
-- 📱 Web App: http://localhost:3000
-- 📦 MinIO Console: http://localhost:9001 (minioadmin/minioadmin)
-- 🐰 RabbitMQ: http://localhost:15672 (cityresq/cityresq_password)
+- 🌐 **CoreAPI**: http://localhost:8000
+- 👨‍💼 **Admin Panel**: http://localhost:8000/admin
+- 🔌 **WebSocket (Reverb)**: ws://localhost:6001/app
+- 📦 **MinIO Console**: http://localhost:9001 (minioadmin/minioadmin)
+- 🐰 **RabbitMQ**: http://localhost:15672 (cityresq/cityresq_password)
+- 🔍 **OpenSearch Dashboards**: http://localhost:5601
 
-> 📖 Xem file [SETUP.md](SETUP.md) để biết thêm chi tiết về cách cài đặt hệ thống.
+> 📖 **Hướng dẫn chi tiết**: [Setup.md](Setup.md) | **Build không dùng Docker**: [docs/BUILD_WITHOUT_DOCKER.md](docs/BUILD_WITHOUT_DOCKER.md)
 
 ---
 
