@@ -248,10 +248,19 @@ async def optional_authenticate(
 ) -> Optional[Dict]:
     """
     Optional authentication - for public/semi-public endpoints
-    Returns None if no auth provided, otherwise validates token
+    Returns None if no auth provided or if auth fails (including DB errors)
     """
     if credentials is None:
         return None
     
-    # Call authenticate manually since we have credentials
-    return await authenticate(credentials=credentials)
+    try:
+        # Call authenticate manually since we have credentials
+        return await authenticate(credentials=credentials)
+    except HTTPException as e:
+        # Log but don't raise - return None for optional auth
+        logger.warning(f"Optional auth failed: {e.detail}")
+        return None
+    except Exception as e:
+        # Catch any other errors (DB connection, etc.)
+        logger.warning(f"Optional auth error: {str(e)}")
+        return None

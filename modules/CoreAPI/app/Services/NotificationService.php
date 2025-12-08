@@ -36,7 +36,12 @@ class NotificationService
         try {
             $credentialsPath = config('firebase.credentials');
 
-            if (file_exists($credentialsPath)) {
+            // Ensure absolute path - handle both relative and absolute paths
+            if ($credentialsPath && !str_starts_with($credentialsPath, '/')) {
+                $credentialsPath = base_path($credentialsPath);
+            }
+
+            if ($credentialsPath && file_exists($credentialsPath)) {
                 $factory = (new Factory)->withServiceAccount($credentialsPath);
                 $this->messaging = $factory->createMessaging();
             } else {
@@ -123,12 +128,13 @@ class NotificationService
             \Log::info("Push notification sent to user {$userId}: {$title}");
             return true;
         } catch (\Kreait\Firebase\Exception\MessagingException $e) {
-            // Invalid token - clear it
-            if ($e->errors()->containsMessagingError('UNREGISTERED')) {
+            // Invalid token - clear it (check error message since errors() returns array)
+            $errorMessage = $e->getMessage();
+            if (str_contains($errorMessage, 'UNREGISTERED') || str_contains($errorMessage, 'not-found')) {
                 $user->update(['push_token' => null]);
                 \Log::info("Cleared invalid push token for user {$userId}");
             } else {
-                \Log::error("FCM messaging error for user {$userId}: " . $e->getMessage());
+                \Log::error("FCM messaging error for user {$userId}: " . $errorMessage);
             }
             return false;
         } catch (\Exception $e) {

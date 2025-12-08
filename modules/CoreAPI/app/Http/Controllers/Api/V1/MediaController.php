@@ -157,15 +157,19 @@ class MediaController extends BaseController
 
         $extension = $file->getClientOriginalExtension();
         $filename = Str::uuid() . '.' . $extension;
-        $path = 'media/' . $type . 's/' . date('Y/m');
+        $path = date('Y/m/d'); // Match MediaService path structure: YYYY/MM/DD
 
         try {
-            // Use S3/MinIO for fallback storage
-            $disk = config('filesystems.default', 's3');
+            // Use S3/MinIO for fallback storage - hardcode to ensure MinIO is used
+            $disk = 's3';
 
             // Store original file to S3/MinIO
             $filePath = $file->storeAs($path, $filename, $disk);
-            $fullUrl = Storage::disk($disk)->url($filePath);
+
+            // Construct public URL directly using MinIO bucket path
+            $publicBaseUrl = rtrim(config('services.media_service.url', env('MEDIA_SERVICE_URL', 'https://media.cityresq360.io.vn')), '/');
+            $bucket = 'cityresq-media'; // Hardcoded MinIO bucket name
+            $fullUrl = $publicBaseUrl . '/' . $bucket . '/' . ltrim($filePath, '/');
 
             Log::info('File stored successfully to S3/MinIO fallback', [
                 'file_path' => $filePath,
@@ -191,7 +195,7 @@ class MediaController extends BaseController
 
                     // Upload thumbnail to S3/MinIO
                     Storage::disk($disk)->put($thumbnailPath, file_get_contents($tempThumbPath));
-                    $thumbnailUrl = Storage::disk($disk)->url($thumbnailPath);
+                    $thumbnailUrl = $publicBaseUrl . '/' . $bucket . '/' . ltrim($thumbnailPath, '/');
 
                     // Clean up temp file
                     @unlink($tempThumbPath);
@@ -395,9 +399,11 @@ class MediaController extends BaseController
             $publicUrl = rtrim($publicUrl, '/');
 
             // Check for MediaService internal URL pattern
-            // Example: http://media-service:8004/api/v1/storage/... → https://media.cityresq360.io.vn/storage/...
-            if (preg_match('#https?://media-service:\d+/api/v\d+/(.+)$#', $path, $matches)) {
-                $converted = $publicUrl . '/' . $matches[1];
+            // Example: http://media-service:8004/api/v1/storage/media/images/2025/12/xxx.jpg 
+            //       → https://media.cityresq360.io.vn/cityresq-media/2025/12/xxx.jpg
+            if (preg_match('#https?://media-service:\d+/api/v\d+/storage/media/images/(\d{4})/(\d{2})/([^/]+)$#', $path, $matches)) {
+                // Convert to MinIO bucket path: /cityresq-media/YYYY/MM/DD/filename
+                $converted = $publicUrl . '/cityresq-media/' . $matches[1] . '/' . $matches[2] . '/' . date('d') . '/' . $matches[3];
                 Log::debug('MediaService URL converted', ['from' => $path, 'to' => $converted]);
                 return $converted;
             }

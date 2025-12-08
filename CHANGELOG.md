@@ -3,9 +3,6 @@
 
 ### Bug Fixes
 
-* **aiml:** externalize Gemini API key to environment variable ([4b54fea](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/4b54fea65cddbb9e822be3637c93cb7120ff8fa0))
-* **aiml:** make auth optional for analyze-for-report endpoint ([aaf45b6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/aaf45b6b8e9ecc46106357dd31046e7c458299d7))
-* **coreapi:** fix Reverb port and media URL generation ([b231514](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b23151480579493fee850a3ba7f3c2fb1e8dbb58))
 * **deloy:** Fix deloy.sh ([9ac7d6a](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/9ac7d6aed34b2e395e1e43f2969f32e796fea650))
 * **deloy:** sửa deloy.sh ([581c63f](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/581c63f1fe1a63e5c1bd9beb4b26ccc1633a64c6))
 * **deloy:** sửa deloy.sh để không Conflict ([8fe3e11](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8fe3e1123a86f528fc88fbdb9b26121e303c16db))
@@ -15,8 +12,6 @@
 * **docker:** Fix script docker ([982bbab](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/982bbabd44f4da48ec4835b4ca0d503fe06a136e))
 * **dockẻ:** Xóa --volumes khỏi docker system prune ([bc73644](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/bc73644c7ac6c07aeda6198c70d3791635cd8c3d))
 * **docs:** Sửa Docs Realtime ReactNative ([f14ee74](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/f14ee7423e0985b641494fb1a1308bf82ac9b79b))
-* **media:** fix URL generation and add AI analysis to fallback path ([37b3b0b](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/37b3b0beae6237fc939893343cd3b678893a572e))
-* **media:** Sửa cổng Reverb và chuyển đổi URL media để truy cập công khai ([bcfe3e4](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/bcfe3e4a273d0a139b84233ffe139ed8b009d494))
 * **reverb:** cấu hình lại WebSocket để tránh xung đột port ([c252645](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/c25264574f8816f05451523cdbbd3a0840028c56))
 * **script:** fix docker ([d478085](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/d478085e47ea823c4d51a48c9bb0d46bfff568c3))
 * **script:** fix script ([340b42d](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/340b42d4b6d0258b6db11c501953720ab1325a62))
