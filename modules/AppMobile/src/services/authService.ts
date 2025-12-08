@@ -1,22 +1,4 @@
-/*
- * CityResQ360-DTUDZ - Smart City Emergency Response System
- * Copyright (C) 2025 DTU-DZ Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
-import api from '../utils/Api';
+import api, { API_BASE_URL } from '../utils/Api';
 import { LoginRequest, LoginResponse, RegisterRequest, User, ChangePasswordRequest, ResetPasswordRequest, UpdateProfileRequest } from '../types/api/auth';
 import { ApiResponse } from '../types/api/common';
 import AsyncStorage from '@react-native-async-storage/async-storage';
@@ -25,6 +7,8 @@ const TOKEN_KEY = '@auth_token';
 const USER_KEY = '@user_data';
 
 export const authService = {
+    // API base URL (có thể dùng để gửi request FCM token)
+    apiUrl: API_BASE_URL,
     login: async (credentials: LoginRequest): Promise<LoginResponse> => {
         try {
             const response = await api.post<ApiResponse<LoginResponse>>('/auth/login', credentials);
@@ -118,7 +102,7 @@ export const authService = {
     },
 
     updateFcmToken: async (pushToken: string): Promise<void> => {
-        await api.post('/auth/update-fcm-token', { push_token: pushToken });
+        await api.post('/auth/update-fcm-token', { fcm_token: pushToken });
     },
 
     refreshToken: async (): Promise<string> => {

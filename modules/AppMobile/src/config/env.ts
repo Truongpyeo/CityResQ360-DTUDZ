@@ -1,21 +1,3 @@
-/*
- * CityResQ360-DTUDZ - Smart City Emergency Response System
- * Copyright (C) 2025 DTU-DZ Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 /**
  * Cấu hình môi trường ứng dụng
  */
@@ -23,8 +5,19 @@
 const env = {
   // API URL
   API_URL: 'https://api.cityresq360.io.vn',
-  BROADCAST_HOST: 'mimo.dragonlab.vn',
-  PUSHER_KEY: '1',
+
+  // WebSocket Configuration
+  // Backend dùng Nginx reverse proxy: /app/ -> localhost:6001
+  // Mobile app kết nối qua HTTPS (port 443) giống web
+  REVERB_APP_ID:808212,
+  REVERB_APP_KEY: 'lwf6joghdvbowg9hb7p4',
+  REVERB_APP_SECRET: 'yh8dts6nhxqzn2i77yim',
+  REVERB_HOST: 'api.cityresq360.io.vn',
+  REVERB_PORT: 443,  // Port HTTPS thay vì 6001
+  REVERB_SCHEME: 'https',
+  
+  // Bật WebSocket (web đã hoạt động, mobile cũng sẽ hoạt động với port 443)
+  ENABLE_WEBSOCKET: true,
 
   // System Configuration
   TIMEOUT: 15000,
