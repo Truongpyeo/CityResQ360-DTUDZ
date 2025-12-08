@@ -4,7 +4,9 @@ import { View, Text, StyleSheet, ScrollView, TouchableOpacity, RefreshControl, S
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useNavigation } from '@react-navigation/native';
 import { NativeStackNavigationProp } from '@react-navigation/native-stack';
-import { RootStackParamList } from '../../navigation/types';
+import { CompositeNavigationProp } from '@react-navigation/native';
+import { BottomTabNavigationProp } from '@react-navigation/bottom-tabs';
+import { RootStackParamList, MainTabParamList } from '../../navigation/types';
 import {
   theme,
   SPACING,
@@ -21,12 +23,25 @@ import {
   hp,
 } from '../../theme';
 import { useAuth } from '../../contexts/AuthContext';
+import { useNotifications } from '../../hooks/useNotifications';
 import { notificationService } from '../../services/notificationService';
 import { statsService } from '../../services/statsService';
 import { reportService } from '../../services/reportService';
 import { Report } from '../../types/api/report';
+import {
+  getStatusText,
+  getStatusColor,
+  formatViewCount,
+  getNetVotes,
+  getReportTags,
+  getPriorityText,
+  isReportUrgent
+} from '../../utils/reportUtils';
 
-type NavigationProp = NativeStackNavigationProp<RootStackParamList>;
+type NavigationProp = CompositeNavigationProp<
+  BottomTabNavigationProp<MainTabParamList, 'Home'>,
+  NativeStackNavigationProp<RootStackParamList>
+>;
 
 interface TopCategory {
   danh_muc: number;
@@ -46,8 +61,8 @@ interface StatsData {
 const HomeScreen = () => {
   const navigation = useNavigation<NavigationProp>();
   const { user } = useAuth();
+  const { unreadCount, registerRefreshCallback } = useNotifications();
   const [refreshing, setRefreshing] = useState(false);
-  const [unreadCount, setUnreadCount] = useState(0);
   const [statsData, setStatsData] = useState<StatsData | null>(null);
   const [recentReports, setRecentReports] = useState<Report[]>([]);
   const [loading, setLoading] = useState(true);
@@ -79,8 +94,22 @@ const HomeScreen = () => {
         sort_order: 'desc'
       });
       console.log('reportsResponse', reportsResponse);
+      console.log('reportsResponse.data type:', typeof reportsResponse.data);
+      console.log('reportsResponse.data isArray:', Array.isArray(reportsResponse.data));
+      console.log('reportsResponse.data.data:', reportsResponse.data?.data);
+      console.log('reportsResponse.data.data length:', reportsResponse.data?.data?.length);
+
       if (reportsResponse.success && reportsResponse.data) {
-        setRecentReports(reportsResponse.data);
+        // Laravel pagination: data is wrapped in reportsResponse.data.data
+        const reportsData = (reportsResponse.data as any).data || reportsResponse.data;
+        const reports = Array.isArray(reportsData) ? reportsData : [];
+        console.log('Extracted reports:', reports);
+        console.log('Reports count:', reports.length);
+        setRecentReports(reports);
+      } else {
+        // Set to empty array if API fails
+        console.log('API failed or no data, setting empty array');
+        setRecentReports([]);
       }
     } catch (error) {
       console.error('Error fetching home data:', error);
@@ -89,39 +118,34 @@ const HomeScreen = () => {
       setLoading(false);
     }
   };
+  const fetchUnreadCount = async () => {
+    try {
+      const response = await notificationService.getUnreadCount();
+      if (response.success) {
+        console.log('📊 Unread count from API:', response.data.count);
+      }
+    } catch (error) {
+      console.error('❌ Error fetching unread count:', error);
+    }
+  };
 
   useEffect(() => {
-    const fetchUnreadCount = async () => {
-      try {
-        const response = await notificationService.getUnreadCount();
-        if (response.success) {
-          setUnreadCount(response.data.count);
-        }
-      } catch (error) {
-        console.error('Error fetching unread count:', error);
-      }
-    };
-
-    fetchUnreadCount();
     fetchData();
 
-    // Optional: Poll every minute or use socket if available
-    const interval = setInterval(fetchUnreadCount, 60000);
-    return () => clearInterval(interval);
-  }, []);
+    // Register callback to refresh data when receiving WebSocket events
+    const unregister = registerRefreshCallback(() => {
+      console.log('🔄 HomeScreen: Refreshing data due to WebSocket event');
+    fetchData();
+    });
+
+    return () => {
+      unregister();
+    };
+  }, [registerRefreshCallback]);
 
   const onRefresh = React.useCallback(async () => {
     setRefreshing(true);
     await fetchData();
-    // Also refresh unread count
-    try {
-      const response = await notificationService.getUnreadCount();
-      if (response.success) {
-        setUnreadCount(response.data.count);
-      }
-    } catch (error) {
-      console.error('Error refreshing:', error);
-    }
     setRefreshing(false);
   }, []);
 
@@ -166,15 +190,15 @@ const HomeScreen = () => {
           icon: 'alert-circle-outline',
           color: theme.colors.primary,
         },
-        {
-          id: 'resolved',
-          title: 'Đã giải quyết',
-          value: '---',
-          change: '--',
-          trend: 'up' as const,
-          icon: 'check-circle-outline',
-          color: theme.colors.success,
-        },
+      {
+        id: 'resolved',
+        title: 'Hoàn thành',
+        value: '---',
+        change: '--',
+        trend: 'up' as const,
+        icon: 'check-circle-outline',
+        color: theme.colors.success,
+      },
         {
           id: 'pending',
           title: 'Đang xử lý',
@@ -188,7 +212,7 @@ const HomeScreen = () => {
     }
 
     const resolvedPercentage = statsData.ty_le_giai_quyet
-      ? `${statsData.ty_le_giai_quyet.toFixed(1)}%`
+      ? `${statsData.ty_le_giai_quyet.toFixed(1)}% `
       : '--';
 
     return [
@@ -203,7 +227,7 @@ const HomeScreen = () => {
       },
       {
         id: 'resolved',
-        title: 'Đã giải quyết',
+        title: 'Hoàn thành',
         value: formatNumber(statsData.da_giai_quyet),
         change: resolvedPercentage,
         trend: 'up' as const,
@@ -215,7 +239,7 @@ const HomeScreen = () => {
         title: 'Đang xử lý',
         value: formatNumber(statsData.dang_xu_ly),
         change: statsData.thoi_gian_xu_ly_trung_binh
-          ? `${Math.round(statsData.thoi_gian_xu_ly_trung_binh)}h`
+          ? `${Math.round(statsData.thoi_gian_xu_ly_trung_binh)} h`
           : '--',
         trend: 'down' as const,
         icon: 'progress-clock',
@@ -225,13 +249,14 @@ const HomeScreen = () => {
   };
 
   const getCategoryColor = (categoryId: number): string => {
-    const colors = [
-      theme.colors.primary,   // 0: Giao thông
-      theme.colors.success,   // 1: Môi trường
-      theme.colors.error,     // 2: Cháy nổ
-      theme.colors.warning,   // 3: Rác thải
-      theme.colors.info,      // 4: Ngập lụt
-    ];
+    const colors: { [key: number]: string } = {
+      1: '#EF4444',   // Giao thông
+      2: '#10B981',   // Môi trường
+      3: '#F97316',   // Cháy nổ
+      4: '#8B5CF6',   // Rác thải
+      5: '#3B82F6',   // Ngập lụt
+      6: '#6B7280',   // Khác
+    };
     return colors[categoryId] || theme.colors.textSecondary;
   };
 
@@ -244,33 +269,11 @@ const HomeScreen = () => {
     }
   };
 
-  const getStatusColor = (status: number): string => {
-    switch (status) {
-      case 0: return theme.colors.warning;
-      case 1: return theme.colors.info;
-      case 2: return theme.colors.info;
-      case 3: return theme.colors.success;
-      case 4: return theme.colors.error;
-      default: return theme.colors.textSecondary;
-    }
-  };
-
-  const getStatusLabel = (status: number): string => {
-    switch (status) {
-      case 0: return 'Tiếp nhận';
-      case 1: return 'Đã xác minh';
-      case 2: return 'Đang xử lý';
-      case 3: return 'Hoàn thành';
-      case 4: return 'Từ chối';
-      default: return 'Khác';
-    }
-  };
-
   const formatNumber = (num: number): string => {
     if (num >= 1000000) {
-      return `${(num / 1000000).toFixed(1)}M`;
+      return `${(num / 1000000).toFixed(1)} M`;
     } else if (num >= 1000) {
-      return `${(num / 1000).toFixed(1)}K`;
+      return `${(num / 1000).toFixed(1)} K`;
     }
     return num.toString();
   };
@@ -311,12 +314,12 @@ const HomeScreen = () => {
 
   const getCategoryName = (categoryId: number): string => {
     const categories: { [key: number]: string } = {
-      0: 'Giao thông',
-      1: 'Môi trường',
-      2: 'Cháy nổ',
-      3: 'Rác thải',
-      4: 'Ngập lụt',
-      5: 'Khác',
+      1: 'Giao thông',
+      2: 'Môi trường',
+      3: 'Cháy nổ',
+      4: 'Rác thải',
+      5: 'Ngập lụt',
+      6: 'Khác',
     };
     return categories[categoryId] || 'Khác';
   };
@@ -507,10 +510,18 @@ const HomeScreen = () => {
               <Text style={styles.sectionTitle}>Sự cố mới nhất</Text>
               <View style={[styles.sectionDivider, { flex: 1, maxWidth: 100 }]} />
             </View>
-            <TouchableOpacity onPress={() => navigation.navigate('MainTabs', { screen: 'Reports' })}>
+            <TouchableOpacity onPress={() => (navigation as any).navigate('Reports')}>
               <Text style={styles.seeAllLink}>Xem tất cả →</Text>
             </TouchableOpacity>
           </View>
+
+          {(() => {
+            console.log('Render check - loading:', loading);
+            console.log('Render check - recentReports:', recentReports);
+            console.log('Render check - recentReports.length:', recentReports.length);
+            console.log('Render check - Array.isArray:', Array.isArray(recentReports));
+            return null;
+          })()}
 
           {loading ? (
             <View style={styles.loadingContainer}>
@@ -549,7 +560,7 @@ const HomeScreen = () => {
                       <Text style={[styles.statusText, {
                         color: getStatusColor(report.trang_thai)
                       }]}>
-                        {getStatusLabel(report.trang_thai)}
+                        {getStatusText(report.trang_thai)}
                       </Text>
                     </View>
                   </View>

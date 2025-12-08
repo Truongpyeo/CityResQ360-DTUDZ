@@ -1,21 +1,3 @@
-/*
- * CityResQ360-DTUDZ - Smart City Emergency Response System
- * Copyright (C) 2025 DTU-DZ Team
- *
- * This program is free software: you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation, either version 3 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program. If not, see <https://www.gnu.org/licenses/>.
- */
-
 import { ApiResponse } from './common';
 
 export type UserRole = 'citizen' | 'student' | 'teacher' | 'urban_manager' | 'researcher' | 'business' | 'verifier' | 'government';
@@ -27,13 +9,25 @@ export interface User {
     so_dien_thoai?: string;
     anh_dai_dien?: string | null;
     vai_tro?: number; // 0 = citizen, 1 = government, etc.
+    trang_thai?: number; // User status
     diem_thanh_pho?: number; // City points
+    xac_thuc_cong_dan?: boolean; // Citizen verification status
     diem_uy_tin?: number; // Reputation points
+    tong_so_phan_anh?: number; // Total reports
+    so_phan_anh_chinh_xac?: number; // Accurate reports count
+    ty_le_chinh_xac?: number; // Accuracy rate
     cap_huy_hieu?: number; // Badge level
     cap_huy_hieu_text?: string;
-    xac_thuc_cong_dan?: boolean; // Citizen verification status
-    tong_so_phan_anh?: number; // Total reports
-    ty_le_chinh_xac?: number; // Accuracy rate
+    push_token?: string | null;
+    tuy_chon_thong_bao?: {
+        sms: boolean;
+        push: boolean;
+        email: boolean;
+    } | null;
+    remember_token?: string | null;
+    created_at?: string;
+    updated_at?: string;
+    deleted_at?: string | null;
     ngay_tham_gia?: string; // Join date
     role?: UserRole;
 }

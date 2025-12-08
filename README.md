@@ -45,6 +45,30 @@ Dự án tập trung vào việc xây dựng một nền tảng toàn diện, k�
 
 ---
 
+## 📸 Giao diện
+
+### 🖥️ Admin Dashboard
+
+<p align="center">
+  <img src="./static/img/admin1.png" alt="Dashboard" width="100%"/>
+</p>
+<p align="center"><em>Trang Dashboard tổng quan - Hiển thị thông tin phản ảnh, cảnh báo, sự cố</em></p>
+
+<p align="center">
+  <img src="./static/img/admin2.png" alt="admin2" width="70%"/>
+  <img src="./static/img/admin3.png" alt="admin3" width="70%"/>
+</p>
+
+### 📱 Mobile App
+
+<p align="center">
+  <img src="./static/img/app1.jpg" alt="app1" width="24%"/>
+  <img src="./static/img/app2.jpg" alt="app2" width="24%"/>
+  <img src="./static/img/app3.jpg" alt="app3" width="24%"/>
+  <img src="./static/img/app4.jpg" alt="app4" width="24%"/>
+</p>
+<p align="center"><em>Tổng quan giao diện ứng dụng CityResQ360</em></p>
+
 ## 👥 Đối tượng hướng đến
 
 ![DoiTuong](./static/img/doituong.png)
@@ -378,34 +402,35 @@ git push -u origin feat/<new-feature>
 - Chọn branch của bạn để merge
 - Điền thông tin mô tả chi tiết
 
-Xem
-
-### 📝 Issues
-
-- Báo cáo lỗi và đề xuất tính năng mới tại [GitHub Issues](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/issues)
-
-- Xem thêm hướng dẫn đóng góp tại [CONTRIBUTING.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md)
-
 ---
 
 ## ⚖️ Quy Tắc Ứng Xử
 
 Dự án này tuân theo bộ quy tắc ứng xử cho cộng đồng. Xem file [CODE_OF_CONDUCT.md](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/feat/document/CODE_OF_CONDUCT.md) để biết thêm chi tiết về các quy tắc và hành vi được chấp nhận.
 
-## 👥 Người Hướng Dẫn
+## � Cộng đồng & Hỗ trợ
 
-| 👨‍🏫 Vai Trò | 📧 Thông Tin          |
-| ---------- | --------------------- |
-| Giảng Viên | Nguyễn Quốc Long      |
-| Email      | quoclongdng@gmail.com |
+### Kênh giao tiếp
 
-## 📞 Liên hệ Team DTU-DZ
+- **💬 GitHub Discussions**: [Thảo luận & Hỏi đáp](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/discussions)
+- **🐛 GitHub Issues**: [Báo lỗi & Đề xuất tính năng](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/issues)
+- **📖 Documentation**: [Tài liệu chi tiết](https://nguyenthai11103.github.io/DTU-CityResQ360-documents/)
+- **✍️ CONTRIBUTING**: [Hướng dẫn đóng góp](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/blob/master/CONTRIBUITING.md)
+
+### Liên hệ Team DTU-DZ
 
 Nếu cần trao đổi gì thêm, vui lòng liên hệ:
 
 - **Lê Thanh Trường**: thanhtruong23111999@gmail.com
 - **Nguyễn Văn Nhân**: vannhan130504@gmail.com
 - **Nguyễn Ngọc Duy Thái**: kkdn011@gmail.com
+
+### Người Hướng Dẫn
+
+| 👨‍🏫 Vai Trò | 📧 Thông Tin          |
+| ---------- | --------------------- |
+| Giảng Viên | Nguyễn Quốc Long      |
+| Email      | quoclongdng@gmail.com |
 
 ---
 
@@ -421,8 +446,8 @@ Dự án này được phân phối dưới [GNU General Public License v3.0](ht
 
 <div align="center">
 
-| <img src="./static/img/qrios.png" alt="iOS QR Code" width="150"/><br/>![iOS App](https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white) | <img src="https://png.pngtree.com/png-clipart/20230102/original/pngtree-coming-soon-banner-design-png-image_8856817.png" alt="Android QR Code" width="150"/><br/>![Android App](https://img.shields.io/badge/Soon-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white) |
-| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| <img src="./static/img/qrios.png" alt="iOS QR Code" width="150"/><br/>![iOS App](https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white) | <img src="./static/img/qrapk.png" alt="Android QR Code" width="150"/><br/>![Android App](https://img.shields.io/badge/Download-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white) |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 
 </div>
 
