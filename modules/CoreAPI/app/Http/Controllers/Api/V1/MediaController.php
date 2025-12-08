@@ -157,7 +157,7 @@ class MediaController extends BaseController
 
         $extension = $file->getClientOriginalExtension();
         $filename = Str::uuid() . '.' . $extension;
-        $path = 'media/' . $type . 's/' . date('Y/m');
+        $path = date('Y/m/d'); // Match MediaService path structure: YYYY/MM/DD
 
         try {
             // Use S3/MinIO for fallback storage
