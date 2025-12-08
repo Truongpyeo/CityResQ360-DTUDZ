@@ -533,13 +533,14 @@ async def analyze_for_report(
                     "timestamp": analysis["timestamp"]
                 },
                 "analyzed_by": {
-                    "user_id": user.get('user_id'),
-                    "auth_type": user.get('auth_type')
+                    "user_id": user.get('user_id') if user else None,
+                    "auth_type": user.get('auth_type') if user else "internal"
                 }
             }
         }
         
-        logger.info(f"Report analysis by user {user.get('user_id')}: {analysis['label']} ({analysis['confidence']})")
+        user_id = user.get('user_id') if user else 'internal'
+        logger.info(f"Report analysis by user {user_id}: {analysis['label']} ({analysis['confidence']})")")
         
         return report_data
         
