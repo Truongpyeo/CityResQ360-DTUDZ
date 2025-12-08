@@ -52,6 +52,7 @@
 	<key>NSLocationAlwaysAndWhenInUseUsageDescription</key>
 	<string>App uses your location for features that work in the background and when the app is open.</string>
 	<key>NSLocationWhenInUseUsageDescription</key>
+	<string>CityResQ360  cần truy cập vị trí để hoạt động</string>
 	<string>CityResQ360 cần truy cập vị trí để hoạt động ứng dụng</string>
 	<key>NSPhotoLibraryAddUsageDescription</key>
 	<string>App needs photo library access to save images</string>
