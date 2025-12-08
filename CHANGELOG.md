@@ -4,6 +4,7 @@
 ### Bug Fixes
 
 * **deloy:** Fix deloy.sh ([9ac7d6a](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/9ac7d6aed34b2e395e1e43f2969f32e796fea650))
+* **deloy:** sửa deloy.sh ([581c63f](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/581c63f1fe1a63e5c1bd9beb4b26ccc1633a64c6))
 * **deloy:** sửa deloy.sh để không Conflict ([8fe3e11](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/8fe3e1123a86f528fc88fbdb9b26121e303c16db))
 * **deploy:** sửa lỗi composer install khi fresh deployment ([1fd32bc](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/1fd32bc98ed5242d950954f68e19214be0fed604))
 * **docker:** Fix docker file ([b5906d8](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b5906d80bdc6d1bd8d5e4b1967b15185e94d7378))
