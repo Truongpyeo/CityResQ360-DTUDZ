@@ -92,15 +92,19 @@ Dự án tập trung vào việc xây dựng một nền tảng toàn diện, k�
 
 Hệ thống được thiết kế theo kiến trúc Microservices hiện đại, đảm bảo khả năng mở rộng và xử lý dữ liệu lớn:
 
-| Thành phần         | Công nghệ sử dụng                                                                      |
-| :----------------- | :------------------------------------------------------------------------------------- |
-| **Mobile App**     | `React Native` (IOS & Android)                                                         |
-| **Web**            | `VueJS`                                                                                |
-| **Backend Core**   | `Laravel` (PHP), `Redis` (Cache) ,`Laravel Sanctum` (API Auth)                         |
-| **AI Services**    | `FastAPI` (Python) cho NLP & Computer Vision                                           |
-| **Message Broker** | `RabbitMQ`, `MQTT` (EMQX/Mosquitto)                                                    |
-| **Realtime**       | `Reverb` (WebSocket)                                                                   |
-| **Database**       | `PostgreSQL` + `PostGIS` (GeoData), `MinIO` (Storage), `OpenSearch`,`MongoDB`, `MySQL` |
+| Thành phần             | Công nghệ sử dụng                                                  |
+| :--------------------- | :----------------------------------------------------------------- |
+| **Mobile App**         | `React Native` (iOS & Android)                                     |
+| **Web Dashboard**      | `ReactJS` (Quản lý cho cơ quan chức năng)                          |
+| **API Gateway**        | `Nginx` (Load Balancer & Reverse Proxy)                            |
+| **Core API**           | `Laravel 12` (PHP), `Laravel Sanctum` (Auth), `Reverb` (WebSocket) |
+| **Microservices**      | `Node.js`, `Python FastAPI`, `Go`                                  |
+| **AI/ML Services**     | `Python` (Computer Vision, NLP, Flood Prediction, Analytics)       |
+| **Message Queue**      | `RabbitMQ` (Event-driven), `MQTT` (IoT Communication)              |
+| **Cache & Session**    | `Redis`                                                            |
+| **Databases**          | `PostgreSQL` + `PostGIS`, `MySQL`, `MongoDB`, `OpenSearch`         |
+| **Storage**            | `MinIO` (Object Storage - S3 Compatible)                           |
+| **Container Platform** | `Docker`, `Docker Compose`                                         |
 
 ---
 
@@ -108,7 +112,14 @@ Hệ thống được thiết kế theo kiến trúc Microservices hiện đại
 
 Xem chi tiết các service của CityResQ360 tại đây [Service docs](https://api.cityresq360.io.vn/).
 
-Tài khoản demo hoặc có thể đăng kí
+Tài khoản demo dành cho nhà phát triển hoặc có thể đăng kí [Developer modules](https://api.cityresq360.io.vn/login).
+
+```
+username: nguyenvana@gmail.com
+password: 123456
+```
+
+Tài khoản demo admin web [Admin Login](https://api.cityresq360.io.vn/admin/login).
 
 ```
 username: admin@master.com
@@ -181,8 +192,6 @@ Dự án không chỉ dừng lại ở việc cải thiện tốc độ phản �
 
 ---
 
----
-
 ## 🗂️ Cấu trúc dự án
 
 ```
@@ -237,6 +246,7 @@ CityResQ360-DTUDZ/
 #### **Cách 1: Dùng script tự động (Khuyến nghị)**
 
 **Linux/macOS:**
+
 ```bash
 # 1. Clone repository
 git clone https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ.git
@@ -259,7 +269,8 @@ chmod +x scripts/local/run.sh
 
 **Windows:**
 
-*Cách 1 - Git Bash (Khuyến nghị):*
+_Cách 1 - Git Bash (Khuyến nghị):_
+
 ```bash
 # 1. Clone repository
 git clone https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ.git
@@ -275,7 +286,8 @@ chmod +x scripts/local/run.sh
 ./scripts/local/run.sh
 ```
 
-*Cách 2 - PowerShell/CMD:*
+_Cách 2 - PowerShell/CMD:_
+
 ```powershell
 # 1. Clone repository
 git clone https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ.git
@@ -314,15 +326,6 @@ docker exec -it cityresq-coreapi php artisan migrate --seed
 docker exec -it cityresq-coreapi php artisan key:generate
 docker exec -it cityresq-coreapi php artisan config:cache
 ```
-
-**Truy cập**:
-
-- 🌐 **CoreAPI**: http://localhost:8000
-- 👨‍💼 **Admin Panel**: http://localhost:8000/admin
-- 🔌 **WebSocket (Reverb)**: ws://localhost:6001/app
-- 📦 **MinIO Console**: http://localhost:9001 (minioadmin/minioadmin)
-- 🐰 **RabbitMQ**: http://localhost:15672 (cityresq/cityresq_password)
-- 🔍 **OpenSearch Dashboards**: http://localhost:5601
 
 > 📖 **Hướng dẫn chi tiết**: [Setup.md](Setup.md) | **Build không dùng Docker**: [docs/BUILD_WITHOUT_DOCKER.md](docs/BUILD_WITHOUT_DOCKER.md)
 
@@ -417,16 +420,10 @@ Dự án này được phân phối dưới [GNU General Public License v3.0](ht
 ## 📱 CityResQ360 Application
 
 <div align="center">
-  <div style="display: inline-block; text-align: center; margin: 0 20px;">
-    <img src="./static/img/qrios.png" alt="iOS QR Code" width="150"/>
-    <br/>
-    <img src="https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white" alt="iOS App"/>
-  </div>
-  <div style="display: inline-block; text-align: center; margin: 0 20px;">
-    <img src="./static/img/qrios.png" alt="Android QR Code" width="150"/>
-    <br/>
-    <img src="https://img.shields.io/badge/Download-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white" alt="Android App"/>
-  </div>
+
+| <img src="./static/img/qrios.png" alt="iOS QR Code" width="150"/><br/>![iOS App](https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white) | <img src="https://png.pngtree.com/png-clipart/20230102/original/pngtree-coming-soon-banner-design-png-image_8856817.png" alt="Android QR Code" width="150"/><br/>![Android App](https://img.shields.io/badge/Soon-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white) |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+
 </div>
 
 ---
