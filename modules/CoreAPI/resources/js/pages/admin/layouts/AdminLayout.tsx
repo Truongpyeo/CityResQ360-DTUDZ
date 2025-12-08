@@ -43,9 +43,9 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
     // Initialize Pusher
     const pusher = new Pusher(import.meta.env.VITE_REVERB_APP_KEY || 'lwf6joghdvbowg9hb7p4', {
       wsHost: window.location.hostname,
-      wsPort: 8080,
-      wssPort: 8080,
-      forceTLS: false,
+      wsPort: 443,
+      wssPort: 443,
+      forceTLS: true,
       enabledTransports: ['ws', 'wss'],
       disableStats: true,
       cluster: 'mt1',
@@ -182,8 +182,8 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
                         <Link
                           href={item.href}
                           className={`group flex gap-x-3 rounded-md p-2 text-sm font-semibold leading-6 ${isActive
-                              ? 'bg-blue-50 text-blue-600'
-                              : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
+                            ? 'bg-blue-50 text-blue-600'
+                            : 'text-gray-700 hover:bg-gray-50 hover:text-blue-600'
                             }`}
                         >
                           <item.icon className="h-6 w-6 shrink-0" />
@@ -267,7 +267,7 @@ export default function AdminLayout({ children }: AdminLayoutProps) {
               {/* WebSocket status & Notification indicator */}
               <div className="flex items-center gap-x-2">
                 <div className={`h-2 w-2 rounded-full ${wsConnected ? 'bg-green-500' : 'bg-red-500'}`}
-                     title={wsConnected ? 'Connected' : 'Disconnected'} />
+                  title={wsConnected ? 'Connected' : 'Disconnected'} />
                 <Link href="/admin/reports" className="relative">
                   <Bell className="h-5 w-5 text-gray-600 hover:text-gray-900" />
                   {notificationCount > 0 && (
