@@ -377,6 +377,7 @@ class MediaController extends BaseController
 
     /**
      * Convert relative media URL to full URL
+     * Handles both MinIO internal URLs and relative paths
      * @param string|null $path
      * @return string|null
      */
@@ -386,15 +387,40 @@ class MediaController extends BaseController
             return null;
         }
 
-        // If already a full URL, return as-is
+        Log::debug('getFullMediaUrl called', ['input' => $path]);
+
+        // If already a full URL, check if it's internal service URL
         if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            $publicUrl = config('services.media_service.url', env('MEDIA_SERVICE_URL', 'https://media.cityresq360.io.vn'));
+            $publicUrl = rtrim($publicUrl, '/');
+
+            // Check for MediaService internal URL pattern
+            // Example: http://media-service:8004/api/v1/storage/... → https://media.cityresq360.io.vn/storage/...
+            if (preg_match('#https?://media-service:\d+/api/v\d+/(.+)$#', $path, $matches)) {
+                $converted = $publicUrl . '/' . $matches[1];
+                Log::debug('MediaService URL converted', ['from' => $path, 'to' => $converted]);
+                return $converted;
+            }
+
+            // Check for MinIO internal URL pattern
+            // Example: http://minio:9000/cityresq-media/storage/... → https://media.cityresq360.io.vn/storage/...
+            $minioInternal = config('filesystems.disks.s3.endpoint', env('AWS_ENDPOINT', 'http://minio:9000'));
+            if (str_starts_with($path, $minioInternal)) {
+                // Extract path after bucket name
+                $pattern = '#' . preg_quote($minioInternal, '#') . '/[^/]+/(.+)$#';
+                if (preg_match($pattern, $path, $matches)) {
+                    $converted = $publicUrl . '/' . $matches[1];
+                    Log::debug('MinIO URL converted', ['from' => $path, 'to' => $converted]);
+                    return $converted;
+                }
+            }
+
+            Log::debug('URL returned as-is (not internal)', ['url' => $path]);
             return $path;
         }
 
-        // Get Media Service base URL
+        // Get Media Service base URL for relative paths
         $mediaServiceUrl = config('services.media_service.url', env('MEDIA_SERVICE_URL', 'https://media.cityresq360.io.vn'));
-
-        // Remove trailing slash from base URL
         $mediaServiceUrl = rtrim($mediaServiceUrl, '/');
 
         // Ensure path starts with /
@@ -402,6 +428,8 @@ class MediaController extends BaseController
             $path = '/' . $path;
         }
 
-        return $mediaServiceUrl . $path;
+        $result = $mediaServiceUrl . $path;
+        Log::debug('Relative path converted', ['from' => $path, 'to' => $result]);
+        return $result;
     }
 }

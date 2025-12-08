@@ -489,7 +489,7 @@ async def analyze_base64_image(
 @app.post("/analyze-for-report")
 async def analyze_for_report(
     file: UploadFile = File(...),
-    user: Dict = Depends(authenticate)
+    user: Optional[Dict] = Depends(optional_authenticate)  # Made optional - called from CoreAPI (already authenticated)
 ):
     """
     Analyze image and return CoreAPI Report format - **Requires authentication**
