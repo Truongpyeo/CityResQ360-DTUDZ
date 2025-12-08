@@ -36,7 +36,12 @@ class NotificationService
         try {
             $credentialsPath = config('firebase.credentials');
 
-            if (file_exists($credentialsPath)) {
+            // Ensure absolute path - handle both relative and absolute paths
+            if ($credentialsPath && !str_starts_with($credentialsPath, '/')) {
+                $credentialsPath = base_path($credentialsPath);
+            }
+
+            if ($credentialsPath && file_exists($credentialsPath)) {
                 $factory = (new Factory)->withServiceAccount($credentialsPath);
                 $this->messaging = $factory->createMessaging();
             } else {
