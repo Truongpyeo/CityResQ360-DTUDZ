@@ -16,14 +16,13 @@
 
 from fastapi import FastAPI, File, UploadFile, HTTPException, Depends
 from fastapi.middleware.cors import CORSMiddleware
-import torch
-from transformers import pipeline, AutoImageProcessor, AutoModelForImageClassification
+import google.generativeai as genai
 from PIL import Image
 import io
 import base64
-import numpy as np
 import logging
 import time
+import json
 from typing import Dict, List, Optional
 from datetime import datetime
 
@@ -49,9 +48,12 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Global model variables
-image_classifier = None
-object_detector = None
+# Configure Gemini API
+GEMINI_API_KEY = "AIzaSyAedMa0wivz5bhjex_I5nfjDPF0dbh_n68"
+genai.configure(api_key=GEMINI_API_KEY)
+
+# Global Gemini model
+gemini_model = None
 
 # Enhanced Vietnamese labels mapping
 INCIDENT_LABELS = {
@@ -114,53 +116,139 @@ INCIDENT_LABELS = {
 
 @app.on_event("startup")
 async def load_models():
-    """Load AI models on startup"""
-    global image_classifier, object_detector
+    """Initialize Gemini Vision API"""
+    global gemini_model
     
     try:
-        logger.info("Loading AI models...")
+        logger.info("🚀 Initializing Gemini Vision API...")
         
-        # Image Classification Model (Google ViT)
-        logger.info("Loading image classifier...")
-        image_classifier = pipeline(
-            "image-classification",
-            model="google/vit-base-patch16-224",
-            device=0 if torch.cuda.is_available() else -1
-        )
+        # Use Gemini 3 Pro Image Preview - Latest and most capable
+        gemini_model = genai.GenerativeModel('gemini-3-pro-image-preview')
         
-        # Object Detection Model (Facebook DETR)
-        logger.info("Loading object detector...")
-        object_detector = pipeline(
-            "object-detection",
-            model="facebook/detr-resnet-50",
-            device=0 if torch.cuda.is_available() else -1
-        )
-        
-        logger.info("✅ Models loaded successfully")
-        logger.info(f"Device: {'CUDA' if torch.cuda.is_available() else 'CPU'}")
+        logger.info("✅ Gemini 3 Pro Image Preview initialized successfully")
+        logger.info("🌟 Using Google's NEWEST and most advanced vision model")
+        logger.info("💰 Cost-effective with generous free tier")
         
     except Exception as e:
-        logger.error(f"❌ Error loading models: {str(e)}")
+        logger.error(f"❌ Error loading Gemini: {str(e)}")
         raise
+
 
 
 def analyze_image_content(image: Image.Image) -> Dict:
-    """Analyze image and detect incident type"""
+    """Analyze image using Gemini Vision API"""
     try:
-        # Run classification
-        classification_results = image_classifier(image, top_k=5)
+        # Ensure RGB mode
+        if image.mode != "RGB":
+            logger.info(f"Converting image from {image.mode} to RGB")
+            image = image.convert("RGB")
         
-        # Run object detection
-        detection_results = object_detector(image)
+        # Resize if too large (Gemini accepts up to 4MB)
+        max_size = 1024
+        if max(image.size) > max_size:
+            logger.info(f"Resizing image from {image.size}")
+            image.thumbnail((max_size, max_size), Image.Resampling.LANCZOS)
+            logger.info(f"Resized to {image.size}")
         
-        # Classify incident based on combined results
-        incident_result = classify_incident(classification_results, detection_results)
+        logger.info(f"📸 Analyzing with Gemini Vision: size={image.size}, mode={image.mode}")
         
-        return incident_result
+        # Vietnamese prompt for incident classification
+        prompt = """Phân tích ảnh này và xác định loại sự cố đô thị (urban incident). 
+
+Chọn MỘT trong các loại sau:
+1. **pothole** (ổ gà) - đường hỏng, ổ gà, vết nứt đường
+2. **flooding** (ngập lụt) - nước ngập, lũ lụt, đường ngập nước
+3. **traffic_light** (đèn giao thông hỏng) - đèn tín hiệu hỏng, đèn giao thông không hoạt động
+4. **waste** (rác thải) - rác bẩn, rác thải tràn lan, bãi rác
+5. **traffic_jam** (kẹt xe) - tắc đường, nhiều xe, giao thông ùn tắc
+6. **other** (khác) - các sự cố khác hoặc không xác định rõ
+
+Trả về ĐÚNG định dạng JSON sau (không thêm markdown, chỉ pure JSON):
+{
+  "label": "tên_loại_sự_cố",
+  "confidence": 0.85,
+  "description": "Mô tả ngắn gọn về sự cố (tiếng Việt)",
+  "detected_objects": ["danh sách các đối tượng nhìn thấy"]
+}
+
+CHÚ Ý: 
+- confidence từ 0.0 đến 1.0
+- Nếu không chắc chắn, dùng "other" và confidence thấp hơn
+- description phải bằng tiếng Việt"""
+
+        # Call Gemini API
+        response = gemini_model.generate_content([prompt, image])
+        
+        # Parse response
+        response_text = response.text.strip()
+        
+        # Remove markdown code blocks if present
+        if response_text.startswith("```"):
+            response_text = response_text.split("```")[1]
+            if response_text.startswith("json"):
+                response_text = response_text[4:]
+            response_text = response_text.strip()
+        
+        logger.info(f"📝 Gemini response: {response_text[:200]}...")
+        
+        # Parse JSON
+        try:
+            gemini_result = json.loads(response_text)
+        except json.JSONDecodeError:
+            logger.warning("Failed to parse Gemini JSON, using fallback")
+            gemini_result = {
+                "label": "other",
+                "confidence": 0.60,
+                "description": "Không thể phân tích chính xác",
+                "detected_objects": []
+            }
+        
+        # Map to our format
+        label = gemini_result.get("label", "other")
+        confidence = float(gemini_result.get("confidence", 0.70))
+        description = gemini_result.get("description", "")
+        detected_objects = gemini_result.get("detected_objects", [])
+        
+        # Get incident info
+        info = INCIDENT_LABELS.get(label, INCIDENT_LABELS["other"])
+        
+        result = {
+            "label": label,
+            "label_vi": info["vi"],
+            "label_en": info["en"],
+            "confidence": confidence,
+            "severity": info["severity"],
+            "priority": info["priority"],
+            "category_id": info["category_id"],
+            "description": description or f'{info["vi"]} được phát hiện với độ tin cậy {int(confidence*100)}%',
+            "detected_objects": detected_objects,
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "ai_engine": "gemini-3-pro-image-preview"
+        }
+        
+        logger.info(f"✅ Gemini analysis: {label} (confidence: {confidence:.2f})")
+        
+        return result
         
     except Exception as e:
-        logger.error(f"Error analyzing image: {str(e)}")
-        raise
+        logger.error(f"❌ Gemini analysis error: {str(e)}")
+        logger.error(f"Traceback: ", exc_info=True)
+        
+        # Fallback
+        return {
+            "label": "other",
+            "label_vi": "Sự cố khác",
+            "label_en": "Other",
+            "confidence": 0.50,
+            "severity": "medium",
+            "priority": "medium",
+            "category_id": 6,
+            "description": "Lỗi khi phân tích AI",
+            "detected_objects": [],
+            "timestamp": datetime.utcnow().isoformat() + "Z",
+            "ai_engine": "fallback"
+        }
+
 
 
 def classify_incident(classification_results: List, detection_results: List) -> Dict:
