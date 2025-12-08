@@ -84,7 +84,7 @@ RUN mkdir -p /etc/supervisor.d && \
     echo 'stderr_logfile_maxbytes=0' >> /etc/supervisor.d/supervisord.ini && \
     echo '' >> /etc/supervisor.d/supervisord.ini && \
     echo '[program:reverb]' >> /etc/supervisor.d/supervisord.ini && \
-    echo 'command=php /var/www/html/artisan reverb:start --host=0.0.0.0 --port=8080' >> /etc/supervisor.d/supervisord.ini && \
+    echo 'command=php /var/www/html/artisan reverb:start --host=0.0.0.0 --port=6001' >> /etc/supervisor.d/supervisord.ini && \
     echo 'directory=/var/www/html' >> /etc/supervisor.d/supervisord.ini && \
     echo 'user=www-data' >> /etc/supervisor.d/supervisord.ini && \
     echo 'autostart=true' >> /etc/supervisor.d/supervisord.ini && \
