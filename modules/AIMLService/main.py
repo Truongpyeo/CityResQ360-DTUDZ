@@ -48,9 +48,13 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-# Configure Gemini API
-GEMINI_API_KEY = "AIzaSyAedMa0wivz5bhjex_I5nfjDPF0dbh_n68"
-genai.configure(api_key=GEMINI_API_KEY)
+# Configure Gemini API - use environment variable for security
+import os
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY", "")
+if not GEMINI_API_KEY:
+    logger.warning("⚠️ GEMINI_API_KEY environment variable not set! AI analysis will fail.")
+else:
+    genai.configure(api_key=GEMINI_API_KEY)
 
 # Global Gemini model
 gemini_model = None
