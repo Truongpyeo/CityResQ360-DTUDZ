@@ -540,7 +540,7 @@ async def analyze_for_report(
         }
         
         user_id = user.get('user_id') if user else 'internal'
-        logger.info(f"Report analysis by user {user_id}: {analysis['label']} ({analysis['confidence']})")")
+        logger.info(f"Report analysis by user {user_id}: {analysis['label']} ({analysis['confidence']})")
         
         return report_data
         
