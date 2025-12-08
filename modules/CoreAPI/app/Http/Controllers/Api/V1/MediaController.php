@@ -395,9 +395,11 @@ class MediaController extends BaseController
             $publicUrl = rtrim($publicUrl, '/');
 
             // Check for MediaService internal URL pattern
-            // Example: http://media-service:8004/api/v1/storage/... → https://media.cityresq360.io.vn/storage/...
-            if (preg_match('#https?://media-service:\d+/api/v\d+/(.+)$#', $path, $matches)) {
-                $converted = $publicUrl . '/' . $matches[1];
+            // Example: http://media-service:8004/api/v1/storage/media/images/2025/12/xxx.jpg 
+            //       → https://media.cityresq360.io.vn/cityresq-media/2025/12/xxx.jpg
+            if (preg_match('#https?://media-service:\d+/api/v\d+/storage/media/images/(\d{4})/(\d{2})/([^/]+)$#', $path, $matches)) {
+                // Convert to MinIO bucket path: /cityresq-media/YYYY/MM/DD/filename
+                $converted = $publicUrl . '/cityresq-media/' . $matches[1] . '/' . $matches[2] . '/' . date('d') . '/' . $matches[3];
                 Log::debug('MediaService URL converted', ['from' => $path, 'to' => $converted]);
                 return $converted;
             }
