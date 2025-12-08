@@ -418,6 +418,32 @@ npm install -g react-native-cli
 ```bash
 cd modules/AppMobile
 
+# Copy file cấu hình
+cp CityResQ360App/src/config/env.example.ts env.ts
+```
+
+Cập nhật file `env.ts`:
+
+```typescript
+// API Configuration
+API_URL: 'https://api.example.com',
+
+// Reverb WebSocket Configuration
+REVERB_APP_ID: 'YOUR_REVERB_APP_ID',
+REVERB_APP_KEY: 'YOUR_REVERB_APP_KEY',
+REVERB_APP_SECRET: 'YOUR_REVERB_APP_SECRET',
+REVERB_HOST: 'YOUR_REVERB_HOST',
+REVERB_PORT: 'YOUR_REVERB_PORT',  // Port HTTPS thay vì 6001
+REVERB_SCHEME: 'YOUR_REVERB_SCHEME',
+
+// MapTiler Configuration (Open Source Map Provider)
+MAPTILER_API_KEY: 'YOUR_MAPTILER_API_KEY'
+```
+
+Sau đó cài đặt dependencies:
+
+```bash
+
 # Cài đặt dependencies
 npm install
 # hoặc
