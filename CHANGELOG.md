@@ -14,6 +14,7 @@
 * **reverb:** cấu hình lại WebSocket để tránh xung đột port ([c252645](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/c25264574f8816f05451523cdbbd3a0840028c56))
 * **script:** fix docker ([d478085](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/d478085e47ea823c4d51a48c9bb0d46bfff568c3))
 * **script:** fix script ([340b42d](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/340b42d4b6d0258b6db11c501953720ab1325a62))
+* **websocket:** update Reverb ports to 443 for SSL production ([61d5f13](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/61d5f13a7d0eb07a2cedb94a4b04a38e80ea9430))
 
 
 ### Features
