@@ -356,11 +356,11 @@ class AuthController extends BaseController
     {
         $user = $request->user();
         $user->update([
-            'fcm_token' => $request->fcm_token,
+            'push_token' => $request->fcm_token,  // DB column is push_token
         ]);
 
         return $this->success([
-            'fcm_token' => $user->fcm_token,
+            'push_token' => $user->push_token,
         ], 'Cập nhật FCM token thành công');
     }
 }
