@@ -117,8 +117,8 @@ class MediaController extends BaseController
                 $response = [
                     'id' => $media->id,
                     'media_service_id' => $mediaServiceResult['id'] ?? null,
-                    'url' => $mediaServiceResult['url'] ?? $mediaServiceResult['duong_dan'] ?? null,
-                    'thumbnail_url' => $mediaServiceResult['thumbnail_url'] ?? $mediaServiceResult['duong_dan_thumbnail'] ?? null,
+                    'url' => $this->getFullMediaUrl($mediaServiceResult['url'] ?? $mediaServiceResult['duong_dan'] ?? null),
+                    'thumbnail_url' => $this->getFullMediaUrl($mediaServiceResult['thumbnail_url'] ?? $mediaServiceResult['duong_dan_thumbnail'] ?? null),
                     'type' => $type,
                     'kich_thuoc' => $media->kich_thuoc,
                     'dinh_dang' => $media->dinh_dang,
@@ -214,16 +214,22 @@ class MediaController extends BaseController
                 'mo_ta' => $request->get('mo_ta'),
             ]);
 
-            return $this->created([
+            $response = [
                 'id' => $media->id,
-                'url' => $fullUrl,
-                'thumbnail_url' => $thumbnailUrl,
+                'url' => $this->getFullMediaUrl($fullUrl),
+                'thumbnail_url' => $this->getFullMediaUrl($thumbnailUrl),
                 'type' => $type,
                 'kich_thuoc' => $media->kich_thuoc,
                 'dinh_dang' => $media->dinh_dang,
                 'created_at' => $media->created_at,
-            ], 'Upload thành công (S3/MinIO fallback)');
+            ];
 
+            // Add AI analysis to fallback response if available
+            if ($aiAnalysis) {
+                $response['ai_analysis'] = $aiAnalysis;
+            }
+
+            return $this->created($response, 'Upload thành công (S3/MinIO fallback)' . ($aiAnalysis ? ' (đã phân tích AI)' : ''));
         } catch (\Exception $e) {
             Log::error('Local storage upload failed', [
                 'error_message' => $e->getMessage(),
@@ -318,7 +324,6 @@ class MediaController extends BaseController
                 'id' => $id,
                 'deleted' => true,
             ], 'Xóa file thành công');
-
         } catch (\Exception $e) {
             return $this->serverError('Lỗi khi xóa file: ' . $e->getMessage());
         }
@@ -368,5 +373,35 @@ class MediaController extends BaseController
                 'last_page' => $media->lastPage(),
             ],
         ]);
+    }
+
+    /**
+     * Convert relative media URL to full URL
+     * @param string|null $path
+     * @return string|null
+     */
+    private function getFullMediaUrl(?string $path): ?string
+    {
+        if (!$path) {
+            return null;
+        }
+
+        // If already a full URL, return as-is
+        if (str_starts_with($path, 'http://') || str_starts_with($path, 'https://')) {
+            return $path;
+        }
+
+        // Get Media Service base URL
+        $mediaServiceUrl = config('services.media_service.url', env('MEDIA_SERVICE_URL', 'https://media.cityresq360.io.vn'));
+
+        // Remove trailing slash from base URL
+        $mediaServiceUrl = rtrim($mediaServiceUrl, '/');
+
+        // Ensure path starts with /
+        if (!str_starts_with($path, '/')) {
+            $path = '/' . $path;
+        }
+
+        return $mediaServiceUrl . $path;
     }
 }

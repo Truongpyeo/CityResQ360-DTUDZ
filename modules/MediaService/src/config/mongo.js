@@ -18,13 +18,24 @@
 
 const mongoose = require('mongoose');
 
-const connectMongoDB = async () => {
+const connectMongoDB = async function connectMongo() {
     try {
-        const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/media_db');
-        console.log(`✅ MongoDB Connected: ${conn.connection.host}`);
+        // MongoDB is OPTIONAL for MediaService (legacy code)
+        // Core functionality uses MySQL + MinIO only
+        if (!process.env.MONGODB_URI) {
+            console.log('⚠️  MongoDB URI not configured - skipping MongoDB connection');
+            return null;
+        }
+
+        const conn = await mongoose.connect(process.env.MONGODB_URI || 'mongodb://localhost:27017/media_db', {
+            serverSelectionTimeoutMS: 5000, // Fail fast if MongoDB unavailable
+        });
+        console.log(`✅ MongoDB connected: ${conn.connection.host}`);
+        return conn;
     } catch (error) {
-        console.error(`❌ MongoDB Connection Error: ${error.message}`);
-        process.exit(1);
+        console.warn('⚠️  MongoDB connection failed (non-critical):', error.message);
+        console.log('ℹ️  MediaService will continue with MySQL + MinIO only');
+        return null; // Return null instead of crashing
     }
 };
 
