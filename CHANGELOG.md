@@ -3,6 +3,7 @@
 
 ### Bug Fixes
 
+* **aiml:** externalize Gemini API key to environment variable ([4b54fea](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/4b54fea65cddbb9e822be3637c93cb7120ff8fa0))
 * **aiml:** make auth optional for analyze-for-report endpoint ([aaf45b6](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/aaf45b6b8e9ecc46106357dd31046e7c458299d7))
 * **coreapi:** fix Reverb port and media URL generation ([b231514](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/b23151480579493fee850a3ba7f3c2fb1e8dbb58))
 * **deloy:** Fix deloy.sh ([9ac7d6a](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/commit/9ac7d6aed34b2e395e1e43f2969f32e796fea650))
