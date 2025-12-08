@@ -8,7 +8,7 @@ echo "===================================="
 echo ""
 
 # Configuration
-API_URL="http://localhost:8000/api/v1"
+API_URL="https://api.cityresq360.io.vn/api/v1"
 USER_EMAIL="nguyenvanan@gmail.com"
 USER_PASSWORD="password123"
 

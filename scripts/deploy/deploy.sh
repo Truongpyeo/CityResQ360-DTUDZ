@@ -177,14 +177,14 @@ server {
     
     # WebSocket for Laravel Reverb
     location /app {
-        proxy_pass http://localhost:8080;
+        proxy_pass http://127.0.0.1:6001;
         proxy_http_version 1.1;
         proxy_set_header Upgrade \$http_upgrade;
-        proxy_set_header Connection "upgrade";
+        proxy_set_header Connection "Upgrade";
         proxy_set_header Host \$host;
         proxy_set_header X-Real-IP \$remote_addr;
         proxy_set_header X-Forwarded-For \$proxy_add_x_forwarded_for;
-        proxy_set_header X-Forwarded-Proto \$scheme;
+        proxy_set_header X-Forwarded-Proto https;
         proxy_read_timeout 86400;
     }
 }
@@ -472,13 +472,15 @@ BROADCAST_CONNECTION=reverb
 REVERB_APP_ID=${REVERB_APP_ID}
 REVERB_APP_KEY=${REVERB_APP_KEY}
 REVERB_APP_SECRET=${REVERB_APP_SECRET}
-REVERB_HOST=$([ "$USE_DOMAIN" = true ] && echo "api.$DOMAIN" || echo "localhost")
-REVERB_PORT=8080
-REVERB_SCHEME=$([ "$USE_DOMAIN" = true ] && echo "https" || echo "http")
+REVERB_HOST=127.0.0.1
+REVERB_PORT=6001
+REVERB_SCHEME=http
+REVERB_SERVER_HOST=0.0.0.0
+REVERB_SERVER_PORT=6001
 
 VITE_REVERB_APP_KEY=\${REVERB_APP_KEY}
 VITE_REVERB_HOST=$([ "$USE_DOMAIN" = true ] && echo "api.$DOMAIN" || echo "localhost")
-VITE_REVERB_PORT=$([ "$USE_DOMAIN" = true ] && echo "443" || echo "8080")
+VITE_REVERB_PORT=$([ "$USE_DOMAIN" = true ] && echo "443" || echo "6001")
 VITE_REVERB_SCHEME=$([ "$USE_DOMAIN" = true ] && echo "https" || echo "http")
 
 # ============================================
@@ -677,7 +679,7 @@ else
     echo -e "  CoreAPI:       $API_URL"
     echo -e "  Admin Panel:   $API_URL/admin"
     echo -e "  MediaService:  $MEDIA_URL"
-    echo -e "  WebSocket:     ws://$SERVER_IP:8080/app (Reverb)"
+    echo -e "  WebSocket:     ws://$SERVER_IP:6001/app (Reverb)"
     echo -e "  RabbitMQ:      http://$SERVER_IP:15672"
     echo -e "  MinIO:         http://$SERVER_IP:9001"
 fi
@@ -698,10 +700,10 @@ echo -e "${YELLOW}⚠️  Next Steps:${NC}"
 echo -e "  1. Save passwords from: $ENV_FILE"
 
 if [ "$USE_DOMAIN" = false ]; then
-    echo -e "  2. Configure firewall: ufw allow 8000,8004,8080,9001,15672/tcp"
-    echo -e "  3. Note: Port 8080 is for WebSocket (Reverb) - required for realtime notifications"
+    echo -e "  2. Configure firewall: ufw allow 8000,8004,6001,9001,15672/tcp"
+    echo -e "  3. Note: Port 6001 is for WebSocket (Reverb) - required for realtime notifications"
 else
-    echo -e "  2. WebSocket runs through Nginx SSL proxy (no need to expose port 8080)"
+    echo -e "  2. WebSocket runs through Nginx SSL proxy (no need to expose port 6001)"
 fi
 
 echo ""
