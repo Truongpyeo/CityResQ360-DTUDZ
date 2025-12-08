@@ -634,7 +634,7 @@ fi
 
 # Re-apply MySQL configuration (in case .env was just created)
 MYSQL_PASS=$(grep "^MYSQL_PASSWORD=" "$ENV_FILE" | cut -d'=' -f2)
-docker exec cityresq-coreapi bash -c "cat >> /var/www/html/.env <<EOF
+docker exec cityresq-coreapi sh -c "cat >> /var/www/html/.env <<EOF
 
 # Database Configuration (MySQL for Docker)  
 # Auto-configured by deploy.sh - $(date)
