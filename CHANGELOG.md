@@ -1,4 +1,4 @@
-# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.1.0...v) (2025-12-08)
+# [](https://github.com/MNM-DTU-DZ/CityResQ360-DTUDZ/compare/v2.1.0...v) (2025-12-09)
 
 
 ### Bug Fixes

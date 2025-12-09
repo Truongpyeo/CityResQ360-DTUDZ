@@ -1,8 +1,15 @@
 #!/bin/bash
-
-# 🚀 Git Auto Push Script - Interactive Conventional Commits v2.0
+# ============================================
+# CityResQ360 - Git Auto Push Script
+# ============================================
+# Copyright (C) 2025 DTU-DZ Team
+# Licensed under GPL-3.0-or-later
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ============================================
+# Interactive Conventional Commits v2.0
 # Usage: ./scripts/git-push.sh
 # Supports: Scopes, Breaking Changes, Multi-line messages
+# ============================================
 
 set -e
 

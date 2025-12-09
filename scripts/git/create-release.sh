@@ -1,7 +1,14 @@
 #!/bin/bash
-
-# Create Release Script with Auto-Generated Release Notes
+# ============================================
+# CityResQ360 - Create Release Script
+# ============================================
+# Copyright (C) 2025 DTU-DZ Team
+# Licensed under GPL-3.0-or-later
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ============================================
+# Auto-generates release notes from commits
 # Usage: ./scripts/create-release.sh
+# ============================================
 
 set -e
 
