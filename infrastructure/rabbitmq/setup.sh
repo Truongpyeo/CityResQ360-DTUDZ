@@ -1,7 +1,13 @@
 #!/bin/bash
-
-# RabbitMQ Setup Script for CityResQ360
+# ============================================
+# CityResQ360 - RabbitMQ Setup Script
+# ============================================
+# Copyright (C) 2025 DTU-DZ Team
+# Licensed under GPL-3.0-or-later
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ============================================
 # Creates exchanges and queues for event-driven architecture
+# ============================================
 
 RABBITMQ_HOST=${RABBITMQ_HOST:-localhost}
 RABBITMQ_PORT=${RABBITMQ_PORT:-15672}

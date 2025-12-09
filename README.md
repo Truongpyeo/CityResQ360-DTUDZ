@@ -45,6 +45,30 @@ Dự án tập trung vào việc xây dựng một nền tảng toàn diện, k�
 
 ---
 
+## 📸 Giao diện
+
+### 🖥️ Admin Dashboard
+
+<p align="center">
+  <img src="./static/img/admin1.png" alt="Dashboard" width="100%"/>
+</p>
+<p align="center"><em>Trang Dashboard tổng quan - Hiển thị thông tin phản ảnh, cảnh báo, sự cố</em></p>
+
+<p align="center">
+  <img src="./static/img/admin2.png" alt="admin2" width="70%"/>
+  <img src="./static/img/admin3.png" alt="admin3" width="70%"/>
+</p>
+
+### 📱 Mobile App
+
+<p align="center">
+  <img src="./static/img/app1.jpg" alt="app1" width="24%"/>
+  <img src="./static/img/app2.jpg" alt="app2" width="24%"/>
+  <img src="./static/img/app3.jpg" alt="app3" width="24%"/>
+  <img src="./static/img/app4.jpg" alt="app4" width="24%"/>
+</p>
+<p align="center"><em>Tổng quan giao diện ứng dụng CityResQ360</em></p>
+
 ## 👥 Đối tượng hướng đến
 
 ![DoiTuong](./static/img/doituong.png)
@@ -422,8 +446,8 @@ Dự án này được phân phối dưới [GNU General Public License v3.0](ht
 
 <div align="center">
 
-| <img src="./static/img/qrios.png" alt="iOS QR Code" width="150"/><br/>![iOS App](https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white) | <img src="https://png.pngtree.com/png-clipart/20230102/original/pngtree-coming-soon-banner-design-png-image_8856817.png" alt="Android QR Code" width="150"/><br/>![Android App](https://img.shields.io/badge/Soon-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white) |
-| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
+| <img src="./static/img/qrios.png" alt="iOS QR Code" width="150"/><br/>![iOS App](https://img.shields.io/badge/Download-iOS-000000?style=for-the-badge&logo=apple&logoColor=white) | <img src="./static/img/qrapk.png" alt="Android QR Code" width="150"/><br/>![Android App](https://img.shields.io/badge/Download-APK-3DDC84?style=for-the-badge&logo=android&logoColor=white) |
+| :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: | :-----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------: |
 
 </div>
 

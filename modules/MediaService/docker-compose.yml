@@ -1,4 +1,11 @@
-version: '3.8'
+version: "3.8"
+# ============================================
+# CityResQ360 - MediaService Docker Compose
+# ============================================
+# Copyright (C) 2025 DTU-DZ Team
+# Licensed under GPL-3.0-or-later
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ============================================
 
 services:
   # MongoDB
