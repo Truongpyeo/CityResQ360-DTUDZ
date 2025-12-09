@@ -1,20 +1,28 @@
+# ============================================
+# CityResQ360 - Prometheus Configuration
+# ============================================
+# Copyright (C) 2025 DTU-DZ Team
+# Licensed under GPL-3.0-or-later
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ============================================
+
 global:
   scrape_interval: 15s
   evaluation_interval: 15s
 
 scrape_configs:
-  - job_name: 'prometheus'
+  - job_name: "prometheus"
     static_configs:
-      - targets: ['localhost:9090']
+      - targets: ["localhost:9090"]
 
-  - job_name: 'rabbitmq'
+  - job_name: "rabbitmq"
     static_configs:
-      - targets: ['rabbitmq:15692'] # RabbitMQ Prometheus plugin port
+      - targets: ["rabbitmq:15692"] # RabbitMQ Prometheus plugin port
 
-  - job_name: 'orion-ld'
-    metrics_path: '/metrics'
+  - job_name: "orion-ld"
+    metrics_path: "/metrics"
     static_configs:
-      - targets: ['orion-ld:1026']
+      - targets: ["orion-ld:1026"]
 
   # - job_name: 'coreapi'
   #   metrics_path: '/metrics'

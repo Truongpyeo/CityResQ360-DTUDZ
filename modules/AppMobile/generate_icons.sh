@@ -1,4 +1,11 @@
 #!/bin/bash
+# ============================================
+# CityResQ360 - Icon Generation Script
+# ============================================
+# Copyright (C) 2025 DTU-DZ Team
+# Licensed under GPL-3.0-or-later
+# http://www.gnu.org/licenses/gpl-3.0.html
+# ============================================
 
 # Đường dẫn đến ảnh gốc (thay thế path_to_original_image.png bằng đường dẫn thật)
 ORIGINAL_IMAGE="./src/assets/images/logo.png"
