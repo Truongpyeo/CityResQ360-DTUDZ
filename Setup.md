@@ -547,6 +547,169 @@ cd ..
 
 ---
 
+## 📦 Build Production App
+
+> Hướng dẫn build ứng dụng production để release lên App Store và Google Play
+
+### 🤖 Build Android
+
+**1. Generate Signing Key** (chỉ làm 1 lần):
+
+```bash
+cd modules/AppMobile/android/app
+keytool -genkeypair -v -storetype PKCS12 \
+  -keystore cityresq360-release.keystore \
+  -alias cityresq360-key -keyalg RSA -keysize 2048 -validity 10000
+```
+
+> ⚠️ Lưu file `.keystore` và passwords an toàn!
+
+**2. Cấu hình** `android/gradle.properties`:
+
+```properties
+CITYRESQ_UPLOAD_STORE_FILE=cityresq360-release.keystore
+CITYRESQ_UPLOAD_KEY_ALIAS=cityresq360-key
+CITYRESQ_UPLOAD_STORE_PASSWORD=your_password
+CITYRESQ_UPLOAD_KEY_PASSWORD=your_password
+```
+
+Cập nhật `android/app/build.gradle`:
+
+```gradle
+android {
+    signingConfigs {
+        release {
+            storeFile file(CITYRESQ_UPLOAD_STORE_FILE)
+            storePassword CITYRESQ_UPLOAD_STORE_PASSWORD
+            keyAlias CITYRESQ_UPLOAD_KEY_ALIAS
+            keyPassword CITYRESQ_UPLOAD_KEY_PASSWORD
+        }
+    }
+    buildTypes {
+        release { signingConfig signingConfigs.release; minifyEnabled true }
+    }
+}
+```
+
+**3. Build APK/AAB**:
+
+```bash
+cd modules/AppMobile
+
+# Build APK (testing/direct distribution)
+cd android && ./gradlew assembleRelease && cd ..
+# Output: android/app/build/outputs/apk/release/app-release.apk
+
+# Build AAB (Google Play - khuyến nghị)
+cd android && ./gradlew bundleRelease && cd ..
+
+# Output: android/app/build/outputs/bundle/release/app-release.aab
+```
+
+---
+
+### 🍎 Build iOS IPA
+
+#### Bước 1: Cấu Hình Xcode Project
+
+```bash
+cd modules/AppMobile
+
+# Install CocoaPods dependencies
+cd ios
+pod install
+cd ..
+
+# Open Xcode workspace
+open ios/CityResQ360App.xcworkspace
+```
+
+**Trong Xcode:**
+
+1. Chọn project `CityResQ360App`
+2. **General** tab:
+   - Bundle Identifier: `com.cityresq360.app`
+   - Version: `1.0.0`
+   - Build: `1`
+3. **Signing & Capabilities**:
+   - Team: Chọn Apple Developer Team
+   - Signing Certificate: Chọn certificate
+   - Provisioning Profile: Chọn profile
+
+#### Bước 2: Certificates & Provisioning Profiles
+
+**Tạo App ID** (Apple Developer Portal):
+
+1. Truy cập: https://developer.apple.com/account
+2. **Certificates, IDs & Profiles** → **Identifiers**
+3. **+ New App ID**
+   - Bundle ID: `com.cityresq360.app`
+   - Capabilities: Push Notifications, Maps, Location
+
+**Tạo Distribution Certificate:**
+
+- Keychain Access → Certificate Assistant → Request Certificate
+- Upload CSR lên Apple Developer Portal
+- Download certificate → Double click để install
+
+**Tạo Provisioning Profile:**
+
+- **Profiles** → **+ New Profile** → **App Store**
+- Chọn App ID và Certificate
+- Download và double click để install
+
+#### Bước 3: Build Archive
+
+**Cách 1 - Xcode GUI (Khuyến nghị):**
+
+```bash
+# 1. Product → Scheme → Edit Scheme
+# 2. Run → Build Configuration → Release
+# 3. Product → Archive
+# 4. Organizer → Distribute App → App Store Connect
+```
+
+**Cách 2 - Command Line:**
+
+```bash
+cd modules/AppMobile/ios
+
+# Build archive
+xcodebuild -workspace CityResQ360App.xcworkspace \
+  -scheme CityResQ360App \
+  -configuration Release \
+  -archivePath build/CityResQ360App.xcarchive \
+  archive
+
+# Export IPA
+xcodebuild -exportArchive \
+  -archivePath build/CityResQ360App.xcarchive \
+  -exportPath build \
+  -exportOptionsPlist ExportOptions.plist
+```
+
+---
+
+**Google Play**: https://play.google.com/console → Upload AAB → Fill store listing → Submit
+
+**App Store**: https://appstoreconnect.apple.com → Upload IPA → Fill app info → Submit
+
+---
+
+```bash
+# Android build error
+cd android && ./gradlew clean && ./gradlew assembleRelease --stacktrace
+
+# iOS CocoaPods error
+cd ios && rm -rf Pods Podfile.lock && pod install --repo-update
+
+# Optimize: Enable Hermes, Proguard, APK splitting
+```
+
+> 📖 **Chi tiết đầy đủ**: [docs/MOBILE_BUILD_GUIDE.md](docs/MOBILE_BUILD_GUIDE.md)
+
+---
+
 ## �📚 Tài liệu thêm
 
 - [README.md](README.md) - Tổng quan dự án
@@ -555,7 +718,5 @@ cd ..
 - [BUILD_WITHOUT_DOCKER.md](docs/BUILD_WITHOUT_DOCKER.md) - Cài đặt không dùng Docker
 
 ---
-
-**Chúc bạn cài đặt thành công! 🎉**
 
 © 2025 CityResQ360 – DTU-DZ Team
